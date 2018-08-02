@@ -2,7 +2,6 @@ package eu.rekisoft.voice.konversation
 
 import eu.rekisoft.voice.konversation.parts.Utterance
 import java.io.File
-import java.io.FileInputStream
 import java.util.*
 
 
@@ -11,40 +10,39 @@ class Validator(args: Array<String>) {
     val intents = mutableListOf<Intent>()
 
     init {
-        val t ="cache/RecipeSearchIntent-3fa6c77a.cache"
-        val stream = FileInputStream(File(t))
-        //val stream = Files.newInputStream(Paths.get("C:\\Users\\rene.kilczan\\Programmierung\\konversation-validator\\"+URI.create(t)))
-        var count = 0
-        val buf=ByteArray(1048576000)
-        val start = System.currentTimeMillis()
-        var read = stream.read(buf, 0, buf.size)
-        var total = read
-        val nl = 13.toByte()
-        do {
-            for(i in 0 until read) {
-                if(buf[i] == nl) count++
-            }
-            read = stream.read(buf, 0, buf.size)
-            total+=read
-        } while(read > 0)
-        val end = System.currentTimeMillis()
-        println("Found $count lines in $t in (${end-start}ms) -> ${String.format("%.2f",total/(end-start * 1.0)/1.024/1024)}MB/s")
-
+        //val t = "cache/RecipeSearchIntent-3fa6c77a.cache"
+        //val stream = FileInputStream(File(t))
+        ////val stream = Files.newInputStream(Paths.get("C:\\Users\\rene.kilczan\\Programmierung\\konversation-validator\\"+URI.create(t)))
+        //var count = 0
+        //val buf = ByteArray(1048576000)
+        //val start = System.currentTimeMillis()
+        //var read = stream.read(buf, 0, buf.size)
+        //var total = read
+        //val nl = 13.toByte()
+        //do {
+        //    for (i in 0 until read) {
+        //        if (buf[i] == nl) count++
+        //    }
+        //    read = stream.read(buf, 0, buf.size)
+        //    total += read
+        //} while (read > 0)
+        //val end = System.currentTimeMillis()
+        //println("Found $count lines in $t in (${end - start}ms) -> ${String.format("%.2f", total / (end - start * 1.0) / 1.024 / 1024)}MB/s")
 
 
         var input: String? = null
         var cacheEverything = true // should be not the default value
         var countPermutations = false
         var generatePermutations = false
-        if(args.isEmpty()) {
+        if (args.isEmpty()) {
             println("Missing arguments! Please specify at last the kvs or grammar file you want to process.")
             input = "C:\\Users\\rene.kilczan\\Programmierung\\REWE-Voice\\alexa-docs\\rewe.grammar"
             println("In this debug build will the file \"$input\" be used.")
         } else {
             var argNo = 0
-            while(argNo < args.size) {
+            while (argNo < args.size) {
                 val arg = args[argNo]
-                if(File(arg).exists()) {
+                if (File(arg).exists()) {
                     input = arg
                 } else {
                     when (arg) {
@@ -61,7 +59,7 @@ class Validator(args: Array<String>) {
                 }
                 argNo++
             }
-            if(!File(input.orEmpty()).exists()) {
+            if (!File(input.orEmpty()).exists()) {
                 println("Input file not found!")
                 input = "C:\\Users\\rene.kilczan\\Programmierung\\REWE-Voice\\alexa-docs\\rewe.grammar"
                 println("In this debug build will the file \"$input\" be used.")
@@ -119,7 +117,7 @@ class Validator(args: Array<String>) {
         }
         println("Parsing finished. Found ${intents.size} intents.")
 
-        if(countPermutations) {
+        if (countPermutations) {
             fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)
 
             var total = 0L
@@ -132,7 +130,7 @@ class Validator(args: Array<String>) {
             println("That are in total ${total.formatted()} permutations!")
         }
 
-        if(generatePermutations) {
+        if (generatePermutations) {
             val all = intents.sumBy {
                 val permutations = it.utterances.sumBy { it.permutations.size }
                 println("${it.name} has now $permutations sample utterances")

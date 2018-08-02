@@ -58,5 +58,4 @@ class Streamer(args: Array<String>) {
                 "  }\n" +
                 "}").toByteArray()
     }
-
 }

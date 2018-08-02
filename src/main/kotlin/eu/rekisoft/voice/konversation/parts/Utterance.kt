@@ -13,7 +13,18 @@ class Utterance(val line: String, val name: String) : Part {
     val permutations: SwapingHashedList
         get() = cache ?: generatePermutations()
 
-    private fun generatePermutations(): SwapingHashedList {
+    val permutationCount : Long
+    get() {
+        var total: Long = 1
+        validate().map {
+            it.split("|").also {
+                total *= it.size
+            }
+        }
+        return total
+    }
+
+    private fun validate(): MutableList<String> {
         // Parse the line to make sure that there is no syntax error. Regex would not work for cases like {{Foo}|{Bar}}
         var start = 0
         var counter = 0
@@ -55,6 +66,12 @@ class Utterance(val line: String, val name: String) : Part {
             }
         }
         if (counter != 0) throw ParseException("This line has a syntax error: $line", line.length)
+
+        return slots
+    }
+
+    private fun generatePermutations(): SwapingHashedList {
+        val slots = validate()
 
         var total: Long = 1
         slots.map {

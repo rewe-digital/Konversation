@@ -4,6 +4,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.ByteBuffer
+import java.nio.channels.FileChannel
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import java.util.*
 import javax.naming.OperationNotSupportedException
 import kotlin.collections.HashSet
@@ -18,12 +22,18 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
     private val hashList : HashSet<Int> by lazy { loadHashes() }
     private val cacheFile = File("$prefix.cache")
     private val hashFile = File("$prefix.hash")
+    private val offsetFile = File("$prefix.offset")
+    private var offset = 0L
+    private val offsetBuffer = ByteBuffer.allocateDirect(8)
 
     private val writer by lazy {
         cacheFile.bufferedWriter()
     }
     private val hashWriter by lazy {
         hashFile.outputStream()
+    }
+    private val offsetChannel by lazy {
+        FileChannel.open(Paths.get("$prefix.offset"), setOf(StandardOpenOption.CREATE, StandardOpenOption.WRITE))
     }
     var forceCaching: Boolean = true
     private val shouldCache: Boolean
@@ -77,6 +87,23 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
             inputStream.close()
             outputStream.close()
         }
+        if(!offsetFile.exists()) {
+            println("For a faster usage a offset file will be generated")
+            val inputStream = FileInputStream(cacheFile)
+            val sc = Scanner(inputStream, "UTF-8")
+            // yep this is not very performant, but hey the user messed it up by deleting the offset file.
+            while (sc.hasNextLine()) {
+                val length = sc.nextLine().toByteArray().size
+                offsetBuffer.putLong(offset)
+                offsetBuffer.flip()
+                offsetChannel.write(offsetBuffer)
+                offsetBuffer.flip()
+                offset += length + 2
+            }
+            inputStream.close()
+        } else {
+            offset = cacheFile.length()
+        }
         // reset the guessed size and take the actual confirmed size
         guessedSize = null
         return hashList
@@ -115,6 +142,11 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
                 if (!hashList.contains(element.hashCode())) {
                     hashList.add(element.hashCode())
                     hashWriter.writeInt(element.hashCode())
+                    offsetBuffer.putLong(offset)
+                    offsetBuffer.flip()
+                    offsetChannel.write(offsetBuffer)
+                    offsetBuffer.flip()
+                    offset += element.toByteArray().size + 2
                     writer.write(element)
                     writer.newLine()
                 }

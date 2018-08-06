@@ -34,6 +34,7 @@ class Validator(args: Array<String>) {
         var cacheEverything = true // should be not the default value
         var countPermutations = false
         var generatePermutations = false
+        var writeOutput = false // should be true
         if (args.isEmpty()) {
             println("Missing arguments! Please specify at last the kvs or grammar file you want to process.")
             input = "C:\\Users\\rene.kilczan\\Programmierung\\REWE-Voice\\alexa-docs\\rewe.grammar"
@@ -54,6 +55,7 @@ class Validator(args: Array<String>) {
                         "-generate",
                         "generatePermutations",
                         "-generatePermutations" -> generatePermutations = true
+                        "write" -> writeOutput = true
                         else -> println("Unknown argument \"$arg\".")
                     }
                 }
@@ -142,14 +144,23 @@ class Validator(args: Array<String>) {
             println("Just to test the caching:")
             val check = intents[0].utterances
             //val check = intents.find { it.name == "RecipeSearchIntent" }?.utterances
-            val utterances = check?.sumBy { it.permutations.size }
-            println("The intent has ${check?.size} sample utterances which generated $utterances permutations")
+            val utterances = check.sumBy { it.permutations.size }
+            println("The intent has ${check.size} sample utterances which generated $utterances permutations")
+        }
+
+        if(writeOutput) {
+            intents.forEach { intent ->
+                val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
+                val permutations = intent.utterances.sumBy { it.permutations.size }
+                println("${intent.name} has ${intent.utterances.size} utterances which have $permutations permutations and ${allSlots.size} (${allSlots.joinToString()})")
+            }
         }
     }
 
     class Intent(val name: String) {
         val parts = mutableListOf<Part>()
         val utterances = mutableListOf<Utterance>()
+        val answers = mutableListOf<Utterance>()
 
     }
 
@@ -163,7 +174,6 @@ class Validator(args: Array<String>) {
 
     private fun printErr(errorMsg: String) =
             System.err.println(errorMsg)
-
 
     companion object {
         @JvmStatic

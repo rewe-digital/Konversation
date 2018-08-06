@@ -13,16 +13,19 @@ class Utterance(val line: String, val name: String) : Part {
     val permutations: SwapingHashedList
         get() = cache ?: generatePermutations()
 
-    val permutationCount : Long
-    get() {
-        var total: Long = 1
-        validate().map {
-            it.split("|").also {
-                total *= it.size
+    val slotTypes = mutableListOf<String>()
+
+    val permutationCount: Long
+        get() {
+            var total: Long = 1
+            val slots: List<String> = validate().flatMap {
+                it.split("|").also {
+                    total *= it.size
+                }
             }
+            slotTypes.addAll(slots.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 2) })
+            return total
         }
-        return total
-    }
 
     private fun validate(): MutableList<String> {
         // Parse the line to make sure that there is no syntax error. Regex would not work for cases like {{Foo}|{Bar}}
@@ -36,7 +39,7 @@ class Utterance(val line: String, val name: String) : Part {
                 '{' -> {
                     if (!lastWasMasked) {
                         when (counter) {
-                            0 -> start = i
+                            0 -> start = i + 1
                             1 -> {
                                 // we found a slot type, that is fine
                             }
@@ -51,7 +54,7 @@ class Utterance(val line: String, val name: String) : Part {
                         when (counter) {
                             1 -> {
                                 // we found the end of the slot
-                                slots.add(line.substring(start, i + 1))
+                                slots.add(line.substring(start, i))
                             }
                             2 -> {
                                 // we found the end of a slot type, that is fine
@@ -83,13 +86,13 @@ class Utterance(val line: String, val name: String) : Part {
 
         // we know now all slots, let's fill them up with content
         File("cache").run {
-            if(!exists()) mkdirs()
+            if (!exists()) mkdirs()
         }
         val cacheFile = "cache/$name-${String.format("%08x", line.hashCode())}"
-        val storage = cache ?: SwapingHashedList(cacheFile).also {cache = it}
-        if(!storage.isCached()) {
+        val storage = cache ?: SwapingHashedList(cacheFile).also { cache = it }
+        if (!storage.isCached()) {
             //runBlocking {
-                insertPermutations(line, slots, 0, storage)
+            insertPermutations(line, slots, 0, storage)
             //}
             storage.flush()
         }
@@ -99,7 +102,7 @@ class Utterance(val line: String, val name: String) : Part {
     private /*suspend*/ fun insertPermutations(line: String, slots: MutableList<String>, offset: Int, storage: SwapingHashedList) {
         if (slots.size == offset) {
             val count = counter.incrementAndGet()
-            if((count % 100000) == 0) println(count)
+            if ((count % 100000) == 0) println(count)
 
             storage.add(line.trim().replace(" +".toRegex(), " "))
             return
@@ -115,5 +118,5 @@ class Utterance(val line: String, val name: String) : Part {
 
     companion object {
         val counter = AtomicInteger(0)
-       }
+    }
 }

@@ -10,15 +10,13 @@ import java.nio.file.StandardOpenOption
 import java.util.*
 
 
-class Streamer(args: Array<String>) {
+class Streamer {
 
     init {
         val test = ByteBuffer.wrap("\",\"".toByteArray())
 
         val out = Paths.get("test2.txt")
         val outChannel = FileChannel.open(out, HashSet(Arrays.asList(StandardOpenOption.CREATE, StandardOpenOption.WRITE)))
-        //var outChannel = Files.newBufferedWriter(out)
-        var read = -1
         val start = System.nanoTime()
 
         val stream = Files.newDirectoryStream(FileSystems.getDefault().getPath("cache"), "RecipeSearchIntent-3*.cache")
@@ -89,8 +87,8 @@ class Streamer(args: Array<String>) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            println("Stiching stuff...")
-            Streamer(args)
+            //println("Stiching stuff...")
+            Streamer()
         }
 
         val prefix = ("{\n" +

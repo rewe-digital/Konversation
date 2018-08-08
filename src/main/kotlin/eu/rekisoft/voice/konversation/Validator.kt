@@ -151,7 +151,7 @@ class Validator(args: Array<String>) {
         }
 
         if (writeOutput) {
-            generateJson(::print, File(input).absoluteFile.parent)
+            generateJsonMinimized(::print, File(input).absoluteFile.parent)
         }
     }
 
@@ -266,6 +266,102 @@ class Validator(args: Array<String>) {
         printer("      ]\n" +
                 "    }\n" +
                 "  }\n" +
+                "}")
+    }
+
+    fun generateJsonMinimized(printer: (output: String) -> Unit, baseDir: String) {
+        // write prefix
+        printer("{" +
+                "\"interactionModel\":{" +
+                "\"languageModel\":{" +
+                "\"invocationName\":\"rewe\"," +
+                "\"intents\":[")
+
+        // write out intents
+        intents.forEachIterator { intent ->
+            printer("{"+
+                    "\"name\":\"${intent.name}\","+
+                    "\"slots\":[")
+            val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
+            allSlots.forEachIterator { slot ->
+                val (name, type) = if (slot.contains(':')) {
+                    val parts = slot.split(':')
+                    Pair(parts[0], parts[1])
+                } else {
+                    Pair(slot, slot)
+                }
+                // write slot types
+                printer("{"+
+                        "\"name\":\"$name\","+
+                        "\"type\":\"$type\""+
+                        "}"+ (if (hasNext()) "," else ""))
+            }
+            // write sample utterances
+            printer("],"+
+                    "\"samples\":[")
+            var total: Int
+            var moreUtterances: Boolean
+            intent.utterances.forEachBreakable { utterance ->
+                total = 0
+                moreUtterances = hasNext()
+                utterance.permutations.forEachBreakable {
+                    total++
+                    if (total > 20) {
+                        stop()
+                        moreUtterances = false
+                    }
+                    printer("\"$it\""+ (if (hasNext() || moreUtterances) "," else ""))
+                }
+                if (total > 20) {
+                    stop()
+                }
+            }
+            printer("]"+
+                    "}"+ (if (hasNext()) "," else ""))
+        }
+        // write the custom slot type definitions
+        printer("],"+
+                "\"types\":[")
+
+        intents.flatMap { it.utterances.flatMap { it.slotTypes } }
+                .toHashSet()
+                .map { Pair(it, File("$baseDir/$it.values")) }
+                .filter { it.second.exists() }
+                .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
+                .forEachIterator { (slotType, values) ->
+                    printer("{"+
+                            "\"name\":\"$slotType\","+
+                            "\"values\":[")
+                    values.forEachIterator { value ->
+                        if (value.startsWith('{')) {
+                            val aliases = value.substring(1, value.length - 1).split("|")
+                            val id = aliases.first()
+                            printer("{"+
+                                    "\"name\":{"+
+                                    "\"value\":\"$id\""+
+                                    "\"synonyms\":[")
+                            aliases.stream().skip(1).forEachIterator { alias ->
+                                printer("\"$alias\""+ (if (hasNext()) "," else ""))
+                            }
+                            printer("]"+
+                                    "}"+
+                                    "}"+ (if (hasNext()) "," else ""))
+                        } else {
+                            printer("{"+
+                                    "\"name\":{"+
+                                    "\"value\":\"$value\""+
+                                    "}"+
+                                    "}"+ (if (hasNext()) "," else ""))
+                        }
+                    }
+                    printer("]"+
+                            "}"+ (if (hasNext()) "," else ""))
+                }
+
+        // write suffix
+        printer("]"+
+                "}"+
+                "}"+
                 "}")
     }
 

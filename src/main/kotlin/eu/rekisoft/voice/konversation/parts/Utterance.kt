@@ -23,7 +23,7 @@ class Utterance(val line: String, val name: String) : Part {
                     total *= it.size
                 }
             }
-            slotTypes.addAll(slots.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 2) })
+            slotTypes.addAll(slots.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 1) })
             return total
         }
 

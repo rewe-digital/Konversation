@@ -3,6 +3,8 @@ package eu.rekisoft.voice.konversation
 import eu.rekisoft.voice.konversation.parts.Utterance
 import java.io.File
 import java.util.*
+import java.util.function.Consumer
+import java.util.stream.Stream
 
 
 class Validator(args: Array<String>) {
@@ -148,12 +150,113 @@ class Validator(args: Array<String>) {
             println("The intent has ${check.size} sample utterances which generated $utterances permutations")
         }
 
-        if(writeOutput) {
-            intents.forEach { intent ->
+        if (writeOutput) {
+            val prefix = "{\n" +
+                    "  \"interactionModel\" : {\n" +
+                    "    \"languageModel\" : {\n" +
+                    "      \"invocationName\" : \"rewe\",\n" +
+                    "      \"intents\" : [\n"
+            println(prefix.trimEnd())
+
+            intents.forEachIterator { intent ->
+                println("        {\n" +
+                        "          \"name\" : \"AddOfferToShoppingListIntent\",\n" +
+                        "          \"slots\" : [")
                 val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
-                val permutations = intent.utterances.sumBy { it.permutations.size }
-                println("${intent.name} has ${intent.utterances.size} utterances which have $permutations permutations and ${allSlots.size} (${allSlots.joinToString()})")
+                allSlots.forEachIterator { slot ->
+                    val (name, type) = if (slot.contains(':')) {
+                        val parts = slot.split(':')
+                        Pair(parts[0], parts[1])
+                    } else {
+                        Pair(slot, slot)
+                    }
+                    println("            {\n" +
+                            "              \"name\" : \"$name\",\n" +
+                            "              \"type\" : \"$type\"\n" +
+                            "            }" + if (hasNext()) "," else "")
+                }
+                println("          ],\n" +
+                        "          \"samples\" : [")
+                var total = 0
+                var moreUtterances = false
+                intent.utterances.forEachBreakable { utterance ->
+                    total = 0
+                    moreUtterances = hasNext()
+                    utterance.permutations.forEachBreakable {
+                        total++
+                        if (total > 20) {
+                            stop()
+                            moreUtterances = false
+                        }
+                        println("            \"$it\"" + if (hasNext() || moreUtterances) "," else "")
+                    }
+                    if (total > 20) {
+                        stop()
+                    }
+                }
+                println("          ]\n" +
+                        "        }" + if (hasNext()) "," else "")
+
+                //val permutations = intent.utterances.sumBy { it.permutations.size }
+                //println("${intent.name} has ${intent.utterances.size} utterances which have $permutations permutations and ${allSlots.size} (${allSlots.joinToString()})")
             }
+            println("      ],\n" +
+                    "      \"types\" : [")
+
+            val baseDir = File(input).absoluteFile.parent
+            intents.flatMap { it.utterances.flatMap { it.slotTypes } }
+                    .toHashSet()
+                    .map { Pair(it, File("$baseDir/$it.values")) }
+                    .filter { it.second.exists() }
+                    .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
+                    .forEachIterator { (slotType, values) ->
+                        println("        {\n" +
+                                "          \"name\": \"$slotType\",\n" +
+                                "          \"values\": [")
+                        values.forEachIterator { value ->
+                            if (value.startsWith('{')) {
+                                val aliases = value.substring(1, value.length - 1).split("|")
+                                val id = aliases.first()
+                                println("            {\n" +
+                                        "              \"name\": {\n" +
+                                        "                \"value\": \"$id\"\n" +
+                                        "                \"synonyms\": [")
+                                aliases.stream().skip(1).forEachIterator { alias ->
+                                    println("                  \"$alias\"" + if (hasNext()) "," else "")
+                                }
+                                println("                ]\n" +
+                                        "              }\n" +
+                                        "            }" + if (hasNext()) "," else "")
+                            } else {
+                                println("            {\n" +
+                                        "              \"name\": {\n" +
+                                        "                \"value\": \"$value\"\n" +
+                                        "              }\n" +
+                                        "            }" + if (hasNext()) "," else "")
+                            }
+                        }
+                        println("          ]\n" +
+                                "        }" + if (hasNext()) "," else "")
+                    }
+
+            println("      ]\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}")
+            /*
+                {
+                    "name": "OFFER_CATEGORIES",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "1.1",
+                                "synonyms": [
+                                    "Obst & Gemüse",
+                                    "Gemüse",
+                                    "Tomaten",
+                                    "Gurken",
+                                    "Kartoffeln",
+             */
         }
     }
 
@@ -180,5 +283,35 @@ class Validator(args: Array<String>) {
         fun main(args: Array<String>) {
             Validator(args)
         }
+    }
+}
+
+fun <T> Iterable<T>.forEachIterator(block: Iterator<T>.(element: T) -> Unit) {
+    val iterator = iterator()
+    while (iterator.hasNext()) block(iterator, iterator.next())
+}
+
+fun <T> Stream<T>.forEachIterator(block: Iterator<T>.(element: T) -> Unit) {
+    val iterator = iterator()
+    while (iterator.hasNext()) block(iterator, iterator.next())
+}
+
+fun <T> Iterable<T>.forEachBreakable(block: BreakableIterator<T>.(element: T) -> Unit) {
+    val iterator = BreakableIterator(iterator())
+    while (iterator.hasNext()) block(iterator, iterator.next())
+}
+
+class BreakableIterator<T>(private val inner: Iterator<T>) : Iterator<T> {
+    private var resume = true
+
+    override fun forEachRemaining(action: Consumer<in T>) =
+            inner.forEachRemaining(action)
+
+    override fun hasNext() = resume && inner.hasNext()
+
+    override fun next() = inner.next()
+
+    fun stop() {
+        resume = false
     }
 }

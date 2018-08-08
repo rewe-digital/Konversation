@@ -109,10 +109,13 @@ class Utterance(val line: String, val name: String) : Part {
         }
         val placeholder = UUID.randomUUID().toString() // could be replaced by something faster
         val replacement = line.replaceFirst(slots[offset], placeholder)
-        slots[offset].let {
-            it.substring(1, it.length - 1)
-        }.split("|").map {
-            insertPermutations(replacement.replace(placeholder, it), slots, offset + 1, storage)
+        slots[offset].split("|").map {
+            var value = it
+            // strip out the type from the slot type name if any
+            if(value.startsWith('{') && value.endsWith('}') && value.contains(':')) {
+                value = value.substring(0, value.indexOf(':')) + "}"
+            }
+            insertPermutations(replacement.replace("{$placeholder}", value), slots, offset + 1, storage)
         }
     }
 

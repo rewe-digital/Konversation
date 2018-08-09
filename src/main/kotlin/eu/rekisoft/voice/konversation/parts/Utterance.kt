@@ -65,6 +65,10 @@ class Utterance(val line: String, val name: String) : Part {
                     }
                     lastWasMasked = false
                 }
+            //'%',
+            //'$'-> {
+
+            //}
                 else -> lastWasMasked = false
             }
         }

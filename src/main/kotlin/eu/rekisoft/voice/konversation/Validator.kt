@@ -151,7 +151,11 @@ class Validator(args: Array<String>) {
         }
 
         if (writeOutput) {
-            generateJsonMinimized(::print, File(input).absoluteFile.parent)
+            val stream = File("result.json").outputStream()
+
+            generateJsonMinimized({line ->
+                stream.write(line.toByteArray())
+            }, File(input).absoluteFile.parent)
         }
     }
 
@@ -301,20 +305,20 @@ class Validator(args: Array<String>) {
                     "\"samples\":[")
             var total: Int
             var moreUtterances: Boolean
-            intent.utterances.forEachBreakable { utterance ->
+            intent.utterances.forEachIterator { utterance ->
                 total = 0
                 moreUtterances = hasNext()
-                utterance.permutations.forEachBreakable {
+                utterance.permutations.forEachIterator {
                     total++
-                    if (total > 20) {
-                        stop()
-                        moreUtterances = false
-                    }
+                    //if (total > 20) {
+                    //    stop()
+                    //    moreUtterances = false
+                    //}
                     printer("\"$it\""+ (if (hasNext() || moreUtterances) "," else ""))
                 }
-                if (total > 20) {
-                    stop()
-                }
+                //if (total > 20) {
+                //    stop()
+                //}
             }
             printer("]"+
                     "}"+ (if (hasNext()) "," else ""))

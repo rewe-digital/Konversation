@@ -87,7 +87,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
             inputStream.close()
             outputStream.close()
         }
-        if(!offsetFile.exists()) {
+        if(cacheFile.exists() && !offsetFile.exists()) {
             println("For a faster usage a offset file will be generated")
             val inputStream = FileInputStream(cacheFile)
             val sc = Scanner(inputStream, "UTF-8")

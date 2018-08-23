@@ -21,7 +21,8 @@ class Cli(args: Array<String>) {
         var limit: Long? = null
         var prettyPrint = false
         if (args.isEmpty()) {
-            println("Missing arguments! Please specify at last the kvs or grammar file you want to process.")
+            println("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
+            help()
             exitProcess(-1)
         } else {
             var argNo = 0
@@ -31,6 +32,10 @@ class Cli(args: Array<String>) {
                     input = arg
                 } else {
                     when (arg.toLowerCase()) {
+                        "help",
+                        "-help",
+                        "-h",
+                        "/?" -> help()
                         "count",
                         "-count" -> countPermutations = true
                         "cache",
@@ -180,7 +185,20 @@ class Cli(args: Array<String>) {
     private fun printErr(errorMsg: String) =
             System.err.println(errorMsg)
 
-    fun generateJson(printer: (output: String) -> Unit, baseDir: String, limit: Long) {
+    private fun help() {
+        println("Arguments:")
+        println("-help         Print this help")
+        println("-count        Count the permutations and print this to the console")
+        println("-stats        Print out some statistics while generation")
+        println("-cache        Cache everything even if an utterance has just a single permutation")
+        println("-out OUTFILE  Write the resulting json to OUTFILE instead of result.json")
+        println("-limit COUNT  While pretty printing the json to the output file limit the utterances count per intent")
+        println("-prettyprint  Generate a well formatted json for easier debugging")
+        println("FILE          The grammar or kvs file to parse")
+        println()
+    }
+
+    private fun generateJson(printer: (output: String) -> Unit, baseDir: String, limit: Long) {
         // write prefix
         printer("{\n" +
                 "  \"interactionModel\" : {\n" +
@@ -287,7 +305,7 @@ class Cli(args: Array<String>) {
                 "}")
     }
 
-    fun generateJsonMinimized(printer: (output: String) -> Unit, baseDir: String) {
+    private fun generateJsonMinimized(printer: (output: String) -> Unit, baseDir: String) {
         // write prefix
         printer("{" +
                 "\"interactionModel\":{" +

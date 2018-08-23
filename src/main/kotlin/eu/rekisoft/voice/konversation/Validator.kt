@@ -283,8 +283,8 @@ class Validator(args: Array<String>) {
 
         // write out intents
         intents.forEachIterator { intent ->
-            printer("{"+
-                    "\"name\":\"${intent.name}\","+
+            printer("{" +
+                    "\"name\":\"${intent.name}\"," +
                     "\"slots\":[")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             allSlots.forEachIterator { slot ->
@@ -295,13 +295,13 @@ class Validator(args: Array<String>) {
                     Pair(slot, slot)
                 }
                 // write slot types
-                printer("{"+
-                        "\"name\":\"$name\","+
-                        "\"type\":\"$type\""+
-                        "}"+ (if (hasNext()) "," else ""))
+                printer("{" +
+                        "\"name\":\"$name\"," +
+                        "\"type\":\"$type\"" +
+                        "}" + (if (hasNext()) "," else ""))
             }
             // write sample utterances
-            printer("],"+
+            printer("]," +
                     "\"samples\":[")
             var total: Int
             var moreUtterances: Boolean
@@ -314,17 +314,17 @@ class Validator(args: Array<String>) {
                     //    stop()
                     //    moreUtterances = false
                     //}
-                    printer("\"$it\""+ (if (hasNext() || moreUtterances) "," else ""))
+                    printer("\"$it\"" + (if (hasNext() || moreUtterances) "," else ""))
                 }
                 //if (total > 20) {
                 //    stop()
                 //}
             }
-            printer("]"+
-                    "}"+ (if (hasNext()) "," else ""))
+            printer("]" +
+                    "}" + (if (hasNext()) "," else ""))
         }
         // write the custom slot type definitions
-        printer("],"+
+        printer("]," +
                 "\"types\":[")
 
         intents.flatMap { it.utterances.flatMap { it.slotTypes } }
@@ -333,39 +333,39 @@ class Validator(args: Array<String>) {
                 .filter { it.second.exists() }
                 .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
                 .forEachIterator { (slotType, values) ->
-                    printer("{"+
-                            "\"name\":\"$slotType\","+
+                    printer("{" +
+                            "\"name\":\"$slotType\"," +
                             "\"values\":[")
                     values.forEachIterator { value ->
                         if (value.startsWith('{')) {
                             val aliases = value.substring(1, value.length - 1).split("|")
                             val id = aliases.first()
-                            printer("{"+
-                                    "\"name\":{"+
-                                    "\"value\":\"$id\""+
+                            printer("{" +
+                                    "\"name\":{" +
+                                    "\"value\":\"$id\"" +
                                     "\"synonyms\":[")
                             aliases.stream().skip(1).forEachIterator { alias ->
-                                printer("\"$alias\""+ (if (hasNext()) "," else ""))
+                                printer("\"$alias\"" + (if (hasNext()) "," else ""))
                             }
-                            printer("]"+
-                                    "}"+
-                                    "}"+ (if (hasNext()) "," else ""))
+                            printer("]" +
+                                    "}" +
+                                    "}" + (if (hasNext()) "," else ""))
                         } else {
-                            printer("{"+
-                                    "\"name\":{"+
-                                    "\"value\":\"$value\""+
-                                    "}"+
-                                    "}"+ (if (hasNext()) "," else ""))
+                            printer("{" +
+                                    "\"name\":{" +
+                                    "\"value\":\"$value\"" +
+                                    "}" +
+                                    "}" + (if (hasNext()) "," else ""))
                         }
                     }
-                    printer("]"+
-                            "}"+ (if (hasNext()) "," else ""))
+                    printer("]" +
+                            "}" + (if (hasNext()) "," else ""))
                 }
 
         // write suffix
-        printer("]"+
-                "}"+
-                "}"+
+        printer("]" +
+                "}" +
+                "}" +
                 "}")
     }
 

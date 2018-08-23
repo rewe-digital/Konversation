@@ -33,15 +33,14 @@ compileTestKotlin {
 }
 
 task fatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'eu.rekisoft.voice.konversation.Validator'
-    }
+    manifest.attributes 'Main-Class': 'eu.rekisoft.voice.konversation.Cli'
+    archiveName "konversation.jar"
     baseName = project.name
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
-mainClassName = 'eu.rekisoft.voice.konversation.Validator'
-run.main = 'eu.rekisoft.voice.konversation.Validator'
+mainClassName = 'eu.rekisoft.voice.konversation.Cli'
+run.main = 'eu.rekisoft.voice.konversation.Cli'
 
 kotlin {
     experimental {

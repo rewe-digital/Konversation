@@ -5,42 +5,24 @@ import java.io.File
 import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Stream
+import kotlin.system.exitProcess
 
 
-class Validator(args: Array<String>) {
+class Cli(args: Array<String>) {
     var intent: String? = null
     val intents = mutableListOf<Intent>()
 
     init {
-        //val t = "cache/RecipeSearchIntent-3fa6c77a.cache"
-        //val stream = FileInputStream(File(t))
-        ////val stream = Files.newInputStream(Paths.get("C:\\Users\\rene.kilczan\\Programmierung\\konversation-validator\\"+URI.create(t)))
-        //var count = 0
-        //val buf = ByteArray(1048576000)
-        //val start = System.currentTimeMillis()
-        //var read = stream.read(buf, 0, buf.size)
-        //var total = read
-        //val nl = 13.toByte()
-        //do {
-        //    for (i in 0 until read) {
-        //        if (buf[i] == nl) count++
-        //    }
-        //    read = stream.read(buf, 0, buf.size)
-        //    total += read
-        //} while (read > 0)
-        //val end = System.currentTimeMillis()
-        //println("Found $count lines in $t in (${end - start}ms) -> ${String.format("%.2f", total / (end - start * 1.0) / 1.024 / 1024)}MB/s")
-
-
         var input: String? = null
         var cacheEverything = true // should be not the default value
         var countPermutations = false
-        var generatePermutations = false
-        var writeOutput = false // should be true
+        var stats = false
+        var outputFile = "result.json"
+        var limit: Long? = null
+        var prettyPrint = false
         if (args.isEmpty()) {
             println("Missing arguments! Please specify at last the kvs or grammar file you want to process.")
-            input = "C:\\Users\\rene.kilczan\\Programmierung\\REWE-Voice\\alexa-docs\\rewe.grammar"
-            println("In this debug build will the file \"$input\" be used.")
+            exitProcess(-1)
         } else {
             var argNo = 0
             while (argNo < args.size) {
@@ -48,16 +30,40 @@ class Validator(args: Array<String>) {
                 if (File(arg).exists()) {
                     input = arg
                 } else {
-                    when (arg) {
+                    when (arg.toLowerCase()) {
                         "count",
                         "-count" -> countPermutations = true
                         "cache",
                         "-cache" -> cacheEverything = true
-                        "generate",
-                        "-generate",
-                        "generatePermutations",
-                        "-generatePermutations" -> generatePermutations = true
-                        "write" -> writeOutput = true
+                        "out",
+                        "-out" -> {
+                            if(++argNo < args.size) {
+                                outputFile = args[argNo]
+                            } else {
+                                println("Target is missing")
+                                exitProcess(-1)
+                            }
+                        }
+                        "stats",
+                        "-stats" -> stats = true
+                        "limit",
+                        "-limit",
+                        "top",
+                        "-top" -> {
+                            if(++argNo < args.size) {
+                                try {
+                                    limit = java.lang.Long.parseLong(args[argNo])
+                                } catch (e: NumberFormatException) {
+                                    println("\"${args[argNo]}\" is no valid count of utterances.")
+                                    exitProcess(-1)
+                                }
+                            } else {
+                                println("Count is missing!")
+                                exitProcess(-1)
+                            }
+                        }
+                        "prettyprint",
+                        "-prettyprint" -> prettyPrint = true
                         else -> println("Unknown argument \"$arg\".")
                     }
                 }
@@ -65,8 +71,7 @@ class Validator(args: Array<String>) {
             }
             if (!File(input.orEmpty()).exists()) {
                 println("Input file not found!")
-                input = "C:\\Users\\rene.kilczan\\Programmierung\\REWE-Voice\\alexa-docs\\rewe.grammar"
-                println("In this debug build will the file \"$input\" be used.")
+                exitProcess(-1)
             }
         }
 
@@ -128,35 +133,33 @@ class Validator(args: Array<String>) {
             intents.forEach { intent ->
                 var count = 0L
                 intent.utterances.forEach { count += it.permutationCount }
-                println("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
+                if (stats) println("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
                 total += count
             }
-            println("That are in total ${total.formatted()} permutations!")
+            if (stats) println("That are in total ${total.formatted()} permutations!")
         }
 
-        if (generatePermutations) {
-            val all = intents.sumBy {
-                val permutations = it.utterances.sumBy { it.permutations.size }
-                println("${it.name} has now $permutations sample utterances")
-                permutations
+        val all = intents.sumBy { intent ->
+            val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
+            if(stats) println("${intent.name} has now $permutations sample utterances")
+            permutations
+        }
+        if(stats) println("Generated in total $all Utterances")
+        //println("- " + all.sorted().joinToString(separator = "\n- "))
+
+        outputFile.let {
+            val stream = File(outputFile).outputStream()
+            if (prettyPrint) {
+                generateJson({ line ->
+                    stream.write(line.toByteArray())
+                }, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
+            } else {
+                generateJsonMinimized({ line ->
+                    stream.write(line.toByteArray())
+                }, File(input).absoluteFile.parent)
             }
-            println("This is in total $all")
-            //println("- " + all.sorted().joinToString(separator = "\n- "))
-
-            println("Just to test the caching:")
-            val check = intents[0].utterances
-            //val check = intents.find { it.name == "RecipeSearchIntent" }?.utterances
-            val utterances = check.sumBy { it.permutations.size }
-            println("The intent has ${check.size} sample utterances which generated $utterances permutations")
         }
-
-        if (writeOutput) {
-            val stream = File("result.json").outputStream()
-
-            generateJsonMinimized({line ->
-                stream.write(line.toByteArray())
-            }, File(input).absoluteFile.parent)
-        }
+        println("Output written to $outputFile")
     }
 
     class Intent(val name: String) {
@@ -177,7 +180,7 @@ class Validator(args: Array<String>) {
     private fun printErr(errorMsg: String) =
             System.err.println(errorMsg)
 
-    fun generateJson(printer: (output: String) -> Unit, baseDir: String) {
+    fun generateJson(printer: (output: String) -> Unit, baseDir: String, limit: Long) {
         // write prefix
         printer("{\n" +
                 "  \"interactionModel\" : {\n" +
@@ -214,13 +217,13 @@ class Validator(args: Array<String>) {
                 moreUtterances = hasNext()
                 utterance.permutations.forEachBreakable {
                     total++
-                    if (total > 20) {
+                    if (total > limit) {
                         stop()
                         moreUtterances = false
                     }
                     printer("            \"$it\"" + (if (hasNext() || moreUtterances) "," else "") + "\n")
                 }
-                if (total > 20) {
+                if (total > limit) {
                     stop()
                 }
             }
@@ -257,7 +260,7 @@ class Validator(args: Array<String>) {
                             val id = aliases.first()
                             printer("            {\n" +
                                     "              \"name\": {\n" +
-                                    "                \"value\": \"$id\"\n" +
+                                    "                \"value\": \"$id\",\n" +
                                     "                \"synonyms\": [\n")
                             aliases.stream().skip(1).forEachIterator { alias ->
                                 printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
@@ -353,7 +356,7 @@ class Validator(args: Array<String>) {
                             val id = aliases.first()
                             printer("{" +
                                     "\"name\":{" +
-                                    "\"value\":\"$id\"" +
+                                    "\"value\":\"$id\"," +
                                     "\"synonyms\":[")
                             aliases.stream().skip(1).forEachIterator { alias ->
                                 printer("\"$alias\"" + (if (hasNext()) "," else ""))
@@ -383,7 +386,7 @@ class Validator(args: Array<String>) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            Validator(args)
+            Cli(args)
         }
     }
 }

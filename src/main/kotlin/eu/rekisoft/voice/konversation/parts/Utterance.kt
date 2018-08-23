@@ -81,12 +81,12 @@ class Utterance(val line: String, val name: String) : Part {
         val slots = validate()
 
         var total: Long = 1
-        slots.map {
-            it.split("|").also {
+        slots.map { slot ->
+            slot.split("|").also {
                 total *= it.size
             }
         }
-        println("Generating about $total permutation for ${slots.size} slots") // (${stats.joinToString()})
+        //println("Generating about $total permutation for ${slots.size} slots")
 
         // we know now all slots, let's fill them up with content
         File("cache").run {

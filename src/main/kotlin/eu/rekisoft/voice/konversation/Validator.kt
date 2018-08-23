@@ -234,7 +234,18 @@ class Validator(args: Array<String>) {
         intents.flatMap { it.utterances.flatMap { it.slotTypes } }
                 .toHashSet()
                 .map { Pair(it, File("$baseDir/$it.values")) }
-                .filter { it.second.exists() }
+                .filter { (slot, file) ->
+                    if (file.exists())
+                        true else {
+                        val parts = slot.split(':')
+                        if (parts.size == 2) {
+                            if (!parts[1].startsWith("AMAZON.")) println("WARNING: No definition for slot type \"${parts[1]}\" found")
+                        } else {
+                            println("WARNING: No definition for slot type \"$slot\" found")
+                        }
+                        false
+                    }
+                }
                 .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
                 .forEachIterator { (slotType, values) ->
                     printer("        {\n" +

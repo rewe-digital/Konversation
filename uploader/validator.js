@@ -30,14 +30,20 @@ const POLLING_INTERVAL = 333;
 
 const sem = require('semaphore')(1);
 const intent = process.argv[2];
+let pass = 0;
+let fail = [];
 if(intent) {
-    fs.readFileSync(intent, 'utf-8').split("\n").forEach((line) => {
+    const intentName = intent.substring((intent.lastIndexOf('\\') || intent.lastIndexOf('/')) + 1, intent.lastIndexOf('.'));
+    fs.readFileSync(intent, 'utf-8').split("\n").forEach((line, i, all) => {
         if(line.length) {
             sem.take(() => {
-                callSimulator(line.trim(), intent.substr(0, intent.lastIndexOf('.') - 1), sem.leave.bind(sem))
+                callSimulator(line.trim(), intentName, sem.leave.bind(sem))
             });
         }
-    })
+        if(i === all.length) {
+            console.log(`${pass} passed, ${fail.length} failed.\nList of Failed:\n${fail}`)
+        }
+    });
 } else {
     console.warn("no file given")
 }
@@ -63,9 +69,14 @@ function callSimulator(text, intentName, callback) {
             //console.log("Detected Intent: " + info.invocationRequest.body.request.intent.name);
             const matchedIntent = info.invocationRequest.body.request.intent.name;
             if(intentName !== matchedIntent) {
-                console.warn(`${text} was detected as intent "${matchedIntent}" instead of "${intentName}".`)
-                console.log(JSON.stringify(info.invocationResponse.body.response.outputSpeech, null, 2));
-            }
+                fail[fail.length]=text;
+                console.warn(`${text} was detected as intent "${matchedIntent}" instead of "${intentName}".`);
+                try {
+                    console.log(JSON.stringify(info.invocationResponse.body.response.outputSpeech, null, 2));
+                } catch(e) {
+                    console.log(JSON.stringify(info, null, 2));
+                }
+            } else pass++;
         } else {
             console.warn("error")
         }
@@ -79,7 +90,7 @@ function callSimulator(text, intentName, callback) {
         let response = tools.convertDataToJsonObject(data.body);
         if(response) {
             let simulationId = response.id;
-            console.error('✓ Simulation created for simulation id: ' + simulationId);
+            //console.error('✓ Simulation created for simulation id: ' + simulationId);
             //listenSpinner.start();
 
             let pollSimulationResult = (responseBody) => {

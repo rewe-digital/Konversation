@@ -18,8 +18,8 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
     private val smallList = HashSet<String>()
     private var bigListSize = 0
         get() = guessedSize ?: hashList.size
-    private var guessedSize : Int? = null
-    private val hashList : HashSet<Int> by lazy { loadHashes() }
+    private var guessedSize: Int? = null
+    private val hashList: HashSet<Int> by lazy { loadHashes() }
     private val cacheFile = File("$prefix.cache")
     private val hashFile = File("$prefix.hash")
     private val offsetFile = File("$prefix.offset")
@@ -41,15 +41,13 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
 
     init {
         isSwapping = cacheFile.exists()
-        if(!hashFile.exists()) {
-            println("Holding ${hashList.size} hashes now.")
-        } else {
+        if (hashFile.exists()) {
             guessedSize = (hashFile.length() / 4).toInt()
         }
     }
 
     // load the hashes just when required
-    private fun loadHashes() : HashSet<Int> {
+    private fun loadHashes(): HashSet<Int> {
         val hashList = HashSet<Int>()
         //println("FYI using temp file $cacheFile")
         if (hashFile.exists() && cacheFile.exists()) {
@@ -87,7 +85,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
             inputStream.close()
             outputStream.close()
         }
-        if(cacheFile.exists() && !offsetFile.exists()) {
+        if (cacheFile.exists() && !offsetFile.exists()) {
             println("For a faster usage a offset file will be generated")
             val inputStream = FileInputStream(cacheFile)
             val sc = Scanner(inputStream, "UTF-8")

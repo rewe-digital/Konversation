@@ -65,10 +65,10 @@ class Utterance(val line: String, val name: String) : Part {
                     }
                     lastWasMasked = false
                 }
-            //'%',
-            //'$'-> {
+                //'%',
+                //'$'-> {
 
-            //}
+                //}
                 else -> lastWasMasked = false
             }
         }
@@ -116,7 +116,7 @@ class Utterance(val line: String, val name: String) : Part {
         slots[offset].split("|").map {
             var value = it
             // strip out the type from the slot type name if any
-            if(value.startsWith('{') && value.endsWith('}') && value.contains(':')) {
+            if (value.startsWith('{') && value.endsWith('}') && value.contains(':')) {
                 value = value.substring(0, value.indexOf(':')) + "}"
             }
             insertPermutations(replacement.replace("{$placeholder}", value), slots, offset + 1, storage)

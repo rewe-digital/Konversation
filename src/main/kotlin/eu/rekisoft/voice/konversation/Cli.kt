@@ -17,9 +17,10 @@ class Cli(args: Array<String>) {
         var cacheEverything = true // should be not the default value
         var countPermutations = false
         var stats = false
-        var outputFile = "result.json"
+        var outputFile: String? = "result.json"
         var limit: Long? = null
         var prettyPrint = false
+        var dumpOnly = false
         if (args.isEmpty()) {
             println("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
             help()
@@ -42,7 +43,7 @@ class Cli(args: Array<String>) {
                         "-cache" -> cacheEverything = true
                         "out",
                         "-out" -> {
-                            if(++argNo < args.size) {
+                            if (++argNo < args.size) {
                                 outputFile = args[argNo]
                             } else {
                                 println("Target is missing")
@@ -55,7 +56,7 @@ class Cli(args: Array<String>) {
                         "-limit",
                         "top",
                         "-top" -> {
-                            if(++argNo < args.size) {
+                            if (++argNo < args.size) {
                                 try {
                                     limit = java.lang.Long.parseLong(args[argNo])
                                 } catch (e: NumberFormatException) {
@@ -69,6 +70,8 @@ class Cli(args: Array<String>) {
                         }
                         "prettyprint",
                         "-prettyprint" -> prettyPrint = true
+                        "dump",
+                        "-dump" -> dumpOnly = true
                         else -> println("Unknown argument \"$arg\".")
                     }
                 }
@@ -146,13 +149,33 @@ class Cli(args: Array<String>) {
 
         val all = intents.sumBy { intent ->
             val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
-            if(stats) println("${intent.name} has now $permutations sample utterances")
+            if (stats) println("${intent.name} has now $permutations sample utterances")
             permutations
         }
-        if(stats) println("Generated in total $all Utterances")
+        if (stats) println("Generated in total $all Utterances")
         //println("- " + all.sorted().joinToString(separator = "\n- "))
 
-        outputFile.let {
+        if (dumpOnly) {
+            outputFile = null
+            intents.forEach { intent ->
+                if (intent.utterances.isEmpty()) {
+                    println("Skipping empty intent ${intent.name}...")
+                } else {
+                    println("Dumping ${intent.name}...")
+                    val stream = File("${intent.name}.txt").outputStream()
+                    intent.utterances.forEach { utterance ->
+                        utterance.permutations.forEach { permutation ->
+                            stream.write(permutation.toByteArray())
+                            stream.write(13)
+                            stream.write(10)
+                        }
+                    }
+                    stream.close()
+                }
+            }
+        }
+
+        outputFile?.let {
             val stream = File(outputFile).outputStream()
             if (prettyPrint) {
                 generateJson({ line ->
@@ -163,8 +186,8 @@ class Cli(args: Array<String>) {
                     stream.write(line.toByteArray())
                 }, File(input).absoluteFile.parent)
             }
+            println("Output written to $outputFile")
         }
-        println("Output written to $outputFile")
     }
 
     class Intent(val name: String) {
@@ -186,15 +209,16 @@ class Cli(args: Array<String>) {
             System.err.println(errorMsg)
 
     private fun help() {
-        println("Arguments:")
-        println("-help         Print this help")
-        println("-count        Count the permutations and print this to the console")
-        println("-stats        Print out some statistics while generation")
-        println("-cache        Cache everything even if an utterance has just a single permutation")
-        println("-out OUTFILE  Write the resulting json to OUTFILE instead of result.json")
-        println("-limit COUNT  While pretty printing the json to the output file limit the utterances count per intent")
-        println("-prettyprint  Generate a well formatted json for easier debugging")
-        println("FILE          The grammar or kvs file to parse")
+        println("Arguments for konversation:")
+        println("[-help]           Print this help")
+        println("[-count]          Count the permutations and print this to the console")
+        println("[-stats]          Print out some statistics while generation")
+        println("[-cache]          Cache everything even if an utterance has just a single permutation")
+        println("[-out <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json")
+        println("[-limit <COUNT>]  While pretty printing the json to the output file limit the utterances count per intent")
+        println("[-dump]           Dump out all intents to its own txt file")
+        println("[-prettyprint]    Generate a well formatted json for easier debugging")
+        println("<FILE>            The grammar or kvs file to parse")
         println()
     }
 

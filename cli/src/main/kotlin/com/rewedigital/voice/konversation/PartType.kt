@@ -1,4 +1,4 @@
-package eu.rekisoft.voice.konversation
+package com.rewedigital.voice.konversation
 
 enum class PartType {
     Utterance,

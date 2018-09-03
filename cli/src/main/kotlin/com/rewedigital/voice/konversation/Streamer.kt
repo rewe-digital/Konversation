@@ -1,4 +1,4 @@
-package eu.rekisoft.voice.konversation
+package com.rewedigital.voice.konversation
 
 import java.io.File
 import java.nio.ByteBuffer

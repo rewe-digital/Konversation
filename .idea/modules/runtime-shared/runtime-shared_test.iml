@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="FacetManager">
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="3" platform="Common (experimental) " useProjectSettings="false">
+        <compilerSettings />
+        <compilerArguments>
+          <option name="destination" value="$MODULE_DIR$/../../../runtime-shared/build/classes/kotlin/test" />
+          <option name="classpath" value="$MODULE_DIR$/../../../runtime-shared/build/classes/java/main;C:/Users/rene.kilczan/Programmierung/konversation/runtime-shared/build/classes/kotlin/main;C:/Users/rene.kilczan/Programmierung/konversation/runtime-shared/build/resources/main;C:/Users/rene.kilczan/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test-annotations-common/1.2.61/e0d1513c165e2a79411410c5814cbca7b1cb2b18/kotlin-test-annotations-common-1.2.61.jar;C:/Users/rene.kilczan/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test-common/1.2.61/910be650486d0910f3d813927ff544c9414d2245/kotlin-test-common-1.2.61.jar;C:/Users/rene.kilczan/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.2.61/772de03e12d932f489e41aef997d26c20a4ebee6/kotlin-stdlib-common-1.2.61.jar;C:/Users/rene.kilczan/Programmierung/konversation/runtime-shared/build/classes/kotlin/main" />
+          <option name="moduleName" value="runtime-shared" />
+          <option name="languageVersion" value="1.2" />
+          <option name="apiVersion" value="1.2" />
+          <option name="pluginOptions">
+            <array />
+          </option>
+          <option name="pluginClasspaths">
+            <array />
+          </option>
+          <option name="multiPlatform" value="true" />
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+</module>

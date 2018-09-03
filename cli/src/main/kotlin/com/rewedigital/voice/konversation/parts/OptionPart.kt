@@ -1,4 +1,4 @@
-package eu.rekisoft.voice.konversation.parts
+package com.rewedigital.voice.konversation.parts
 
 class OptionPart(val isVoiceOnly: Boolean, val rawLine: String) {
     private var cache: List<String>? = null

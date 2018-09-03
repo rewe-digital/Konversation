@@ -1,6 +1,6 @@
-package eu.rekisoft.voice.konversation
+package com.rewedigital.voice.konversation
 
-import eu.rekisoft.voice.konversation.parts.Utterance
+import com.rewedigital.voice.konversation.parts.Utterance
 import java.io.File
 import java.util.*
 import java.util.function.Consumer

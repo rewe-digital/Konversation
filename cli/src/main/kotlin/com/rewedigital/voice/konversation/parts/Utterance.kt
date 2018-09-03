@@ -1,7 +1,7 @@
-package eu.rekisoft.voice.konversation.parts
+package com.rewedigital.voice.konversation.parts
 
-import eu.rekisoft.voice.konversation.Part
-import eu.rekisoft.voice.konversation.SwapingHashedList
+import com.rewedigital.voice.konversation.Part
+import com.rewedigital.voice.konversation.SwapingHashedList
 import java.io.File
 import java.text.ParseException
 import java.util.*

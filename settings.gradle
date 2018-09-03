@@ -17,4 +17,4 @@ pluginManagement {
 }
 rootProject.name = 'konversation'
 
-include 'runtime-shared', 'runtime-jvm', 'runtime-js'
+include 'runtime-shared', 'runtime-jvm', 'runtime-js', 'cli'

@@ -1,0 +1,48 @@
+plugins {
+    id 'kotlin-platform-jvm' version '1.2.61'
+    id 'org.jetbrains.kotlin.kapt' version '1.2.61'
+    id 'application'
+}
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    expectedBy project(":runtime-shared")
+    testCompile "junit:junit:4.12"
+    testCompile "org.jetbrains.kotlin:kotlin-test"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
+    compile 'com.squareup.moshi:moshi-kotlin:1.6.0'
+}
+
+
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+
+    // For kapt stubs
+    main.java.srcDirs += [file("$buildDir/generated/source/kapt/main")]
+
+    // For kotlin code gen during kapt
+    main.java.srcDirs += [file("$buildDir/generated/source/kaptKotlin/main")]
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+sourceCompatibility = "1.8"
+
+
+task fatJar(type: Jar) {
+    manifest.attributes 'Main-Class': 'com.rewedigital.voice.konversation.Shell'
+    archiveName "start-jvm.jar"
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+mainClassName = 'com.rewedigital.voice.konversation.Shell'
+run.main = 'com.rewedigital.voice.konversation.Shell'

@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Runtime JVM" type="JarApplication" factoryName="JAR Application">
-    <option name="JAR_PATH" value="$PROJECT_DIR$/runtime-jvm/build/libs/start-jvm.jar" />
-    <option name="PROGRAM_PARAMETERS" value="test" />
-    <option name="WORKING_DIRECTORY" value="C:\Users\rene.kilczan\Programmierung\konversation" />
-    <option name="ALTERNATIVE_JRE_PATH" />
-    <method />
-  </configuration>
-</component>

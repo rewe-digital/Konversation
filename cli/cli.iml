@@ -25,4 +25,7 @@
       </configuration>
     </facet>
   </component>
+  <component name="NewModuleRootManager">
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
 </module>

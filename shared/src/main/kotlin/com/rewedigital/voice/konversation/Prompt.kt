@@ -1,6 +1,7 @@
 package com.rewedigital.voice.konversation
 
-interface Prompt {
-    val parts: List<Part>
-    val suggestions: List<Suggestion>
+open class Prompt(val parts: List<Part>) {
+    fun create(): String {
+        return parts.joinToString { it.variant[0] } // FIXME
+    }
 }

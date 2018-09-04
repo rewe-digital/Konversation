@@ -1,27 +1,21 @@
 package com.rewedigital.voice.konversation.parser
 
-import com.rewedigital.voice.konversation.Part
-import com.rewedigital.voice.konversation.PartType
 import com.rewedigital.voice.konversation.SwapingHashedList
 import java.io.File
 import java.text.ParseException
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class Utterance(val line: String, val name: String) : Part {
-    override val option: List<String>
-        get() = TODO("not implemented")
-    override val type: PartType
-        get() = TODO("not implemented")
+class Utterance(val line: String, val name: String) : com.rewedigital.voice.konversation.Utterance {
 
     private var cache: SwapingHashedList? = null
 
-    val permutations: SwapingHashedList
+    override val permutations: SwapingHashedList
         get() = cache ?: generatePermutations()
 
-    val slotTypes = mutableListOf<String>()
+    override val slotTypes = mutableListOf<String>()
 
-    val permutationCount: Long
+    override val permutationCount: Long
         get() {
             var total: Long = 1
             val slots: List<String> = validate().flatMap {

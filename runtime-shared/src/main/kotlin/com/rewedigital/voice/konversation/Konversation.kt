@@ -5,7 +5,7 @@ class Konversation(conversation: String) {
     fun create() : String {
         val sb = StringBuilder()
         answer.parts.forEach { part : Part ->
-            sb.append(part.option[random.next(part.option.size)])
+            sb.append(part.variant[random.next(part.variant.size)])
             sb.append("\n")
         }
         return sb.toString()

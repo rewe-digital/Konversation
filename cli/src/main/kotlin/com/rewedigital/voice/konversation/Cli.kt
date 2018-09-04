@@ -1,6 +1,6 @@
 package com.rewedigital.voice.konversation
 
-import com.rewedigital.voice.konversation.parser.Utterance
+import com.rewedigital.voice.konversation.parser.Parser
 import java.io.File
 import java.util.*
 import java.util.function.Consumer
@@ -9,8 +9,7 @@ import kotlin.system.exitProcess
 
 
 class Cli(args: Array<String>) {
-    var intent: String? = null
-    val intents = mutableListOf<Intent>()
+    private var intents: MutableList<Intent>
 
     init {
         var input: String? = null
@@ -83,64 +82,16 @@ class Cli(args: Array<String>) {
             }
         }
 
-        //input = "C:\\Users\\rene.kilczan\\Programmierung\\REWE-Voice\\alexa-docs\\rewe.grammar"
-        //input = "demo.kvs"
-        //input = "foo.grammar"
-        val isGrammarFile = input!!.endsWith(".grammar")
-        val lines = File(input).readLines()
-        lines.forEach { line ->
-            when {
-                line.startsWith("//") || line.isBlank() -> {
-                    // ignore comments and blank lines
-                }
-                line.endsWith(":") -> { // intent found
-                    intent = line.substring(0, line.length - 1)
-                    if (intents.find { it.name.equals(intent, true) } != null) {
-                        printErr("Intent \"$intent\" already defined. Appending new parts. You have been warned.")
-                    } else {
-                        intents.add(Intent(intent as String))
-                    }
-                }
-                line.startsWith("->") -> addTo {
-                    // Voice only option
-
-                }
-                line.startsWith(">") -> addTo {
-                    // Voice only
-
-                }
-                line.startsWith("-") -> addTo {
-                    // option
-
-                }
-                line.startsWith("#switch") -> { // switch
-
-                }
-                line.startsWith("#if") -> { // if
-
-                }
-                line.startsWith("!") -> addTo {
-                    addUtterance(this, line.substring(2))
-                }
-                else -> addTo {
-                    if (isGrammarFile) {
-                        // handle as sample utterance since this is a grammar file
-                        addUtterance(this, line)
-                    } else {
-                        // static part
-                    }
-                }
-            }
-        }
+        intents = Parser(input!!).intents
         println("Parsing finished. Found ${intents.size} intents.")
 
         if (countPermutations) {
             fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)
 
             var total = 0L
-            intents.forEach { intent ->
+            intents.forEach { intent : Intent ->
                 var count = 0L
-                intent.utterances.forEach { count += it.permutationCount }
+                intent.utterances.forEach { it: Utterance -> count += it.permutationCount }
                 if (stats) println("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
                 total += count
             }
@@ -163,7 +114,7 @@ class Cli(args: Array<String>) {
                 } else {
                     println("Dumping ${intent.name}...")
                     val stream = File("${intent.name}.txt").outputStream()
-                    intent.utterances.forEach { utterance ->
+                    intent.utterances.forEach { utterance: Utterance ->
                         utterance.permutations.forEach { permutation ->
                             stream.write(permutation.toByteArray())
                             stream.write(13)
@@ -189,24 +140,6 @@ class Cli(args: Array<String>) {
             println("Output written to $outputFile")
         }
     }
-
-    class Intent(val name: String) {
-        val parts = mutableListOf<Part>()
-        val utterances = mutableListOf<Utterance>()
-        val answers = mutableListOf<Utterance>()
-
-    }
-
-    private fun addUtterance(intent: Intent, utterance: String) {
-        intent.utterances.add(Utterance(utterance, intent.name))
-    }
-
-    private fun addTo(block: Intent.() -> Unit) = intent?.let {
-        intents.find { it.name == intent }?.let(block::invoke)
-    } ?: printErr("No intent defined.")
-
-    private fun printErr(errorMsg: String) =
-            System.err.println(errorMsg)
 
     private fun help() {
         println("Arguments for konversation:")
@@ -429,6 +362,10 @@ class Cli(args: Array<String>) {
         @JvmStatic
         fun main(args: Array<String>) {
             Cli(args)
+
+            //val angebote = Konversation("angebote") // Es gibt $n angebote:\n$angebote
+            //val angebot = Konversation("angebot") // $angebot.name $angebot.preis€
+            //angebote.create(angebotList.joinToString {angebot.create(it)}) // Es gibt 2 angebote:\nTomaten 10€\nToast 99€...
         }
     }
 }

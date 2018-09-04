@@ -1,6 +1,8 @@
 package com.rewedigital.voice.konversation
 
-open class Prompt(val parts: List<Part>) {
+open class Prompt(val parts: MutableList<Part> =  mutableListOf()) {
+    constructor(part: Part) : this(mutableListOf(part))
+
     fun create(): String {
         return parts.joinToString { it.variant[0] } // FIXME
     }

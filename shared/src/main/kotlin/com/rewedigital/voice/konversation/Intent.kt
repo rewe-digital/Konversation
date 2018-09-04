@@ -2,8 +2,8 @@ package com.rewedigital.voice.konversation
 
 data class Intent(val name: String,
                   val utterances: MutableList<Utterance> = mutableListOf(),
-                  val prompt: MutableList<Prompt> = mutableListOf(),
-                  val reprompt: MutableList<Prompt> = mutableListOf(),
+                  val prompt: Prompt = Prompt(),
+                  val reprompt: MutableMap<Int, Prompt> = mutableMapOf(),
                   var inContext: String? = null,
                   var outContext: String? = null,
                   val followUp: MutableList<String> = mutableListOf(),

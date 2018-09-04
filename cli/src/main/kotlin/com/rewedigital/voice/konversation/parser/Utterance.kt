@@ -1,6 +1,7 @@
-package com.rewedigital.voice.konversation.parts
+package com.rewedigital.voice.konversation.parser
 
 import com.rewedigital.voice.konversation.Part
+import com.rewedigital.voice.konversation.PartType
 import com.rewedigital.voice.konversation.SwapingHashedList
 import java.io.File
 import java.text.ParseException
@@ -8,6 +9,11 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class Utterance(val line: String, val name: String) : Part {
+    override val option: List<String>
+        get() = TODO("not implemented")
+    override val type: PartType
+        get() = TODO("not implemented")
+
     private var cache: SwapingHashedList? = null
 
     val permutations: SwapingHashedList

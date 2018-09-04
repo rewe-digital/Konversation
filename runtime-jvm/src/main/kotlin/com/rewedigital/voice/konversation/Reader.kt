@@ -3,7 +3,7 @@ package com.rewedigital.voice.konversation
 import com.squareup.moshi.Moshi
 
 actual class Reader {
-    actual fun loadAnswer(name: String) : Answer {
+    actual fun loadAnswer(name: String) : Prompt {
         val adapter = Moshi.Builder()
             .add(AdapterFactory())
             .build()

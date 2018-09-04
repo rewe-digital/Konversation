@@ -12,12 +12,22 @@
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
     <bytecodeTargetLevel>
+      <module name="cli_main" target="1.8" />
+      <module name="cli_test" target="1.8" />
       <module name="konversation-common_main" target="1.8" />
       <module name="konversation-common_test" target="1.8" />
       <module name="konversation-js_main" target="1.8" />
       <module name="konversation-js_test" target="1.8" />
       <module name="konversation-jvm_main" target="1.8" />
       <module name="konversation-jvm_test" target="1.8" />
+      <module name="runtime-js_main" target="1.8" />
+      <module name="runtime-js_test" target="1.8" />
+      <module name="runtime-jvm_main" target="1.8" />
+      <module name="runtime-jvm_test" target="1.8" />
+      <module name="runtime-shared_main" target="1.8" />
+      <module name="runtime-shared_test" target="1.8" />
+      <module name="shared_main" target="1.8" />
+      <module name="shared_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

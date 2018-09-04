@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class AnswerImpl(override val parts: List<Part>,
-                      override val suggestions: List<Suggestion>) : Answer
+                      override val suggestions: List<Suggestion>) : Prompt
 
 @JsonClass(generateAdapter = true)
 data class PartImpl(override val option: List<String>,

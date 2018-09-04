@@ -3,7 +3,7 @@ package com.rewedigital.voice.konversation
 external fun require(module: String): dynamic
 
 actual class Reader {
-    actual fun loadAnswer(name: String): Answer {
+    actual fun loadAnswer(name: String): Prompt {
         val json = try {
             require("../$name.json")
         } catch (e: Throwable) {

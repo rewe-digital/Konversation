@@ -2,14 +2,31 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b2ccac5c-1702-4142-b5fe-ce20869be7f6" name="Default Changelist" comment="Integrate konversation cli from existing sources">
-      <change afterPath="$PROJECT_DIR$/.idea/modules/cli/cli_main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/cli/cli_test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cli/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime__3_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules/shared/shared_main.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules/shared/shared_test.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Suggestion.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Run_JVM.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/Runtime_JVM.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cli/cli.iml" beforeDir="false" afterPath="$PROJECT_DIR$/cli/cli.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/runtime-shared/runtime-shared_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/runtime-shared/runtime-shared_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/runtime-shared/runtime-shared_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/runtime-shared/runtime-shared_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/cli/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/Cli.kt" beforeDir="false" afterPath="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/Cli.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/Part.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Part.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/PartType.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/PartType.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/parts/OptionPart.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/parts/OptionPart.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/parts/Utterance.kt" beforeDir="false" afterPath="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/parser/Utterance.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-js/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-js/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-js/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-js/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/AdapterFactory.kt" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/AdapterFactory.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-shared/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-shared/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Prompt.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Konversation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Konversation.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -36,6 +53,9 @@
     <ignored path="$PROJECT_DIR$/cli/.gradle/" />
     <ignored path="$PROJECT_DIR$/cli/build/" />
     <ignored path="$PROJECT_DIR$/cli/out/" />
+    <ignored path="$PROJECT_DIR$/shared/.gradle/" />
+    <ignored path="$PROJECT_DIR$/shared/build/" />
+    <ignored path="$PROJECT_DIR$/shared/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,27 +115,27 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="gradle" value="6" />
-          <entry key="kt" value="16" />
+          <entry key="gradle" value="7" />
+          <entry key="kt" value="22" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Groovy" value="6" />
-          <entry key="Kotlin" value="16" />
+          <entry key="Groovy" value="7" />
+          <entry key="Kotlin" value="22" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="gradle" value="117" />
-          <entry key="kt" value="61" />
+          <entry key="gradle" value="174" />
+          <entry key="kt" value="102" />
           <entry key="txt" value="186" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Groovy" value="117" />
-          <entry key="Kotlin" value="61" />
+          <entry key="Groovy" value="174" />
+          <entry key="Kotlin" value="102" />
           <entry key="PLAIN_TEXT" value="186" />
         </counts>
       </usages-collector>
@@ -132,7 +152,7 @@
         <entry file="file://$PROJECT_DIR$/settings.gradle">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="241">
-              <caret line="19" column="59" selection-start-line="19" selection-start-column="59" selection-end-line="19" selection-end-column="59" />
+              <caret line="19" column="70" selection-start-line="19" selection-start-column="70" selection-end-line="19" selection-end-column="70" />
             </state>
           </provider>
         </entry>
@@ -149,22 +169,44 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/runtime-jvm/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3">
-              <caret line="20" column="12" selection-start-line="20" selection-start-column="12" selection-end-line="25" />
+            <state relative-caret-position="89">
+              <caret line="11" column="41" selection-start-line="10" selection-start-column="53" selection-end-line="11" selection-end-column="41" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/runtime-shared/build.gradle">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="30" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/shared/build.gradle">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="235">
+              <caret line="17" column="1" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt">
+        <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Prompt.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret selection-end-line="1" />
+            <state relative-caret-position="34">
+              <caret line="2" column="10" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Suggestion.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="5" column="1" selection-start-line="5" selection-start-column="1" selection-end-line="5" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -172,8 +214,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Konversation.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1" selection-start-line="1" selection-end-line="1" />
+            <state relative-caret-position="102">
+              <caret line="6" column="39" selection-start-line="6" selection-start-column="39" selection-end-line="6" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -213,8 +255,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+            <state relative-caret-position="51">
+              <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -264,11 +306,38 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cli/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="20" column="1" lean-forward="true" selection-start-line="20" selection-start-column="1" selection-end-line="20" selection-end-column="1" />
+            <state relative-caret-position="323">
+              <caret line="19" column="22" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/Cli.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="238">
+              <caret line="166" column="43" selection-start-line="166" selection-start-column="43" selection-end-line="166" selection-end-column="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/parser/Utterance.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="206">
+              <caret line="15" selection-start-line="15" selection-end-line="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/parts/OptionPart.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -276,13 +345,38 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Utterance.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1" selection-start-line="1" selection-end-line="1" />
+            <state relative-caret-position="34">
+              <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Part.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="10" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/PartType.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin File" />
+      </list>
+    </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -338,6 +432,10 @@
               <ExternalProjectPojo>
                 <option name="name" value=":runtime-shared" />
                 <option name="path" value="$PROJECT_DIR$/runtime-shared" />
+              </ExternalProjectPojo>
+              <ExternalProjectPojo>
+                <option name="name" value=":shared" />
+                <option name="path" value="$PROJECT_DIR$/shared" />
               </ExternalProjectPojo>
             </list>
           </value>
@@ -1694,23 +1792,169 @@
             </list>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/shared">
+          <value>
+            <list>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays the components produced by project ':shared'. [incubating]" />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="components" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Assembles and tests this project and all projects that depend on it." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="buildDependents" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="inspectClassesForKotlinIC" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays the sub-projects of project ':shared'." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="projects" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Assembles main classes." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="classes" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays the dependent components of components in project ':shared'. [incubating]" />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="dependentComponents" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays all buildscript dependencies declared in project ':shared'." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="buildEnvironment" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Compiles the kotlin sources in source set 'main' to Metadata." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="compileKotlinCommon" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Assembles test classes." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="testClasses" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Compiles the kotlin sources in source set 'test' to Metadata." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="compileTestKotlinCommon" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Generates Javadoc API documentation for the main source code." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="javadoc" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Assembles a jar archive containing the main classes." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="jar" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays the configuration model of project ':shared'. [incubating]" />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="model" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Processes main resources." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="processResources" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays the tasks runnable from project ':shared'." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="tasks" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Runs the unit tests." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="test" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Compiles main Java source." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="compileJava" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays the insight into a specific dependency in project ':shared'." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="dependencyInsight" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Runs all checks." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="check" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Assembles the outputs of this project." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="assemble" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Deletes the build directory." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="clean" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Compiles test Java source." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="compileTestJava" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays all dependencies declared in project ':shared'." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="dependencies" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Processes test resources." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="processTestResources" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays a help message." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="help" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Assembles and tests this project." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="build" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Assembles and tests this project and all projects it depends on." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="buildNeeded" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Displays the properties of project ':shared'." />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/shared" />
+                <option name="name" value="properties" />
+              </ExternalTaskPojo>
+            </list>
+          </value>
+        </entry>
       </map>
     </option>
     <option name="modificationStamps">
       <map>
         <entry key="$USER_HOME$/.gradle/gradle.properties" value="53592736" />
-        <entry key="$PROJECT_DIR$" value="13815006859127" />
+        <entry key="$PROJECT_DIR$" value="15351233037221" />
         <entry key="$PROJECT_DIR$/.gradle" value="0" />
         <entry key="$PROJECT_DIR$/build.gradle" value="0" />
-        <entry key="$PROJECT_DIR$/cli/build.gradle" value="1569421569" />
+        <entry key="$PROJECT_DIR$/cli/build.gradle" value="2270447918" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="2007532874" />
         <entry key="$PROJECT_DIR$/konversation-common/build.gradle" value="1427342378" />
         <entry key="$PROJECT_DIR$/konversation-js/build.gradle" value="984881117" />
         <entry key="$PROJECT_DIR$/konversation-jvm/build.gradle" value="3294161422" />
         <entry key="$PROJECT_DIR$/runtime-js/build.gradle" value="794667762" />
         <entry key="$PROJECT_DIR$/runtime-jvm/build.gradle" value="3477050527" />
-        <entry key="$PROJECT_DIR$/runtime-shared/build.gradle" value="1427342378" />
-        <entry key="$PROJECT_DIR$/settings.gradle" value="1587545103" />
+        <entry key="$PROJECT_DIR$/runtime-shared/build.gradle" value="1913896151" />
+        <entry key="$PROJECT_DIR$/settings.gradle" value="3982956284" />
+        <entry key="$PROJECT_DIR$/shared/build.gradle" value="2203502059" />
         <entry key="$USER_HOME$/work_private/repository/ninjascreen" value="4343571951000" />
       </map>
     </option>
@@ -1987,6 +2231,43 @@
                       </ExternalModuleBuildClasspathPojo>
                     </value>
                   </entry>
+                  <entry key="$PROJECT_DIR$/shared">
+                    <value>
+                      <ExternalModuleBuildClasspathPojo>
+                        <option name="entries">
+                          <list>
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-gradle-plugin/1.2.61/49e02dbf8e63e9c0e07227f42ac4434562d36849/kotlin-gradle-plugin-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-gradle-plugin-api/1.2.61/77a9484a91b965bdab66b1ddd284a26bf60dcc64/kotlin-gradle-plugin-api-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/1.2.61/957a542317a109a91740dbfd7985c6d53b805a48/kotlin-compiler-embeddable-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-annotation-processing-gradle/1.2.61/e7182f6ecdfd4e7958febeaec366ab1cd8520397/kotlin-annotation-processing-gradle-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-android-extensions/1.2.61/8a930fa2df4db285b4f87fa6a88501207d348dd5/kotlin-android-extensions-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-runner/1.2.61/ec21751c51d00a1765bc2d56f56b37dc42f013ab/kotlin-compiler-runner-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.2.61/5146b44c50f5e853d6d77150089b6281d72fe736/kotlin-stdlib-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/1.2.61/2b238c25391b625f82be36cdcb5338fc6e893544/kotlin-script-runtime-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.2.61/3791515d7539f39f1cc3298aa2fa685496e03a9d/kotlin-reflect-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-common/1.2.61/aa3622272b4bd1d65c02702fa27033e8cc85a4c1/kotlin-build-common-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-client/1.2.61/d21b0b9d9dc54a2bfd47b9bc45c4aeb172a2008c/kotlin-daemon-client-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.2.61/bb8aafdddb6c895ba1a9646eddabdb844eb544fb/kotlin-stdlib-common-1.2.61-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/5991ca87ef1fb5544943d9abc5a9a37583fabe03/annotations-13.0-sources.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-gradle-plugin/1.2.61/6a08413ee8ac77a7eda563b757661401f940ec49/kotlin-gradle-plugin-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-gradle-plugin-api/1.2.61/e5cd4bae31ef34853235337ea8779badfb59952c/kotlin-gradle-plugin-api-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/1.2.61/8f4812486d21943cea3f170d53537e628f7eef8c/kotlin-compiler-embeddable-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-annotation-processing-gradle/1.2.61/57f9bb657e120efe72b86b58781636770606019a/kotlin-annotation-processing-gradle-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-android-extensions/1.2.61/564710f8171991001cba1c828c3331d833d9d28b/kotlin-android-extensions-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-runner/1.2.61/51d4f6b89c6db2ec32a81bd19d087e91f5b01e5b/kotlin-compiler-runner-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.2.61/5bc44acc4b3f0d19166ae3e50454b41e8ff29335/kotlin-stdlib-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/1.2.61/75e4bfc103b71324be6fc862ce806d5399508a14/kotlin-script-runtime-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.2.61/6fd5bcfc9ffc446dd147ea006bee7ef5f0ad8ca4/kotlin-reflect-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-common/1.2.61/6a2122077527c3e6a1c6c173e85c71eaa91f66fa/kotlin-build-common-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-client/1.2.61/fbc88762858fcf7a70cecf55f711e83910d01ede/kotlin-daemon-client-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.2.61/772de03e12d932f489e41aef997d26c20a4ebee6/kotlin-stdlib-common-1.2.61.jar" />
+                            <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" />
+                          </list>
+                        </option>
+                        <option name="path" value="$PROJECT_DIR$/shared" />
+                      </ExternalModuleBuildClasspathPojo>
+                    </value>
+                  </entry>
                 </map>
               </option>
               <option name="name" value="konversation" />
@@ -2099,13 +2380,22 @@
         <option value="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/AdapterFactory.kt" />
         <option value="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Random.kt" />
         <option value="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt" />
-        <option value="$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Konversation.kt" />
         <option value="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt" />
         <option value="$PROJECT_DIR$/runtime-jvm/build.gradle" />
         <option value="$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Shell.kt" />
-        <option value="$PROJECT_DIR$/cli/build.gradle" />
-        <option value="$PROJECT_DIR$/settings.gradle" />
         <option value="$PROJECT_DIR$/cli/src/kotlin/com/rewedigital/voice/konversation/Cli.kt" />
+        <option value="$PROJECT_DIR$/settings.gradle" />
+        <option value="$PROJECT_DIR$/runtime-shared/build.gradle" />
+        <option value="$PROJECT_DIR$/cli/build.gradle" />
+        <option value="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/Cli.kt" />
+        <option value="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/PartType.kt" />
+        <option value="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Part.kt" />
+        <option value="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Suggestion.kt" />
+        <option value="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt" />
+        <option value="$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Prompt.kt" />
+        <option value="$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/parser/Utterance.kt" />
+        <option value="$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Konversation.kt" />
+        <option value="$PROJECT_DIR$/shared/build.gradle" />
       </list>
     </option>
   </component>
@@ -2194,11 +2484,96 @@
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
-    <navigator proportions="" version="1">
+    <navigator currentView="Scope" currentSubView="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope" proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Scope">
+        <subPane subId="Scope 'Production'; set:Production; class com.intellij.psi.search.scope.ProjectProductionScope">
+          <expand>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="kotlin" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="kotlin" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="com" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="kotlin" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="com" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="rewedigital" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+        <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
+          <expand>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="kotlin" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="kotlin" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="com" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="cli" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="cli_main" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="kotlin" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="com" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="rewedigital" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="shared" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="konversation" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="shared" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="shared" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="AndroidView" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
@@ -2217,20 +2592,51 @@
               <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
               <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="cli" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="build" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
-              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="cli" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="build" type="462c0819:PsiDirectoryNode" />
-              <item name="libs" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
               <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="cli" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="cli" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="cli" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
+              <item name="konversation" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="cli" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
+              <item name="konversation" type="462c0819:PsiDirectoryNode" />
+              <item name="generator" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="cli" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
+              <item name="konversation" type="462c0819:PsiDirectoryNode" />
+              <item name="parser" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
@@ -2342,6 +2748,51 @@
               <item name="kotlin" type="462c0819:PsiDirectoryNode" />
               <item name="konversation" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="shared" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="shared" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="shared" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="shared" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="shared" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
+              <item name="konversation" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="konversation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="konversation" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="shared" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="kotlin" type="462c0819:PsiDirectoryNode" />
+              <item name="konversation" type="462c0819:PsiDirectoryNode" />
+              <item name="parts" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -2359,7 +2810,7 @@
     <property name="android.project.structure.last.selected" value="SDK Location" />
     <property name="android.project.structure.proportion" value="0.15" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1535990916381" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536047887106" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/runtime-jvm/src/main/kotlin" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/cli/build/libs/konversation.jar" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -2375,13 +2826,20 @@
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
-    <property name="settings.editor.selected.configurable" value="fileTemplates" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\rene.kilczan\Programmierung\konversation\shared" />
+    </key>
+    <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="com.rewedigital.voice.konversation.parser" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\rene.kilczan\Programmierung\konversation\shared\src\main\kotlin\com\rewedigital\voice\konversation" />
       <recent name="C:\Users\rene.kilczan\Programmierung\konversation\runtime-jvm\src\main\kotlin\com\rewedigital\voice" />
     </key>
   </component>
@@ -2397,7 +2855,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JAR Application.Run CLI">
+  <component name="RunManager" selected="JAR Application.Runtime JVM">
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
       <Port>5050</Port>
@@ -2508,7 +2966,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1535977209463</updated>
-      <workItem from="1535977217338" duration="5696000" />
+      <workItem from="1535977217338" duration="9820000" />
     </task>
     <task id="LOCAL-00001" summary="Created structure">
       <created>1535986242188</created>
@@ -2528,7 +2986,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5696000" />
+    <option name="totallyTimeSpent" value="9820000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
@@ -2538,17 +2996,17 @@
       <window_info id="UI Designer" />
       <window_info id="Favorites" side_tool="true" />
       <window_info id="Capture Tool" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24966443" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24966443" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Build" weight="0.329429" />
-      <window_info active="true" anchor="bottom" id="Terminal" visible="true" weight="0.329429" />
+      <window_info anchor="bottom" id="Terminal" weight="0.329429" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.329429" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.329429" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39970717" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -2580,23 +3038,6 @@
     <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/app/rks/test/Answer.kt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/runtime-shared/build.gradle">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Answer.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Utterance.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" selection-start-line="1" selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Random.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
@@ -2618,20 +3059,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
           <caret line="8" column="18" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Konversation.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" selection-start-line="1" selection-end-line="1" />
         </state>
       </provider>
     </entry>
@@ -2663,13 +3090,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/runtime-jvm/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3">
-          <caret line="20" column="12" selection-start-line="20" selection-start-column="12" selection-end-line="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/runtime-jvm/src/main/kotlin/com/rewedigital/voice/konversation/Shell.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
@@ -2679,13 +3099,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/settings.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="19" column="59" selection-start-line="19" selection-start-column="59" selection-end-line="19" selection-end-column="59" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/runtime-js/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
@@ -2701,10 +3114,108 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/settings.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="241">
+          <caret line="19" column="70" selection-start-line="19" selection-start-column="70" selection-end-line="19" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/runtime-jvm/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="89">
+          <caret line="11" column="41" selection-start-line="10" selection-start-column="53" selection-end-line="11" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/Cli.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="166" column="43" selection-start-line="166" selection-start-column="43" selection-end-line="166" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/cli/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="20" column="1" lean-forward="true" selection-start-line="20" selection-start-column="1" selection-end-line="20" selection-end-column="1" />
+        <state relative-caret-position="323">
+          <caret line="19" column="22" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Utterance.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/parts/OptionPart.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/PartType.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Suggestion.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="1" selection-start-line="5" selection-start-column="1" selection-end-line="5" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cli/src/main/kotlin/com/rewedigital/voice/konversation/parser/Utterance.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="206">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Reader.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Prompt.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="10" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Konversation.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="39" selection-start-line="6" selection-start-column="39" selection-end-line="6" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/src/main/kotlin/com/rewedigital/voice/konversation/Part.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="10" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/runtime-shared/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="30" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="17" column="1" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
         </state>
       </provider>
     </entry>

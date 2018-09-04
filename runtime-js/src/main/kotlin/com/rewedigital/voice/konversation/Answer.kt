@@ -1,7 +1,7 @@
 package com.rewedigital.voice.konversation
 
 data class AnswerImpl(override val parts: List<Part>,
-                      override val suggestions: List<Suggestion>) : Answer {
+                      override val suggestions: List<Suggestion>) : Prompt {
     // small hack since an array cannot be converted to a list automatically
     constructor(json: dynamic) : this(
         (json.parts as Array<dynamic>).map { PartImpl(it) },

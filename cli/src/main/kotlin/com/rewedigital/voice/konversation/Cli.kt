@@ -1,6 +1,6 @@
 package com.rewedigital.voice.konversation
 
-import com.rewedigital.voice.konversation.parts.Utterance
+import com.rewedigital.voice.konversation.parser.Utterance
 import java.io.File
 import java.util.*
 import java.util.function.Consumer

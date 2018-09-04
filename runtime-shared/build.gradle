@@ -9,4 +9,5 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-common"
     testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common"
     testCompile "org.jetbrains.kotlin:kotlin-test-common"
+    compile project(":shared")
 }

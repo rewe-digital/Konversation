@@ -1,0 +1,26 @@
+{
+  "parts": [
+    {
+      "option": [
+        "hallo",
+        "hi",
+        "hey"
+      ],
+      "type": "Text"
+    },
+    {
+      "option": [
+        "hier siehst du einen dynamischen Dialog.",
+        "das ist ein zufälliger Dialog",
+        "dynamische Texte sind cool"
+      ],
+      "type": "Text"
+    }
+  ],
+  "suggestions": [
+    {
+      "label": "Hallo",
+      "data": "0123"
+    }
+  ]
+}

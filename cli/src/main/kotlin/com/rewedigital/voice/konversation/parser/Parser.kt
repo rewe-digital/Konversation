@@ -1,18 +1,18 @@
 package com.rewedigital.voice.konversation.parser
 
-import com.rewedigital.voice.konversation.Intent
-import com.rewedigital.voice.konversation.PartImpl
-import com.rewedigital.voice.konversation.PartType
-import com.rewedigital.voice.konversation.Prompt
+import com.rewedigital.voice.konversation.*
 import java.io.File
+import java.util.*
 
 class Parser(input: String) {
-    private var intent: String? = null
     val intents = mutableListOf<Intent>()
+    private var lastIntent : Intent? = null
 
     init {
         val isGrammarFile = input.endsWith(".grammar")
         val lines = File(input).readLines()
+        var lastPart: Part? = null
+        var lastIntentName = UUID.randomUUID().toString()
         lines.forEach { line ->
             when {
                 line.startsWith("//") || line.startsWith("#") || line.isBlank() -> {
@@ -20,35 +20,31 @@ class Parser(input: String) {
                 }
                 line.trim() == "+" -> addTo {
                     // just let the block end
+                    lastPart = null
+                    //prompt.parts.add(PartImpl(type = PartType.Text, variant = mutableListOf("")))
                 }
                 line.trim() == "-" -> addTo {
                     // add a line break
-                    var lastPart = prompt.parts.lastOrNull()
-                    if (lastPart == null || lastPart.type != PartType.Text) {
-                        lastPart = PartImpl(type = PartType.VoiceOnly, variant = mutableListOf())
-                        prompt.parts.add(lastPart)
-                    }
-                    lastPart.variant.add(" \n")
+                    lastPart = null
+                    prompt.parts.add(PartImpl(type = PartType.Text, variant = mutableListOf(" \n")))
                 }
                 line.startsWith("~") -> addTo {
                     // Voice only
-                    val text = line.substring(1)
-                    var textPart = prompt.parts.lastOrNull()
-                    if (textPart == null || textPart.type != PartType.Text) {
-                        textPart = PartImpl(type = PartType.VoiceOnly, variant = mutableListOf())
-                        prompt.parts.add(textPart)
+                    val text = line.substring(1).trim()
+                    if (lastPart?.type ?: PartType.Text == PartType.Text) {
+                        lastPart = PartImpl(type = PartType.VoiceOnly, variant = mutableListOf())
+                        prompt.parts.add(lastPart!!)
                     }
-                    textPart.variant.add(text)
+                    lastPart?.variant?.add(text)
                 }
                 line.startsWith("-") -> addTo {
                     // variant
-                    val text = line.substring(1)
-                    var voicePart = prompt.parts.lastOrNull()
-                    if (voicePart == null || voicePart.type != PartType.VoiceOnly) {
-                        voicePart = PartImpl(type = PartType.Text, variant = mutableListOf())
-                        prompt.parts.add(voicePart)
+                    val text = line.substring(1).trim()
+                    if (lastPart?.type ?: PartType.VoiceOnly == PartType.VoiceOnly) {
+                        lastPart = PartImpl(type = PartType.Text, variant = mutableListOf())
+                        prompt.parts.add(lastPart!!)
                     }
-                    voicePart.variant.add(text)
+                    lastPart?.variant?.add(text)
                 }
                 line.startsWith("!") -> addTo {
                     // reprompt
@@ -73,12 +69,25 @@ class Parser(input: String) {
                 line.startsWith("?") || line.startsWith("&") -> addTo {
                     // TODO handle
                 }
-                line.endsWith(":") -> { // intent found
-                    intent = line.substring(0, line.length - 1)
-                    if (intents.find { it.name.equals(intent, true) } != null) {
-                        printErr("Intent \"$intent\" already defined. Appending new parts. You have been warned.")
+                line.contains('=') && line.startsWith(lastIntentName) -> {
+                    lastPart = null
+                    if (intents.find { it.name.equals(line, true) } != null) {
+                        printErr("Intent \"$line\" already defined. Appending new parts. You have been warned.")
                     } else {
-                        intents.add(Intent(intent as String))
+                        lastIntent = Intent(line).also {
+                            intents.add(it)
+                        }
+                    }
+                }
+                line.endsWith(":") -> { // intent found
+                    lastPart = null
+                    lastIntentName = line.substring(0, line.length - 1)
+                    if (intents.find { it.name.equals(lastIntentName, true) } != null) {
+                        printErr("Intent \"${lastIntent?.name}\" already defined. Appending new parts. You have been warned.")
+                    } else {
+                        lastIntent = Intent(lastIntentName).also {
+                            intents.add(it)
+                        }
                     }
                 }
                 else -> addTo {
@@ -95,8 +104,5 @@ class Parser(input: String) {
     private fun printErr(errorMsg: String) =
         System.err.println(errorMsg)
 
-    private fun addTo(block: Intent.() -> Unit) = intent?.let { intent ->
-        intents.find { it.name == intent }?.let(block::invoke)
-    } ?: printErr("No intent defined.")
-
+    private fun addTo(block: Intent.() -> Unit) = lastIntent?.let(block::invoke) ?: printErr("No intent defined.")
 }

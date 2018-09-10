@@ -7,7 +7,6 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.system.exitProcess
 
-
 class Cli(args: Array<String>) {
     private var intents: MutableList<Intent>
 
@@ -89,7 +88,7 @@ class Cli(args: Array<String>) {
             fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)
 
             var total = 0L
-            intents.forEach { intent : Intent ->
+            intents.forEach { intent: Intent ->
                 var count = 0L
                 intent.utterances.forEach { it: Utterance -> count += it.permutationCount }
                 if (stats) println("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
@@ -126,19 +125,27 @@ class Cli(args: Array<String>) {
             }
         }
 
-        outputFile?.let {
-            val stream = File(outputFile).outputStream()
-            if (prettyPrint) {
-                generateJson({ line ->
-                    stream.write(line.toByteArray())
-                }, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
-            } else {
-                generateJsonMinimized({ line ->
-                    stream.write(line.toByteArray())
-                }, File(input).absoluteFile.parent)
-            }
-            println("Output written to $outputFile")
+        intents.forEach { intent ->
+            println("Response of ${intent.name}")
+            intent.prompt.create().runIfNotNullOrEmpty(::println)
+            println("---")
         }
+
+        //println(intents[1].prompt.create())
+
+        //outputFile?.let {
+        //    val stream = File(outputFile).outputStream()
+        //    if (prettyPrint) {
+        //        generateJson({ line ->
+        //            stream.write(line.toByteArray())
+        //        }, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
+        //    } else {
+        //        generateJsonMinimized({ line ->
+        //            stream.write(line.toByteArray())
+        //        }, File(input).absoluteFile.parent)
+        //    }
+        //    println("Output written to $outputFile")
+        //}
     }
 
     private fun help() {
@@ -158,16 +165,16 @@ class Cli(args: Array<String>) {
     private fun generateJson(printer: (output: String) -> Unit, baseDir: String, limit: Long) {
         // write prefix
         printer("{\n" +
-                "  \"interactionModel\" : {\n" +
-                "    \"languageModel\" : {\n" +
-                "      \"invocationName\" : \"rewe\",\n" +
-                "      \"intents\" : [\n")
+                        "  \"interactionModel\" : {\n" +
+                        "    \"languageModel\" : {\n" +
+                        "      \"invocationName\" : \"rewe\",\n" +
+                        "      \"intents\" : [\n")
 
         // write out intents
         intents.forEachIterator { intent ->
             printer("        {\n" +
-                    "          \"name\" : \"${intent.name}\",\n" +
-                    "          \"slots\" : [\n")
+                            "          \"name\" : \"${intent.name}\",\n" +
+                            "          \"slots\" : [\n")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             allSlots.forEachIterator { slot ->
                 val (name, type) = if (slot.contains(':')) {
@@ -178,13 +185,13 @@ class Cli(args: Array<String>) {
                 }
                 // write slot types
                 printer("            {\n" +
-                        "              \"name\" : \"$name\",\n" +
-                        "              \"type\" : \"$type\"\n" +
-                        "            }" + (if (hasNext()) "," else "") + "\n")
+                                "              \"name\" : \"$name\",\n" +
+                                "              \"type\" : \"$type\"\n" +
+                                "            }" + (if (hasNext()) "," else "") + "\n")
             }
             // write sample utterances
             printer("          ],\n" +
-                    "          \"samples\" : [\n")
+                            "          \"samples\" : [\n")
             var total: Int
             var moreUtterances: Boolean
             intent.utterances.forEachBreakable { utterance ->
@@ -203,78 +210,78 @@ class Cli(args: Array<String>) {
                 }
             }
             printer("          ]\n" +
-                    "        }" + (if (hasNext()) "," else "") + "\n")
+                            "        }" + (if (hasNext()) "," else "") + "\n")
         }
         // write the custom slot type definitions
         printer("      ],\n" +
-                "      \"types\" : [\n")
+                        "      \"types\" : [\n")
 
         intents.flatMap { it.utterances.flatMap { it.slotTypes } }
-                .toHashSet()
-                .map { Pair(it, File("$baseDir/$it.values")) }
-                .filter { (slot, file) ->
-                    if (file.exists())
-                        true else {
-                        val parts = slot.split(':')
-                        if (parts.size == 2) {
-                            if (!parts[1].startsWith("AMAZON.")) println("WARNING: No definition for slot type \"${parts[1]}\" found")
-                        } else {
-                            println("WARNING: No definition for slot type \"$slot\" found")
+            .toHashSet()
+            .map { Pair(it, File("$baseDir/$it.values")) }
+            .filter { (slot, file) ->
+                if (file.exists())
+                    true else {
+                    val parts = slot.split(':')
+                    if (parts.size == 2) {
+                        if (!parts[1].startsWith("AMAZON.")) println("WARNING: No definition for slot type \"${parts[1]}\" found")
+                    } else {
+                        println("WARNING: No definition for slot type \"$slot\" found")
+                    }
+                    false
+                }
+            }
+            .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
+            .forEachIterator { (slotType, values) ->
+                printer("        {\n" +
+                                "          \"name\": \"$slotType\",\n" +
+                                "          \"values\": [\n")
+                values.forEachIterator { value ->
+                    if (value.startsWith('{')) {
+                        val aliases = value.substring(1, value.length - 1).split("|")
+                        val id = aliases.first()
+                        printer("            {\n" +
+                                        "              \"name\": {\n" +
+                                        "                \"value\": \"$id\",\n" +
+                                        "                \"synonyms\": [\n")
+                        aliases.stream().skip(1).forEachIterator { alias ->
+                            printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
                         }
-                        false
+                        printer("                ]\n" +
+                                        "              }\n" +
+                                        "            }" + (if (hasNext()) "," else "") + "\n")
+                    } else {
+                        printer("            {\n" +
+                                        "              \"name\": {\n" +
+                                        "                \"value\": \"$value\"\n" +
+                                        "              }\n" +
+                                        "            }" + (if (hasNext()) "," else "") + "\n")
                     }
                 }
-                .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
-                .forEachIterator { (slotType, values) ->
-                    printer("        {\n" +
-                            "          \"name\": \"$slotType\",\n" +
-                            "          \"values\": [\n")
-                    values.forEachIterator { value ->
-                        if (value.startsWith('{')) {
-                            val aliases = value.substring(1, value.length - 1).split("|")
-                            val id = aliases.first()
-                            printer("            {\n" +
-                                    "              \"name\": {\n" +
-                                    "                \"value\": \"$id\",\n" +
-                                    "                \"synonyms\": [\n")
-                            aliases.stream().skip(1).forEachIterator { alias ->
-                                printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
-                            }
-                            printer("                ]\n" +
-                                    "              }\n" +
-                                    "            }" + (if (hasNext()) "," else "") + "\n")
-                        } else {
-                            printer("            {\n" +
-                                    "              \"name\": {\n" +
-                                    "                \"value\": \"$value\"\n" +
-                                    "              }\n" +
-                                    "            }" + (if (hasNext()) "," else "") + "\n")
-                        }
-                    }
-                    printer("          ]\n" +
-                            "        }" + (if (hasNext()) "," else "") + "\n")
-                }
+                printer("          ]\n" +
+                                "        }" + (if (hasNext()) "," else "") + "\n")
+            }
 
         // write suffix
         printer("      ]\n" +
-                "    }\n" +
-                "  }\n" +
-                "}")
+                        "    }\n" +
+                        "  }\n" +
+                        "}")
     }
 
     private fun generateJsonMinimized(printer: (output: String) -> Unit, baseDir: String) {
         // write prefix
         printer("{" +
-                "\"interactionModel\":{" +
-                "\"languageModel\":{" +
-                "\"invocationName\":\"rewe\"," +
-                "\"intents\":[")
+                        "\"interactionModel\":{" +
+                        "\"languageModel\":{" +
+                        "\"invocationName\":\"rewe\"," +
+                        "\"intents\":[")
 
         // write out intents
         intents.forEachIterator { intent ->
             printer("{" +
-                    "\"name\":\"${intent.name}\"," +
-                    "\"slots\":[")
+                            "\"name\":\"${intent.name}\"," +
+                            "\"slots\":[")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             allSlots.forEachIterator { slot ->
                 val (name, type) = if (slot.contains(':')) {
@@ -285,13 +292,13 @@ class Cli(args: Array<String>) {
                 }
                 // write slot types
                 printer("{" +
-                        "\"name\":\"$name\"," +
-                        "\"type\":\"$type\"" +
-                        "}" + (if (hasNext()) "," else ""))
+                                "\"name\":\"$name\"," +
+                                "\"type\":\"$type\"" +
+                                "}" + (if (hasNext()) "," else ""))
             }
             // write sample utterances
             printer("]," +
-                    "\"samples\":[")
+                            "\"samples\":[")
             var total: Int
             var moreUtterances: Boolean
             intent.utterances.forEachIterator { utterance ->
@@ -310,52 +317,52 @@ class Cli(args: Array<String>) {
                 //}
             }
             printer("]" +
-                    "}" + (if (hasNext()) "," else ""))
+                            "}" + (if (hasNext()) "," else ""))
         }
         // write the custom slot type definitions
         printer("]," +
-                "\"types\":[")
+                        "\"types\":[")
 
         intents.flatMap { it.utterances.flatMap { it.slotTypes } }
-                .toHashSet()
-                .map { Pair(it, File("$baseDir/$it.values")) }
-                .filter { it.second.exists() }
-                .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
-                .forEachIterator { (slotType, values) ->
-                    printer("{" +
-                            "\"name\":\"$slotType\"," +
-                            "\"values\":[")
-                    values.forEachIterator { value ->
-                        if (value.startsWith('{')) {
-                            val aliases = value.substring(1, value.length - 1).split("|")
-                            val id = aliases.first()
-                            printer("{" +
-                                    "\"name\":{" +
-                                    "\"value\":\"$id\"," +
-                                    "\"synonyms\":[")
-                            aliases.stream().skip(1).forEachIterator { alias ->
-                                printer("\"$alias\"" + (if (hasNext()) "," else ""))
-                            }
-                            printer("]" +
-                                    "}" +
-                                    "}" + (if (hasNext()) "," else ""))
-                        } else {
-                            printer("{" +
-                                    "\"name\":{" +
-                                    "\"value\":\"$value\"" +
-                                    "}" +
-                                    "}" + (if (hasNext()) "," else ""))
+            .toHashSet()
+            .map { Pair(it, File("$baseDir/$it.values")) }
+            .filter { it.second.exists() }
+            .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
+            .forEachIterator { (slotType, values) ->
+                printer("{" +
+                                "\"name\":\"$slotType\"," +
+                                "\"values\":[")
+                values.forEachIterator { value ->
+                    if (value.startsWith('{')) {
+                        val aliases = value.substring(1, value.length - 1).split("|")
+                        val id = aliases.first()
+                        printer("{" +
+                                        "\"name\":{" +
+                                        "\"value\":\"$id\"," +
+                                        "\"synonyms\":[")
+                        aliases.stream().skip(1).forEachIterator { alias ->
+                            printer("\"$alias\"" + (if (hasNext()) "," else ""))
                         }
+                        printer("]" +
+                                        "}" +
+                                        "}" + (if (hasNext()) "," else ""))
+                    } else {
+                        printer("{" +
+                                        "\"name\":{" +
+                                        "\"value\":\"$value\"" +
+                                        "}" +
+                                        "}" + (if (hasNext()) "," else ""))
                     }
-                    printer("]" +
-                            "}" + (if (hasNext()) "," else ""))
                 }
+                printer("]" +
+                                "}" + (if (hasNext()) "," else ""))
+            }
 
         // write suffix
         printer("]" +
-                "}" +
-                "}" +
-                "}")
+                        "}" +
+                        "}" +
+                        "}")
     }
 
     companion object {
@@ -389,7 +396,7 @@ class BreakableIterator<T>(private val inner: Iterator<T>) : Iterator<T> {
     private var resume = true
 
     override fun forEachRemaining(action: Consumer<in T>) =
-            inner.forEachRemaining(action)
+        inner.forEachRemaining(action)
 
     override fun hasNext() = resume && inner.hasNext()
 
@@ -399,3 +406,5 @@ class BreakableIterator<T>(private val inner: Iterator<T>) : Iterator<T> {
         resume = false
     }
 }
+
+fun String?.runIfNotNullOrEmpty(callback: (String) -> Unit) = this?.let { if (this.isNotBlank()) callback.invoke(this) }

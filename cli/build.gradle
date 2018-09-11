@@ -18,7 +18,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
     compile project(':shared')
-    compile project(':runtime')
+    compile project(':runtime-shared')
+    compile project(':runtime-jvm')
 }
 
 sourceSets {

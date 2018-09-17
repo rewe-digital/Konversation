@@ -12,9 +12,7 @@ class Shell(conversation: String) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            if (args.isNotEmpty()) {
-                Shell(args[0])
-            }
+                Shell("test")
         }
     }
 }

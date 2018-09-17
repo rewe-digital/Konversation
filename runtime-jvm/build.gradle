@@ -10,6 +10,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     expectedBy project(":runtime-shared")
+    expectedBy project(":shared")
     testCompile "junit:junit:4.12"
     testCompile "org.jetbrains.kotlin:kotlin-test"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
@@ -17,12 +18,11 @@ dependencies {
     compile 'com.squareup.moshi:moshi-kotlin:1.6.0'
 }
 
-
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 
     // For kapt stubs
-    main.java.srcDirs += [file("$buildDir/generated/source/kapt/main")]
+    main.java.srcDirs += [file("$buildDir/generated/source/kapt/main"), file("$buildDir/../../shared/src/main/kotlin")]
 
     // For kotlin code gen during kapt
     main.java.srcDirs += [file("$buildDir/generated/source/kaptKotlin/main")]

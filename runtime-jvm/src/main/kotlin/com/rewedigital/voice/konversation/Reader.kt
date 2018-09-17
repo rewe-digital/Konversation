@@ -8,6 +8,6 @@ actual class Reader {
             .add(AdapterFactory())
             .build()
             .adapter(AnswerImpl::class.java)
-        return adapter.fromJson(Reader::class.java.getResource("/$name.json").readText())!!
+        return adapter.fromJson(javaClass.getResource("/$name.kson").readText())!!
     }
 }

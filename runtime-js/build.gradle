@@ -8,18 +8,50 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js"
     expectedBy project(":runtime-shared")
+    expectedBy project(":shared")
     testCompile "org.jetbrains.kotlin:kotlin-test-js"
 }
-
-task copyJs(type: Copy) {
-    from 'build/classes/kotlin/main/'
-    into 'js'
-}
-assemble.dependsOn copyJs
 
 compileKotlin2Js {
     kotlinOptions.sourceMap = true
     kotlinOptions.sourceMapEmbedSources = "always"
-    kotlinOptions.outputFile = "runtime-js/src/test/generated/runtime.js"
+    kotlinOptions.outputFile = "${buildDir}/out/runtime.js"
     kotlinOptions.moduleKind = "umd"
 }
+
+task assembleWeb(type: Sync) {
+    configurations.compile.each { File file ->
+        from(zipTree(file.absolutePath), {
+            includeEmptyDirs = false
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                path.endsWith(".js") && (path.startsWith("META-INF/resources/") ||
+                        !path.startsWith("META-INF/"))
+            }
+        })
+    }
+    from compileKotlin2Js.destinationDir
+    into "${buildDir}/out"
+
+    dependsOn compileKotlin2Js
+}
+
+task copyResources(type: Copy) {
+    from file("${projectDir}/src/main/resources/")
+    include "**/*.kson"
+    into file("${buildDir}/out")
+}
+
+task copyStarter(type: Copy) {
+    from file("${projectDir}/src/test")
+    include "**/*"
+    into file("${buildDir}/out")
+}
+
+assemble.dependsOn assembleWeb
+assembleWeb.dependsOn compileKotlin2Js
+assembleWeb.dependsOn copyResources
+assembleWeb.dependsOn copyStarter
+//compileKotlin2Js.dependsOn classes
+//copyResources.dependsOn classes
+//copyStarter.dependsOn classes

@@ -1,6 +1,6 @@
 package com.rewedigital.voice.konversation
 
 interface Part {
-    val variant: MutableList<String>
+    val variants: MutableList<String>
     val type: PartType
 }

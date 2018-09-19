@@ -12,6 +12,10 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-js"
 }
 
+sourceSets {
+    main.java.srcDirs += [file("$buildDir/../../shared/src/main/kotlin")]
+}
+
 compileKotlin2Js {
     kotlinOptions.sourceMap = true
     kotlinOptions.sourceMapEmbedSources = "always"

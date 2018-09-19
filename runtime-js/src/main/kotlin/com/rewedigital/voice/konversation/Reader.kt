@@ -3,7 +3,7 @@ package com.rewedigital.voice.konversation
 external fun require(module: String): dynamic
 
 actual class Reader {
-    actual fun loadAnswer(name: String): Prompt {
+    actual fun loadAnswer(name: String, environment: Environment): Prompt {
         val json = try {
             //require("./$name.kson")
             val fs = require("fs")

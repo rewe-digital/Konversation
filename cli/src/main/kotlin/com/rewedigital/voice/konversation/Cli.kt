@@ -4,6 +4,7 @@ import com.rewedigital.voice.konversation.generator.Printer
 import com.rewedigital.voice.konversation.generator.alexa.AlexaExporter
 import com.rewedigital.voice.konversation.generator.kson.KsonExporter
 import com.rewedigital.voice.konversation.parser.Parser
+import com.rewedigital.voice.konversation.parser.Utterance
 import java.io.File
 import java.util.*
 import java.util.function.Consumer

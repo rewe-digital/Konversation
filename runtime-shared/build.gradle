@@ -11,3 +11,7 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-common"
     compile project(":shared")
 }
+
+sourceSets {
+    main.java.srcDirs += [file("$buildDir/../../shared/src/main/kotlin")]
+}

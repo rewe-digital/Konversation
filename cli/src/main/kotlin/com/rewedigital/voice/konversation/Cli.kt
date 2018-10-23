@@ -1,10 +1,8 @@
 package com.rewedigital.voice.konversation
 
 import com.rewedigital.voice.konversation.generator.Printer
-import com.rewedigital.voice.konversation.generator.alexa.AlexaExporter
 import com.rewedigital.voice.konversation.generator.kson.KsonExporter
 import com.rewedigital.voice.konversation.parser.Parser
-import com.rewedigital.voice.konversation.parser.Utterance
 import java.io.File
 import java.util.*
 import java.util.function.Consumer
@@ -97,7 +95,7 @@ class Cli(args: Array<String>) {
             var total = 0L
             intents.forEach { intent: Intent ->
                 var count = 0L
-                intent.utterances.forEach { it: Utterance -> count += it.permutationCount }
+                intent.utterances.forEach { it -> count += it.permutationCount }
                 if (stats) println("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
                 total += count
             }
@@ -120,7 +118,7 @@ class Cli(args: Array<String>) {
                 } else {
                     println("Dumping ${intent.name}...")
                     val stream = File("${intent.name}.txt").outputStream()
-                    intent.utterances.forEach { utterance: Utterance ->
+                    intent.utterances.forEach { utterance ->
                         utterance.permutations.forEach { permutation ->
                             stream.write(permutation.toByteArray())
                             stream.write(13)

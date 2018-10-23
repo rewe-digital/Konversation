@@ -3,8 +3,8 @@ package com.rewedigital.voice.konversation
 open class ResourceLocator {
     fun locate(konversation: String, environment: Environment): String {
         val prefix = "konversation"
-        val locale = environment.locale.toLowerCase()
-        val lang = locale.split('_', '-').first()
+        val locale = environment.locale.toLowerCase().replace('-', '_')
+        val lang = locale.split('_').first()
         return returnIfExists("$prefix-${environment.platform}-$locale/$konversation.kson")
             .orIfExists("$prefix-${environment.platform}-$lang/$konversation.kson")
             .orIfExists("$prefix-$locale/$konversation.kson")

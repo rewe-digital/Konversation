@@ -14,7 +14,7 @@ class KsonExporter(private val filter: String) : Exporter {
             printer("    {\r\n")
             printer("      \"type\": \"${part.type}\",\r\n")
             printer("      \"variants\": [\r\n")
-            printer(part.variant.joinToString(separator = ",\n        ", prefix = "        ", postfix = "\r\n      ]\r\n") {
+            printer(part.variants.joinToString(separator = ",\n        ", prefix = "        ", postfix = "\r\n      ]\r\n") {
                 "\"${it.replace("\n","\\n").replace("\r","\\r")}\""
             })
             printer("    }")

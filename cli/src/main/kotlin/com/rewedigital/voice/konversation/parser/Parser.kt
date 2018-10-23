@@ -1,7 +1,6 @@
 package com.rewedigital.voice.konversation.parser
 
 import com.rewedigital.voice.konversation.*
-import com.sun.xml.internal.ws.wsdl.writer.document.Part
 import java.io.File
 import java.util.*
 
@@ -27,32 +26,32 @@ class Parser(input: String) {
                 line.trim() == "-" -> addTo {
                     // add a line break
                     lastPart = null
-                    prompt.parts.add(PartImpl(type = PartType.Text, variant = mutableListOf(" \n")))
+                    prompt.parts.add(PartImpl(type = PartType.Text, variants = mutableListOf(" \n")))
                 }
                 line.startsWith("~") -> addTo {
                     // Voice only
                     val text = line.substring(1).trim()
                     if (lastPart?.type ?: PartType.Text == PartType.Text) {
-                        lastPart = PartImpl(type = PartType.VoiceOnly, variant = mutableListOf())
+                        lastPart = PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())
                         prompt.parts.add(lastPart!!)
                     }
-                    lastPart?.variant?.add(text)
+                    lastPart?.variants?.add(text)
                 }
                 line.startsWith("-") -> addTo {
                     // variant
                     val text = line.substring(1).trim()
                     if (lastPart?.type ?: PartType.VoiceOnly == PartType.VoiceOnly) {
-                        lastPart = PartImpl(type = PartType.Text, variant = mutableListOf())
+                        lastPart = PartImpl(type = PartType.Text, variants = mutableListOf())
                         prompt.parts.add(lastPart!!)
                     }
-                    lastPart?.variant?.add(text)
+                    lastPart?.variants?.add(text)
                 }
                 line.startsWith("!") -> addTo {
                     // reprompt
                     val level = line.substring(1, line.indexOf(" ") - 1).toIntOrNull() ?: 1
                     val text = line.substring(line.indexOf(" "))
-                    val prompt = reprompt.getOrPut(level) { Prompt(PartImpl(type = PartType.VoiceOnly, variant = mutableListOf())) }
-                    prompt.parts.first().variant.addAll(Permutator.generate(text))
+                    val prompt = reprompt.getOrPut(level) { Prompt(PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())) }
+                    prompt.parts.first().variants.addAll(Permutator.generate(text))
                 }
                 line.startsWith("[") && line.endsWith("]") -> addTo {
                     // suggestions

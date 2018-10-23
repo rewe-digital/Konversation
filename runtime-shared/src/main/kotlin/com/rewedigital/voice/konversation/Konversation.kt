@@ -2,7 +2,7 @@ package com.rewedigital.voice.konversation
 
 class Konversation(val name: String, private val environment: Environment) {
     private val answer = Reader().loadAnswer(name, environment)
-    fun create(): String {
+    fun create(data: MutableMap<String, Any>): String {
         val sb = StringBuilder()
         answer.parts
             .filter { it.type == PartType.Text || environment.voiceOnly }
@@ -10,6 +10,20 @@ class Konversation(val name: String, private val environment: Environment) {
                 sb.append(part.variants[random.next(part.variants.size)])
             }
         return sb.toString()
+    }
+
+    internal fun applyVariables(input: String, data: MutableMap<String, Any>) {
+        val regex = "(\\$([a-zA-Z][a-zA-Z0-9]+)|\\$\\{([a-zA-Z][a-zA-Z0-9.]+)}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z][A-zA-z0-9.]+))".toRegex()
+
+        val result = regex.replace(input) { matchResult ->
+            val needle = matchResult.groups.first()?.value
+            val fieldName = matchResult.groups.filterNotNull().last().value
+            if(needle?.startsWith("%") == true) {
+                Formatter().format(needle.substring(0, needle.indexOf('$')), data[fieldName])
+            } else {
+                data[fieldName].toString()
+            }
+        }
     }
 
     companion object {

@@ -1,20 +1,25 @@
 plugins {
-    id 'kotlin-platform-jvm' version '1.2.61'
-    id 'org.jetbrains.kotlin.kapt' version '1.2.61'
+    id 'kotlin-platform-jvm' version '1.3.0-rc-190'
+    // FIX COMPILE ERROR WITH THIS
+    // id 'org.jetbrains.kotlin.kapt' version '1.3.0-rc-190'
     id 'application'
 }
 repositories {
     mavenCentral()
+    maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-reflect"
     expectedBy project(":runtime-shared")
     expectedBy project(":shared")
+    compile project(":shared")
     testCompile "junit:junit:4.12"
     testCompile "org.jetbrains.kotlin:kotlin-test"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
-    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
+    // FIX COMPILE ERROR WITH THIS
+    // kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
     compile 'com.squareup.moshi:moshi-kotlin:1.6.0'
 }
 
@@ -22,11 +27,18 @@ sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 
     // For kapt stubs
-    main.java.srcDirs += [file("$buildDir/generated/source/kapt/main"), file("$buildDir/../../shared/src/main/kotlin")]
+    main.java.srcDirs += file("$buildDir/generated/source/kapt/main")
+
+    // FIX COMPILE ERROR WITH THIS
+    // main.java.srcDirs += file("$buildDir/../../shared/src/main/kotlin")
 
     // For kotlin code gen during kapt
     main.java.srcDirs += [file("$buildDir/generated/source/kaptKotlin/main")]
 }
+
+//kapt {
+//    generateStubs = true
+//}
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"

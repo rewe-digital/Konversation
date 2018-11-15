@@ -186,10 +186,6 @@ class Cli(args: Array<String>) {
         @JvmStatic
         fun main(args: Array<String>) {
             Cli(args)
-
-            //val angebote = Konversation("angebote") // Es gibt $n angebote:\n$angebote
-            //val angebot = Konversation("angebot") // $angebot.name $angebot.preis€
-            //angebote.create(angebotList.joinToString {angebot.create(it)}) // Es gibt 2 angebote:\nTomaten 10€\nToast 99€...
         }
     }
 }

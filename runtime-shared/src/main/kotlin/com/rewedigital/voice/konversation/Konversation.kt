@@ -13,7 +13,7 @@ class Konversation(val name: String, private val environment: Environment) {
     }
 
     internal fun applyVariables(input: String, data: MutableMap<String, Any>) {
-        val regex = "(\\$([a-zA-Z][a-zA-Z0-9]+)|\\$\\{([a-zA-Z][a-zA-Z0-9.]+)}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z][A-zA-z0-9.]+))".toRegex()
+        val regex = "(\\$([a-zA-Z_][_a-zA-Z0-9]*)|\\$\\{([a-zA-Z_][a-zA-Z0-9._]+[a-zA-Z_])}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z_][A-zA-z0-9._]+[a-zA-Z_]|[a-zA-Z_]))".toRegex()
 
         val result = regex.replace(input) { matchResult ->
             val needle = matchResult.groups.first()?.value

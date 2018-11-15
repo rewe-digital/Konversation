@@ -1,5 +1,5 @@
 plugins {
-    id 'kotlin-platform-common' version '1.3.0-rc-190'
+    id 'kotlin-platform-common' version '1.3.10'
 }
 
 repositories {
@@ -8,10 +8,10 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.0-rc-190"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.10"
     compile "org.jetbrains.kotlin:kotlin-reflect"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:1.3.0-rc-190"
-    testCompile "org.jetbrains.kotlin:kotlin-test-common:1.3.0-rc-190"
+    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:1.3.10"
+    testCompile "org.jetbrains.kotlin:kotlin-test-common:1.3.10"
     //compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2'
 }
 

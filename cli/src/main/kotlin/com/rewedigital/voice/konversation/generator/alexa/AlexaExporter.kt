@@ -63,19 +63,15 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
         printer("      ],\n" +
                 "      \"types\" : [\n")
 
-        intents.flatMap { it.utterances.flatMap { it.slotTypes } }
+        intents.flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }
                 .toHashSet()
-                .map { Pair(it, File("$baseDir/$it.values")) }
+                .map {
+                    val type = it.split(':').last()
+                    Pair(type, File("$baseDir/$type.values"))
+                }
                 .filter { (slot, file) ->
-                    if (file.exists())
-                        true else {
-                        val parts = slot.split(':')
-                        if (parts.size == 2) {
-                            if (!parts[1].startsWith("AMAZON.")) println("WARNING: No definition for slot type \"${parts[1]}\" found")
-                        } else {
-                            println("WARNING: No definition for slot type \"$slot\" found")
-                        }
-                        false
+                    file.exists().runIfTrue(slot.startsWith("AMAZON.")) {
+                        println("WARNING: No definition for slot type \"$slot\" found")
                     }
                 }
                 .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
@@ -83,15 +79,26 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
                     printer("        {\n" +
                             "          \"name\": \"$slotType\",\n" +
                             "          \"values\": [\n")
-                    values.forEachIterator { value ->
-                        if (value.startsWith('{')) {
-                            val aliases = value.substring(1, value.length - 1).split("|")
-                            val id = aliases.first()
-                            printer("            {\n" +
-                                    "              \"name\": {\n" +
-                                    "                \"value\": \"$id\",\n" +
+                    values.forEachIterator { valueLine ->
+                        if (valueLine.startsWith('{')) {
+                            val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
+                            val (id, value) = aliases.first().split(':', limit = 2).let {
+                                when(it.size) {
+                                    1-> Pair(null, it.first())
+                                    2 -> Pair(it.first(), it.last())
+                                    else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
+                                }
+                            }
+                            printer("            {\n")
+                            id?.let {
+                                printer("              \"id\": \"$id\",\n")
+                            }
+                            printer("              \"name\": {\n"+
+                                    "                \"value\": \"$value\",\n" +
                                     "                \"synonyms\": [\n")
-                            aliases.stream().skip(1).forEachIterator { alias ->
+                            aliases.toHashSet().apply {
+                                remove(aliases.first()) // remove key
+                            }.forEachIterator { alias ->
                                 printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
                             }
                             printer("                ]\n" +
@@ -100,7 +107,7 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
                         } else {
                             printer("            {\n" +
                                     "              \"name\": {\n" +
-                                    "                \"value\": \"$value\"\n" +
+                                    "                \"value\": \"$valueLine\"\n" +
                                     "              }\n" +
                                     "            }" + (if (hasNext()) "," else "") + "\n")
                         }
@@ -170,25 +177,39 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
         printer("]," +
                 "\"types\":[")
 
-        intents.flatMap { it.utterances.flatMap { it.slotTypes } }
+        intents.flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }
                 .toHashSet()
-                .map { Pair(it, File("$baseDir/$it.values")) }
+                .map {
+                    val type = it.split(':').last()
+                    Pair(type, File("$baseDir/$type.values"))
+                }
                 .filter { it.second.exists() }
                 .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
                 .forEachIterator { (slotType, values) ->
                     printer("{" +
                             "\"name\":\"$slotType\"," +
                             "\"values\":[")
-                    values.forEachIterator { value ->
-                        if (value.startsWith('{')) {
-                            val aliases = value.substring(1, value.length - 1).split("|")
-                            val id = aliases.first()
-                            printer("{" +
-                                    "\"name\":{" +
-                                    "\"value\":\"$id\"," +
-                                    "\"synonyms\":[")
-                            aliases.stream().skip(1).forEachIterator { alias ->
-                                printer("\"$alias\"" + (if (hasNext()) "," else ""))
+                    values.forEachIterator { valueLine ->
+                        if (valueLine.startsWith('{')) {
+                            val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
+                            val (id, value) = aliases.first().split(':', limit = 2).let {
+                                when(it.size) {
+                                    1-> Pair(null, it.first())
+                                    2 -> Pair(it.first(), it.last())
+                                    else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
+                                }
+                            }
+                            printer("{")
+                            id?.let {
+                                printer("\"id\":\"$id\",")
+                            }
+                            printer("\"name\":{"+
+                                            "\"value\":\"$value\"," +
+                                            "\"synonyms\":[")
+                            aliases.toHashSet().apply {
+                                remove(aliases.first()) // remove key
+                            }.forEachIterator { alias ->
+                               printer("\"$alias\"" + (if (hasNext()) "," else ""))
                             }
                             printer("]" +
                                     "}" +
@@ -196,7 +217,7 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
                         } else {
                             printer("{" +
                                     "\"name\":{" +
-                                    "\"value\":\"$value\"" +
+                                    "\"value\":\"$valueLine\"" +
                                     "}" +
                                     "}" + (if (hasNext()) "," else ""))
                         }
@@ -210,5 +231,9 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
                 "}" +
                 "}" +
                 "}")
+    }
+
+    private fun Boolean.runIfTrue(and: Boolean = true, block: () -> Unit) = this.also {
+        if (this && and) block.invoke()
     }
 }

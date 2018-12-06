@@ -1,6 +1,7 @@
 package com.rewedigital.voice.konversation
 
 import com.rewedigital.voice.konversation.generator.Printer
+import com.rewedigital.voice.konversation.generator.alexa.AlexaExporter
 import com.rewedigital.voice.konversation.generator.kson.KsonExporter
 import com.rewedigital.voice.konversation.parser.Parser
 import java.io.File
@@ -59,8 +60,8 @@ class Cli(args: Array<String>) {
                         "-top" -> {
                             if (++argNo < args.size) {
                                 try {
-                                    limit = java.lang.Long.parseLong(args[argNo])
-                                } catch (e: NumberFormatException) {
+                                    limit = args[argNo].toLong()
+                                } catch (e: Throwable) {
                                     println("\"${args[argNo]}\" is no valid count of utterances.")
                                     exitProcess(-1)
                                 }
@@ -154,18 +155,18 @@ class Cli(args: Array<String>) {
             }
         }
 
-        //outputFile?.let {
-        //    val exporter = AlexaExporter(File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
-        //    val stream = File(outputFile).outputStream()
-        //    val printer: Printer = { line ->
-        //        stream.write(line.toByteArray())
-        //    }
-        //    if (prettyPrint) {
-        //        exporter.prettyPrinted(printer, intents)
-        //    } else {
-        //        exporter.minified(printer, intents)
-        //    }
-        //}
+        outputFile?.let {
+            val exporter = AlexaExporter(File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
+            val stream = File(outputFile).outputStream()
+            val printer: Printer = { line ->
+                stream.write(line.toByteArray())
+            }
+            if (prettyPrint) {
+                exporter.prettyPrinted(printer, intents)
+            } else {
+                exporter.minified(printer, intents)
+            }
+        }
     }
 
     private fun help() {

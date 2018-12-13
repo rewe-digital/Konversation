@@ -20,7 +20,7 @@ class KonversationTest {
         val result = regex.replace(input) { matchResult ->
             val needle = matchResult.groups.first()?.value
             val fieldName = matchResult.groups.filterNotNull().last().value
-            if(needle?.startsWith("%") == true) {
+            if (needle?.startsWith("%") == true) {
                 String.format(needle.substring(0, needle.indexOf('$')), data[fieldName])
             } else {
                 data[fieldName].toString()

@@ -131,10 +131,12 @@ class Cli(args: Array<String>) {
             }
         }
 
-        intents.forEach { intent ->
-            println("Response of ${intent.name}")
-            intent.prompt.create().runIfNotNullOrEmpty(::println)
-            println("---")
+        if(!input.endsWith(".grammar") && dumpOnly) {
+            intents.forEach { intent ->
+                println("Response of ${intent.name}")
+                intent.prompt.create().runIfNotNullOrEmpty(::println)
+                println("---")
+            }
         }
 
         //println(intents[1].prompt.create())

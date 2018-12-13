@@ -75,6 +75,7 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
                     }
                 }
                 .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
+                .distinctBy { it.first }
                 .forEachIterator { (slotType, values) ->
                     printer("        {\n" +
                             "          \"name\": \"$slotType\",\n" +

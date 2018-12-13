@@ -108,7 +108,9 @@ class Utterance(val line: String, val name: String) : com.rewedigital.voice.konv
             val count = counter.incrementAndGet()
             if ((count % 100000) == 0) println(count)
 
-            storage.add(line.trim().replace(" +".toRegex(), " "))
+            line.replace(" +".toRegex(), " ").trim().let { cleanLine ->
+                if (cleanLine.isNotEmpty()) storage.add(cleanLine)
+            }
             return
         }
         val placeholder = UUID.randomUUID().toString() // could be replaced by something faster

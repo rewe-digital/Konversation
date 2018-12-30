@@ -158,7 +158,7 @@ class Cli(args: Array<String>) {
         }
 
         outputFile?.let {
-            val exporter = AlexaExporter(File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
+            val exporter = AlexaExporter("rewe", File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
             val stream = File(outputFile).outputStream()
             val printer: Printer = { line ->
                 stream.write(line.toByteArray())

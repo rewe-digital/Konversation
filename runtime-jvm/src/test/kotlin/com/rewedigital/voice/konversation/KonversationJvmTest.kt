@@ -2,7 +2,7 @@ package com.rewedigital.voice.konversation
 
 import org.junit.Test
 
-class KonversationTest {
+class KonversationJvmTest {
     @Test
     fun matching() {
         val regex = "(\\$([a-zA-Z][a-zA-Z0-9]+)|\\$\\{([a-zA-Z][a-zA-Z0-9.]+)}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z][A-zA-z0-9.]+))".toRegex()

@@ -35,7 +35,7 @@ class Parser(input: String) {
                         lastPart = PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())
                         prompt.parts.add(lastPart!!)
                     }
-                    lastPart?.variants?.add(text)
+                    lastPart?.variants?.addAll(Permutator.generate(text))
                 }
                 line.startsWith("-") -> addTo {
                     // variant
@@ -44,9 +44,12 @@ class Parser(input: String) {
                         lastPart = PartImpl(type = PartType.Text, variants = mutableListOf())
                         prompt.parts.add(lastPart!!)
                     }
-                    lastPart?.variants?.add(text)
+                    lastPart?.variants?.addAll(Permutator.generate(text))
                 }
                 line.startsWith("!") -> addTo {
+                    addUtterance(this, line.substring(1).trimStart())
+                }
+                line.startsWith("?") -> addTo {
                     // reprompt
                     val level = line.substring(1, line.indexOf(" ") - 1).toIntOrNull() ?: 1
                     val text = line.substring(line.indexOf(" "))

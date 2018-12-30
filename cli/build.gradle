@@ -22,6 +22,9 @@ dependencies {
     compile project(':shared')
     //compile project(':runtime-shared')
     compile project(':runtime-jvm')
+    testCompile "junit:junit:4.12"
+    testCompile "org.jetbrains.kotlin:kotlin-test"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
 }
 
 sourceSets {

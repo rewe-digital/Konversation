@@ -7,14 +7,14 @@ import com.rewedigital.voice.konversation.generator.Exporter
 import com.rewedigital.voice.konversation.generator.Printer
 import java.io.File
 
-class AlexaExporter(private val baseDir: String, private val limit: Long) : Exporter {
+class AlexaExporter(private val skillName : String, private val baseDir: String, private val limit: Long) : Exporter {
 
     override fun prettyPrinted(printer: Printer, intents: MutableList<Intent>) {
         // write prefix
         printer("{\n" +
                 "  \"interactionModel\" : {\n" +
                 "    \"languageModel\" : {\n" +
-                "      \"invocationName\" : \"rewe\",\n" +
+                "      \"invocationName\" : \"$skillName\",\n" +
                 "      \"intents\" : [\n")
 
         // write out intents
@@ -129,7 +129,7 @@ class AlexaExporter(private val baseDir: String, private val limit: Long) : Expo
         printer("{" +
                 "\"interactionModel\":{" +
                 "\"languageModel\":{" +
-                "\"invocationName\":\"rewe\"," +
+                "\"invocationName\":\"$skillName\"," +
                 "\"intents\":[")
 
         // write out intents

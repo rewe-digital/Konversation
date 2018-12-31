@@ -131,10 +131,11 @@ class Cli(args: Array<String>) {
             }
         }
 
+        // FIXME or remove me
         if(!input.endsWith(".grammar") && dumpOnly) {
             intents.forEach { intent ->
                 println("Response of ${intent.name}")
-                intent.prompt.create().runIfNotNullOrEmpty(::println)
+                //intent.prompt.create().runIfNotNullOrEmpty(::println)
                 println("---")
             }
         }

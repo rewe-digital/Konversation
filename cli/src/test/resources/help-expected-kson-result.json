@@ -31,8 +31,22 @@
       "type": "VoiceOnly",
       "variants": [
         "Womit sollen wir weiter machen?",
+        "Womit soll ich weiter machen?",
         "Was möchtest du jetzt tun?"
       ]
     }
-  ]
+  ],
+  "suggestions": [
+    "Angebote",
+    "Rezept"
+  ],
+  "reprompts": {
+    "1": [
+      "Kann ich dir noch helfen?",
+      "Kann ich dir jetzt noch helfen?"
+    ],
+    "2": [
+      "Womit sollen wir weitermachen?"
+    ]
+  }
 }

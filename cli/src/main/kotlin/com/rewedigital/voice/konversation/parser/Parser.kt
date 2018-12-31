@@ -2,6 +2,7 @@ package com.rewedigital.voice.konversation.parser
 
 import com.rewedigital.voice.konversation.*
 import java.io.File
+import java.text.ParseException
 import java.util.*
 
 class Parser(input: String) {
@@ -13,7 +14,7 @@ class Parser(input: String) {
         val lines = File(input).readLines()
         var lastPart: Part? = null
         var lastIntentName = UUID.randomUUID().toString()
-        lines.forEach { line ->
+        lines.filter { it.isNotBlank() }.forEachIndexed { index, line ->
             when {
                 line.startsWith("//") || line.startsWith("#") || line.isBlank() -> {
                     // ignore comments and blank lines
@@ -51,14 +52,14 @@ class Parser(input: String) {
                 }
                 line.startsWith("?") -> addTo {
                     // reprompt
-                    val level = line.substring(1, line.indexOf(" ") - 1).toIntOrNull() ?: 1
+                    val level = line.substring(1, line.indexOf(" ")).toIntOrNull() ?: 1
                     val text = line.substring(line.indexOf(" "))
                     val prompt = reprompt.getOrPut(level) { Prompt(PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())) }
                     prompt.parts.first().variants.addAll(Permutator.generate(text))
                 }
                 line.startsWith("[") && line.endsWith("]") -> addTo {
                     // suggestions
-                    suggestion.addAll(line.substring(1, line.length - 2).split("]\\w+\\[".toRegex()))
+                    suggestions.addAll(line.substring(1, line.length - 2).split("]\\W*\\[".toRegex()))
                 }
                 line.startsWith("@") -> addTo {
                     followUp.add(line.substring(1).trim())
@@ -69,7 +70,7 @@ class Parser(input: String) {
                 line.startsWith("<") -> addTo {
                     outContext.add(line.substring(1).trim())
                 }
-                line.startsWith("?") || line.startsWith("&") -> addTo {
+                line.startsWith("&") -> addTo {
                     // TODO handle
                 }
                 line.contains('=') && line.startsWith(lastIntentName) -> {
@@ -94,7 +95,11 @@ class Parser(input: String) {
                     }
                 }
                 else -> addTo {
-                    addUtterance(this, line)
+                    if(isGrammarFile) {
+                        addUtterance(this, line)
+                    } else {
+                        throw ParseException("This line has no prefix: $line", index)
+                    }
                 }
             }
         }

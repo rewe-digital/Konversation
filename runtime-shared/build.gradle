@@ -16,4 +16,5 @@ dependencies {
 
 sourceSets {
     //main.java.srcDirs += [file("$buildDir/../../shared/src/main/kotlin")]
+    //test.resources.srcDirs  += [file("$buildDir/../../cli/src/test/resources")]
 }

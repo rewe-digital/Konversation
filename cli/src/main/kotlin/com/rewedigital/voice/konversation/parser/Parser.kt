@@ -22,7 +22,7 @@ class Parser(input: String) {
                 line.trim() == "+" -> addTo {
                     // just let the block end
                     lastPart = null
-                    //prompt.parts.add(PartImpl(type = PartType.Text, variant = mutableListOf("")))
+                    //prompt.parts.add(PartImpl(type = PartType.Text, variants = mutableListOf(" ")))
                 }
                 line.trim() == "-" -> addTo {
                     // add a line break

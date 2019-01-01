@@ -3,7 +3,7 @@ package com.rewedigital.voice.konversation
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-class AnswerImpl(parts: MutableList<Part>) : Prompt(parts)
+class AnswerImpl(parts: MutableList<Part>, suggestions: List<String>, reprompts: Map<String, List<String>>) : Prompt(parts, suggestions, reprompts)
 
 @JsonClass(generateAdapter = true)
 data class PartImpl(override val variants: MutableList<String>,

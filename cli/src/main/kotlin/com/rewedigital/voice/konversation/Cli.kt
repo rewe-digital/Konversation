@@ -10,10 +10,10 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.system.exitProcess
 
-class Cli(args: Array<String>) {
-    private var intents: MutableList<Intent>
+open class Cli {
+    private lateinit var intents: MutableList<Intent>
 
-    init {
+    fun parseArgs(args: Array<String>) {
         var input: String? = null
         var cacheEverything = true // should be not the default value
         var countPermutations = false
@@ -23,10 +23,13 @@ class Cli(args: Array<String>) {
         var prettyPrint = false
         var compile = false
         var dumpOnly = false
+        var invocationName: String? = null
         if (args.isEmpty()) {
             println("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
+            println()
             help()
-            exitProcess(-1)
+            exit(-1)
+            return
         } else {
             var argNo = 0
             while (argNo < args.size) {
@@ -38,7 +41,10 @@ class Cli(args: Array<String>) {
                         "help",
                         "-help",
                         "-h",
-                        "/?" -> help()
+                        "/?" -> {
+                            help()
+                            return
+                        }
                         "count",
                         "-count" -> countPermutations = true
                         "cache",
@@ -49,8 +55,13 @@ class Cli(args: Array<String>) {
                                 outputFile = args[argNo]
                             } else {
                                 println("Target is missing")
-                                exitProcess(-1)
+                                exit(-1)
+                                return
                             }
+                        }
+                        "invocation",
+                        "-invocation" -> if (++argNo < args.size) {
+                            invocationName = args[argNo]
                         }
                         "stats",
                         "-stats" -> stats = true
@@ -63,11 +74,13 @@ class Cli(args: Array<String>) {
                                     limit = args[argNo].toLong()
                                 } catch (e: Throwable) {
                                     println("\"${args[argNo]}\" is no valid count of utterances.")
-                                    exitProcess(-1)
+                                    exit(-1)
+                                    return
                                 }
                             } else {
                                 println("Count is missing!")
-                                exitProcess(-1)
+                                exit(-1)
+                                return
                             }
                         }
                         "prettyprint",
@@ -83,7 +96,8 @@ class Cli(args: Array<String>) {
             }
             if (!File(input.orEmpty()).exists()) {
                 println("Input file not found!")
-                exitProcess(-1)
+                exit(-1)
+                return
             }
         }
 
@@ -132,7 +146,7 @@ class Cli(args: Array<String>) {
         }
 
         // FIXME or remove me
-        if(!input.endsWith(".grammar") && dumpOnly) {
+        if (!input.endsWith(".grammar") && dumpOnly) {
             intents.forEach { intent ->
                 println("Response of ${intent.name}")
                 //intent.prompt.create().runIfNotNullOrEmpty(::println)
@@ -159,37 +173,47 @@ class Cli(args: Array<String>) {
         }
 
         outputFile?.let {
-            val exporter = AlexaExporter("rewe", File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
-            val stream = File(outputFile).outputStream()
-            val printer: Printer = { line ->
-                stream.write(line.toByteArray())
-            }
-            if (prettyPrint) {
-                exporter.prettyPrinted(printer, intents)
-            } else {
-                exporter.minified(printer, intents)
+            invocationName?.let {
+                val exporter = AlexaExporter(invocationName, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
+                val stream = File(outputFile).outputStream()
+                val printer: Printer = { line ->
+                    stream.write(line.toByteArray())
+                }
+                if (prettyPrint) {
+                    exporter.prettyPrinted(printer, intents)
+                } else {
+                    exporter.minified(printer, intents)
+                }
+            } ?: run {
+                println("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+                exit(-1)
             }
         }
     }
 
     private fun help() {
         println("Arguments for konversation:")
-        println("[-help]           Print this help")
-        println("[-count]          Count the permutations and print this to the console")
-        println("[-stats]          Print out some statistics while generation")
-        println("[-cache]          Cache everything even if an utterance has just a single permutation")
-        println("[-out <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json")
-        println("[-limit <COUNT>]  While pretty printing the json to the output file limit the utterances count per intent")
-        println("[-dump]           Dump out all intents to its own txt file")
-        println("[-prettyprint]    Generate a well formatted json for easier debugging")
-        println("<FILE>            The grammar or kvs file to parse")
+        println("[-help]             Print this help")
+        println("[-count]            Count the permutations and print this to the console")
+        println("[-stats]            Print out some statistics while generation")
+        println("[-cache]            Cache everything even if an utterance has just a single permutation")
+        println("[-out <OUTFILE>]    Write the resulting json to OUTFILE instead of result.json")
+        println("[-limit <COUNT>]    While pretty printing the json to the output file limit the utterances count per intent")
+        println("[-dump]             Dump out all intents to its own txt file")
+        println("[-prettyprint]      Generate a well formatted json for easier debugging")
+        println("-invocation <name>  Define the invocation name for Alexa")
+        println("<FILE>              The grammar or kvs file to parse")
         println()
+    }
+
+    protected open fun exit(status: Int) {
+        exitProcess(status)
     }
 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            Cli(args)
+            Cli().parseArgs(args)
         }
     }
 }
@@ -213,7 +237,7 @@ class BreakableIterator<T>(private val inner: Iterator<T>) : Iterator<T> {
     private var resume = true
 
     override fun forEachRemaining(action: Consumer<in T>) =
-            inner.forEachRemaining(action)
+        inner.forEachRemaining(action)
 
     override fun hasNext() = resume && inner.hasNext()
 

@@ -1,7 +1,6 @@
 package com.rewedigital.voice.konversation
 
 class Konversation(val name: String, environment: Environment) {
-    val data = mutableMapOf<String, Any>()
     private val answer = Reader().loadAnswer(name, environment)
 
     private fun create(data: Map<String, Any>, onlyDisplayText: Boolean): String {

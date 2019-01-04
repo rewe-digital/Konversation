@@ -1,6 +1,5 @@
-package com.rewedigital.voice.konversation.generator.kson
+package com.rewedigital.voice.konversation.generator.alexa
 
-import com.rewedigital.voice.konversation.generator.alexa.AlexaExporter
 import com.rewedigital.voice.konversation.parser.Parser
 import org.junit.Test
 import java.io.File

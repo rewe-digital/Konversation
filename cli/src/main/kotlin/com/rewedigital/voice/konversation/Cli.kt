@@ -30,7 +30,6 @@ open class Cli {
             println()
             help()
             exit(-1)
-            return
         } else {
             var argNo = 0
             while (argNo < args.size) {
@@ -50,15 +49,12 @@ open class Cli {
                         "-count" -> countPermutations = true
                         "cache",
                         "-cache" -> cacheEverything = true
-                        "--export-alexa" -> {
+                        "--export-alexa" -> if (++argNo < args.size) {
                             exportAlexa = true
-                            if (++argNo < args.size) {
-                                outputFile = args[argNo]
-                            } else {
-                                println("Target is missing")
-                                exit(-1)
-                                return
-                            }
+                            outputFile = args[argNo]
+                        } else {
+                            println("Target is missing")
+                            exit(-1)
                         }
                         "invocation",
                         "-invocation" -> if (++argNo < args.size) {
@@ -66,26 +62,25 @@ open class Cli {
                         }
                         "--export-kson" -> if (++argNo < args.size) {
                             ksonDir = args[argNo]
+                        } else {
+                            println("Target directory is missing")
+                            exit(-1)
                         }
                         "stats",
                         "-stats" -> stats = true
                         "limit",
                         "-limit",
                         "top",
-                        "-top" -> {
-                            if (++argNo < args.size) {
-                                try {
-                                    limit = args[argNo].toLong()
-                                } catch (e: Throwable) {
-                                    println("\"${args[argNo]}\" is no valid count of utterances.")
-                                    exit(-1)
-                                    return
-                                }
-                            } else {
-                                println("Count is missing!")
+                        "-top" -> if (++argNo < args.size) {
+                            try {
+                                limit = args[argNo].toLong()
+                            } catch (e: Throwable) {
+                                println("\"${args[argNo]}\" is no valid count of utterances.")
                                 exit(-1)
-                                return
                             }
+                        } else {
+                            println("Count is missing!")
+                            exit(-1)
                         }
                         "prettyprint",
                         "-prettyprint" -> prettyPrint = true
@@ -189,7 +184,7 @@ open class Cli {
             }
         }
 
-        if(exportAlexa) {
+        if (exportAlexa) {
             outputFile?.let {
                 invocationName?.let { skillName ->
                     val exporter = AlexaExporter(skillName, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)

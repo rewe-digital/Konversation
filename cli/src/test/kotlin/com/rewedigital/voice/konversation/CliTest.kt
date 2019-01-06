@@ -1,5 +1,6 @@
 package com.rewedigital.voice.konversation
 
+import com.sun.javaws.exceptions.ExitException
 import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -100,11 +101,13 @@ class CliTest {
     @Test
     fun `Test big grammar file`() {
         val sut = CliTestHelper.getOutput("cli/src/test/resources/huge.grammar", "-stats", "-count")
-        assertEquals(sut.output, "Parsing finished. Found 1 intents.\n" +
+        assertEquals(sut.output, "Parsing finished. Found 2 intents.\n" +
                 "Test has 1 utterances which have in total 1.000 permutations\n" +
+                "Foo has 0 utterances which have in total 0 permutations\n" +
                 "That are in total 1.000 permutations!\n" +
                 "Test has now 1000 sample utterances\n" +
-                "Generated in total 1000 Utterances")
+                "Foo has now 0 sample utterances\n" +
+                "Generated in total 1000 Utterances\n")
         assertNull(sut.exitCode)
     }
 
@@ -146,11 +149,28 @@ class CliTest {
         assertTrue(File("build/out/kson/konversation-en/help.kson").isFile)
     }
 
+    @Test
+    fun `Check for missing args`() {
+        val sut1 = CliTestHelper.getOutput("./", "--export-alexa")
+        assertEquals("Target is missing\n", sut1.output)
+        assertEquals(-1, sut1.exitCode)
+        val sut2 = CliTestHelper.getOutput("./", "--export-kson")
+        assertEquals("Target directory is missing\n", sut2.output)
+        assertEquals(-1, sut2.exitCode)
+        val sut3 = CliTestHelper.getOutput("./", "-top")
+        assertEquals("Count is missing!\n", sut3.output)
+        assertEquals(-1, sut3.exitCode)
+        val sut4 = CliTestHelper.getOutput("./", "-top", "x")
+        assertEquals("\"x\" is no valid count of utterances.\n", sut4.output)
+        assertEquals(-1, sut4.exitCode)
+    }
+
     private class CliTestHelper : Cli() {
         private var exitCode: Int? = null
 
         override fun exit(status: Int) {
             exitCode = status
+            throw ExitException("", Throwable())
         }
 
         companion object {
@@ -159,7 +179,9 @@ class CliTest {
                 val out = System.out
                 System.setOut(PrintStream(outputStream))
                 val helper = CliTestHelper()
-                helper.parseArgs(args.toList().toTypedArray())
+                try {
+                    helper.parseArgs(args.toList().toTypedArray())
+                } catch (e: ExitException) {}
                 System.out.flush()
                 System.setOut(out)
                 return TestResult(outputStream.toString().replace("\r", ""), helper.exitCode)

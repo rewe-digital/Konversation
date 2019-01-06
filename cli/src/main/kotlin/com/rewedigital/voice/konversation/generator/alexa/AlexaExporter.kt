@@ -46,7 +46,7 @@ class AlexaExporter(private val skillName : String, private val baseDir: String,
                 moreUtterances = hasNext()
                 utterance.permutations.forEachBreakable {
                     total++
-                    if (total > limit) {
+                    if (total >= limit) {
                         stop()
                         moreUtterances = false
                     }

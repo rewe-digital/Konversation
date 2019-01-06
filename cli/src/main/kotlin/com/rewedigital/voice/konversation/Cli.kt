@@ -12,18 +12,19 @@ import kotlin.system.exitProcess
 
 open class Cli {
     private lateinit var intents: MutableList<Intent>
+    private var cacheEverything = true // should be not the default value
+    private var countPermutations = false
+    private var stats = false
+    private var outputFile: String? = "result.json"
+    private var limit: Long? = null
+    private var prettyPrint = false
+    private var ksonDir: String? = null
+    private var dumpOnly = false
+    private var invocationName: String? = null
+    private var exportAlexa: Boolean = false
 
     fun parseArgs(args: Array<String>) {
         var input: String? = null
-        var cacheEverything = true // should be not the default value
-        var countPermutations = false
-        var stats = false
-        var outputFile: String? = "result.json"
-        var limit: Long? = null
-        var prettyPrint = false
-        var compile = false
-        var dumpOnly = false
-        var invocationName: String? = null
         if (args.isEmpty()) {
             println("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
             println()
@@ -49,8 +50,8 @@ open class Cli {
                         "-count" -> countPermutations = true
                         "cache",
                         "-cache" -> cacheEverything = true
-                        "out",
-                        "-out" -> {
+                        "--export-alexa" -> {
+                            exportAlexa = true
                             if (++argNo < args.size) {
                                 outputFile = args[argNo]
                             } else {
@@ -62,6 +63,9 @@ open class Cli {
                         "invocation",
                         "-invocation" -> if (++argNo < args.size) {
                             invocationName = args[argNo]
+                        }
+                        "--export-kson" -> if (++argNo < args.size) {
+                            ksonDir = args[argNo]
                         }
                         "stats",
                         "-stats" -> stats = true
@@ -87,21 +91,34 @@ open class Cli {
                         "-prettyprint" -> prettyPrint = true
                         "dump",
                         "-dump" -> dumpOnly = true
-                        "compile",
-                        "-compile" -> compile = true
+                        //"compile",
+                        //"-compile" -> ksonExport = true
                         else -> println("Unknown argument \"$arg\".")
                     }
                 }
                 argNo++
             }
-            if (!File(input.orEmpty()).exists()) {
+
+            val inputFile = File(input.orEmpty())
+            if (inputFile.isFile) {
+                input?.let(::parseFiles)
+            } else if (inputFile.isDirectory) {
+                inputFile.listFiles { dir: File?, name: String? ->
+                    File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
+                }.toList()
+                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") }.toList() }
+                    .forEach { parseFiles(it.path) }
+                //.map { it.absolutePath.substring(inputFile.absolutePath.length) to it }
+                //.map(::println)
+            } else {
                 println("Input file not found!")
                 exit(-1)
-                return
             }
         }
+    }
 
-        intents = Parser(input!!).intents
+    open fun parseFiles(input: String) {
+        intents = Parser(input).intents
         println("Parsing finished. Found ${intents.size} intents.")
 
         if (countPermutations) {
@@ -156,11 +173,11 @@ open class Cli {
 
         //println(intents[1].prompt.create())
 
-        if (compile) {
+        ksonDir?.let {
             intents.forEach { intent ->
                 val exporter = KsonExporter(intent.name)
-                File("out").mkdirs()
-                val stream = File("out/${intent.name}.kson").outputStream()
+                File(ksonDir).mkdirs()
+                val stream = File("$ksonDir/${intent.name}.kson").outputStream()
                 val printer: Printer = { line ->
                     stream.write(line.toByteArray())
                 }
@@ -172,41 +189,44 @@ open class Cli {
             }
         }
 
-        outputFile?.let {
-            invocationName?.let {
-                val exporter = AlexaExporter(invocationName, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
-                val stream = File(outputFile).outputStream()
-                val printer: Printer = { line ->
-                    stream.write(line.toByteArray())
+        if(exportAlexa) {
+            outputFile?.let {
+                invocationName?.let { skillName ->
+                    val exporter = AlexaExporter(skillName, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
+                    val stream = File(outputFile).outputStream()
+                    val printer: Printer = { line ->
+                        stream.write(line.toByteArray())
+                    }
+                    if (prettyPrint) {
+                        exporter.prettyPrinted(printer, intents)
+                    } else {
+                        exporter.minified(printer, intents)
+                    }
+                } ?: run {
+                    println("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+                    exit(-1)
                 }
-                if (prettyPrint) {
-                    exporter.prettyPrinted(printer, intents)
-                } else {
-                    exporter.minified(printer, intents)
-                }
-            } ?: run {
-                println("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
-                exit(-1)
             }
         }
     }
 
     private fun help() {
         println("Arguments for konversation:")
-        println("[-help]             Print this help")
-        println("[-count]            Count the permutations and print this to the console")
-        println("[-stats]            Print out some statistics while generation")
-        println("[-cache]            Cache everything even if an utterance has just a single permutation")
-        println("[-out <OUTFILE>]    Write the resulting json to OUTFILE instead of result.json")
-        println("[-limit <COUNT>]    While pretty printing the json to the output file limit the utterances count per intent")
-        println("[-dump]             Dump out all intents to its own txt file")
-        println("[-prettyprint]      Generate a well formatted json for easier debugging")
-        println("-invocation <name>  Define the invocation name for Alexa")
-        println("<FILE>              The grammar or kvs file to parse")
+        println("[-help]                     Print this help")
+        println("[-count]                    Count the permutations and print this to the console")
+        println("[-stats]                    Print out some statistics while generation")
+        println("[-cache]                    Cache everything even if an utterance has just a single permutation")
+        println("[--export-alexa <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json")
+        println("[-invocation <NAME>]        Define the invocation name for the Alexa export")
+        println("[-limit <COUNT>]            While pretty printing the json to the output file limit the utterances count per intent")
+        println("[--export-kson <OUTDIR>]    Compiles the kvs file to kson resource files which are required for the runtime")
+        println("[-dump]                     Dump out all intents to its own txt file")
+        println("[-prettyprint]              Generate a well formatted json for easier debugging")
+        println("<FILE>                      The grammar or kvs file to parse")
         println()
     }
 
-    protected open fun exit(status: Int) {
+    open fun exit(status: Int) {
         exitProcess(status)
     }
 

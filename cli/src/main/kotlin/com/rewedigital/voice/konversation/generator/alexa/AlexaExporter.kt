@@ -7,7 +7,7 @@ import com.rewedigital.voice.konversation.generator.Exporter
 import com.rewedigital.voice.konversation.generator.Printer
 import java.io.File
 
-class AlexaExporter(private val skillName : String, private val baseDir: String, private val limit: Long) : Exporter {
+class AlexaExporter(private val skillName : String, private val baseDir: File, private val limit: Long) : Exporter {
 
     override fun prettyPrinted(printer: Printer, intents: MutableList<Intent>) {
         // write prefix
@@ -67,7 +67,7 @@ class AlexaExporter(private val skillName : String, private val baseDir: String,
                 .toHashSet()
                 .map {
                     val type = it.split(':').last()
-                    Pair(type, File("$baseDir/$type.values"))
+                    Pair(type, File(baseDir, "$type.values"))
                 }
                 .filter { (slot, file) ->
                     file.exists().runIfTrue(slot.startsWith("AMAZON.")) {

@@ -142,7 +142,8 @@ class CliTest {
     @Test
     fun `Konversation directory processing`() {
         val sut = CliTestHelper.getOutput("cli/src/test/resources/", "--export-kson", "build/out/kson")
-        println(sut.output)
+        assertEquals(sut.output, "Parsing finished. Found 1 intents.\n".repeat(4))
+        assertNull(sut.exitCode)
         assertTrue(File("build/out/kson/konversation/help.kson").isFile)
         assertTrue(File("build/out/kson/konversation-alexa/help.kson").isFile)
         assertTrue(File("build/out/kson/konversation-alexa-de/help.kson").isFile)
@@ -191,14 +192,14 @@ class CliTest {
 
     data class TestResult(val output: String, val exitCode: Int?)
 
-    private class ParseTestCli(val path: String) : Cli() {
+    private class ParseTestCli(path: String) : Cli() {
         val files = mutableListOf<String>()
 
         init {
             parseArgs(arrayOf(path, "-dump"))
         }
 
-        override fun parseFiles(input: String) {
+        override fun parseFiles(input: String, targetDir: File) {
             files.add(input)
         }
     }

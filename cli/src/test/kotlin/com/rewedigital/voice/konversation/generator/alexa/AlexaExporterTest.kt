@@ -10,7 +10,7 @@ class AlexaExporterTest {
     fun `Validate pretty printed kvs file result`() {
         val help = Parser("cli/src/test/resources/help.kvs").intents
         val sb = StringBuilder()
-        val exporter = AlexaExporter("test", File(".").absoluteFile.parent, Long.MAX_VALUE)
+        val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
         assertEquals(expectedResult, sb.toString())
     }
@@ -19,7 +19,7 @@ class AlexaExporterTest {
     fun `Validate minified kvs file result`() {
         val help = Parser("cli/src/test/resources/help.kvs").intents
         val sb = StringBuilder()
-        val exporter = AlexaExporter("test", File(".").absoluteFile.parent, Long.MAX_VALUE)
+        val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
         assertEquals(expectedMinifiedResult, sb.toString())
     }
@@ -28,7 +28,7 @@ class AlexaExporterTest {
     fun `Validate pretty printed grammar file result`() {
         val help = Parser("cli/src/test/resources/help.grammar").intents
         val sb = StringBuilder()
-        val exporter = AlexaExporter("test", File(".").absoluteFile.parent, Long.MAX_VALUE)
+        val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
         assertEquals(expectedResult, sb.toString())
     }
@@ -37,7 +37,7 @@ class AlexaExporterTest {
     fun `Validate minified grammar file result`() {
         val help = Parser("cli/src/test/resources/help.grammar").intents
         val sb = StringBuilder()
-        val exporter = AlexaExporter("test", File(".").absoluteFile.parent, Long.MAX_VALUE)
+        val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
         assertEquals(expectedMinifiedResult, sb.toString())
     }

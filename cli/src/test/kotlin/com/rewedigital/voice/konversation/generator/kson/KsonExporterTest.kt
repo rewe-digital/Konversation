@@ -43,7 +43,7 @@ class KsonExporterTest {
     }
 
     companion object {
-        val expectedResult = File("cli/src/test/resources/help-expected-kson-result.json").readText()//.replace("\r", "")
-        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-alexa-result-minified.json").readText().replace("\r", "")
+        val expectedResult = File("cli/src/test/resources/help-expected-kson-result.json").readText()
+        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-alexa-result-minified.json").readText()
     }
 }

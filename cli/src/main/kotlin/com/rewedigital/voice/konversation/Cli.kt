@@ -96,13 +96,18 @@ open class Cli {
 
             val inputFile = File(input.orEmpty())
             if (inputFile.isFile) {
-                input?.let(::parseFiles)
+                input?.let {
+                    parseFiles(it, inputFile.parentFile)
+                }
             } else if (inputFile.isDirectory) {
                 inputFile.listFiles { dir: File?, name: String? ->
                     File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
                 }.toList()
                     .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") }.toList() }
-                    .forEach { parseFiles(it.path) }
+                    .forEach {
+                        val target = File(ksonDir + it.absolutePath.substring(inputFile.absolutePath.length))
+                        parseFiles(it.path, target.parentFile)
+                    }
                 //.map { it.absolutePath.substring(inputFile.absolutePath.length) to it }
                 //.map(::println)
             } else {
@@ -112,7 +117,7 @@ open class Cli {
         }
     }
 
-    open fun parseFiles(input: String) {
+    open fun parseFiles(input: String, targetDir: File) {
         intents = Parser(input).intents
         println("Parsing finished. Found ${intents.size} intents.")
 
@@ -171,8 +176,8 @@ open class Cli {
         ksonDir?.let {
             intents.forEach { intent ->
                 val exporter = KsonExporter(intent.name)
-                File(ksonDir).mkdirs()
-                val stream = File("$ksonDir/${intent.name}.kson").outputStream()
+                targetDir.mkdirs()
+                val stream = File(targetDir,"${intent.name}.kson").outputStream()
                 val printer: Printer = { line ->
                     stream.write(line.toByteArray())
                 }
@@ -187,7 +192,7 @@ open class Cli {
         if (exportAlexa) {
             outputFile?.let {
                 invocationName?.let { skillName ->
-                    val exporter = AlexaExporter(skillName, File(input).absoluteFile.parent, limit ?: Long.MAX_VALUE)
+                    val exporter = AlexaExporter(skillName, targetDir, limit ?: Long.MAX_VALUE)
                     val stream = File(outputFile).outputStream()
                     val printer: Printer = { line ->
                         stream.write(line.toByteArray())

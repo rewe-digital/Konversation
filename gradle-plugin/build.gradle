@@ -1,0 +1,86 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.10'
+    id 'maven-publish' // xxx
+    id 'java-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.10.0'
+}
+
+apply plugin: 'kotlin'
+
+group 'com.rewedigital.voice'
+version '0.1'
+
+configurations {
+    embed
+}
+
+dependencies {
+    implementation(gradleApi())
+    implementation(localGroovy())
+    compileOnly project(":cli")
+    embed project(':cli')
+    compile "org.jetbrains.kotlin:kotlin-stdlib"
+    //compile "org.jetbrains.kotlin:kotlin-script-runtime"
+    //compile "org.jetbrains.kotlin:kotlin-script-runtime:1.3.10"
+}
+
+// xxx
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.rewedigital.voice'
+            artifactId 'konversation'
+            //groupId 'com.rewedigital.voice.konversation'
+            //artifactId 'com.rewedigital.voice.konversation.gradle.plugin'
+            version '0.1'
+
+            from components.java
+        }
+    }
+}
+
+pluginBundle {
+    website = 'http://rewe-digital-incubator.github.io/konversation'
+    vcsUrl = 'https://github.com/rewe-digital-incubator/konversation'
+
+    plugins {
+        konversation {
+            displayName = 'Konversation compiler'
+            description = 'Konversation TODO'
+            tags = ['konversation', 'voice', 'alexa', 'google assistant']
+        }
+    }
+
+    mavenCoordinates {
+        groupId = "com.rewedigital.voice"
+        artifactId = "konversation"
+        version = "0.1"
+    }
+}
+
+gradlePlugin {
+    plugins {
+        konversation {
+            id = 'com.rewedigital.voice.konversation'
+            description = 'Konversation TODO'
+            implementationClass = 'com.rewedigital.voice.konversation.KonversationPlugin'
+        }
+    }
+}
+
+
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin/'
+//    test.java.srcDirs += 'src/test/kotlin/'
+}
+
+jar {
+    dependsOn configurations.embed
+    from { configurations.embed.collect { zipTree(it) } }
+}

@@ -18,9 +18,9 @@ class Utterance(val line: String, val name: String) : com.rewedigital.voice.konv
     override val permutationCount: Long
         get() {
             var total: Long = 1
-            val slots: List<String> = validate().flatMap {
-                it.split("|").also {
-                    total *= it.size
+            val slots: List<String> = validate().flatMap { line ->
+                line.split("|").also { parts ->
+                    total *= parts.size
                 }
             }
             slotTypes.addAll(slots.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 1) })
@@ -89,10 +89,10 @@ class Utterance(val line: String, val name: String) : com.rewedigital.voice.konv
         //println("Generating about $total permutation for ${slots.size} slots")
 
         // we know now all slots, let's fill them up with content
-        File("cache").run {
+        File(cacheDir).run {
             if (!exists()) mkdirs()
         }
-        val cacheFile = "cache/$name-${String.format("%08x", line.hashCode())}"
+        val cacheFile = "$cacheDir/$name-${String.format("%08x", line.hashCode())}"
         val storage = cache ?: SwapingHashedList(cacheFile).also { cache = it }
         if (!storage.isCached()) {
             //runBlocking {
@@ -127,5 +127,6 @@ class Utterance(val line: String, val name: String) : com.rewedigital.voice.konv
 
     companion object {
         val counter = AtomicInteger(0)
+        var cacheDir = "cache"
     }
 }

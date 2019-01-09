@@ -186,6 +186,7 @@ open class Cli {
                 } else {
                     exporter.minified(printer, intents)
                 }
+                stream.close()
             }
         }
 

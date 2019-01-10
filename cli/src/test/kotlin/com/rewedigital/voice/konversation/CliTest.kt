@@ -31,7 +31,7 @@ class CliTest {
         val outputFile = File(testOutputFile)
         try {
             val sut = CliTestHelper.getOutput("cli/src/test/resources/help.grammar", "--export-alexa", testOutputFile, "-invocation", "test")
-            assertEquals(sut.output, "Parsing finished. Found 1 intents.\n")
+            assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n")
             assertNull(sut.exitCode)
             assertTrue(outputFile.exists())
             assertTrue(File(expectedOutputFile).exists())
@@ -46,7 +46,7 @@ class CliTest {
     @Test
     fun `Check handling of missing invocation name`() {
         val sut = CliTestHelper.getOutput("cli/src/test/resources/help.grammar", "--export-alexa", "test.out")
-        assertEquals(sut.output, "Parsing finished. Found 1 intents.\n" +
+        assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n" +
                 "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n")
         assertEquals(-1, sut.exitCode)
     }
@@ -58,7 +58,7 @@ class CliTest {
         val outputFile = File(testOutputFile)
         try {
             val sut = CliTestHelper.getOutput("cli/src/test/resources/help.kvs", "--export-alexa", testOutputFile, "-invocation", "test")
-            assertEquals(sut.output, "Parsing finished. Found 1 intents.\n")
+            assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n")
             assertNull(sut.exitCode)
             assertTrue(outputFile.exists())
             assertTrue(File(expectedOutputFile).exists())
@@ -101,7 +101,7 @@ class CliTest {
     @Test
     fun `Test big grammar file`() {
         val sut = CliTestHelper.getOutput("cli/src/test/resources/huge.grammar", "-stats", "-count")
-        assertEquals(sut.output, "Parsing finished. Found 2 intents.\n" +
+        assertEquals(sut.output, "Parsing of 1 file finished. Found 2 intents.\n" +
                 "Test has 1 utterances which have in total 1.000 permutations\n" +
                 "Foo has 0 utterances which have in total 0 permutations\n" +
                 "That are in total 1.000 permutations!\n" +
@@ -118,7 +118,7 @@ class CliTest {
         val outputFile = File(testOutputFile)
         try {
             val sut = CliTestHelper.getOutput("cli/src/test/resources/huge.grammar", "--export-alexa", testOutputFile, "-invocation", "huge", "-prettyprint", "-limit", "20")
-            assertEquals(sut.output, "Parsing finished. Found 2 intents.\n")
+            assertEquals(sut.output, "Parsing of 1 file finished. Found 2 intents.\n")
             assertNull(sut.exitCode)
             assertTrue(outputFile.exists())
             assertTrue(File(expectedOutputFile).exists())
@@ -132,7 +132,7 @@ class CliTest {
     @Test
     fun `Test dir processing`() {
         val sut = ParseTestCli("cli/src/test/resources/")
-        assertEquals(4, sut.files.count())
+        assertEquals(4, sut.intentDb.size)
         assertEquals("cli/src/test/resources/konversation/help.kvs", sut.files[0].replace('\\', '/'))
         assertEquals("cli/src/test/resources/konversation-alexa/help.kvs", sut.files[1].replace('\\', '/'))
         assertEquals("cli/src/test/resources/konversation-alexa-de/help.kvs", sut.files[2].replace('\\', '/'))
@@ -142,7 +142,7 @@ class CliTest {
     @Test
     fun `Konversation directory processing`() {
         val sut = CliTestHelper.getOutput("cli/src/test/resources/", "--export-kson", "build/out/kson")
-        assertEquals(sut.output, "Parsing finished. Found 1 intents.\n".repeat(4))
+        assertEquals(sut.output, "Parsing of 4 files finished. Found 1 intent.\n")
         assertNull(sut.exitCode)
         assertTrue(File("build/out/kson/konversation/help.kson").isFile)
         assertTrue(File("build/out/kson/konversation-alexa/help.kson").isFile)
@@ -199,9 +199,9 @@ class CliTest {
             parseArgs(arrayOf(path, "-dump"))
         }
 
-        override fun parseFiles(input: String, targetDir: File) {
-            files.add(input)
-        }
+        //override fun parseFiles(input: String, targetDir: File) {
+        //    files.add(input)
+        //}
     }
 
     companion object {

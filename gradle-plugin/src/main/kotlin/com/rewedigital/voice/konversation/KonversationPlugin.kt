@@ -77,7 +77,7 @@ open class CompileTask : DefaultTask() {
         val config = project.extensions.getByName("konversation") as? KonversationExtension
         com.rewedigital.voice.konversation.parser.Utterance.cacheDir = config?.cacheDir ?: project.buildDir.path + "/konversation-cache"
         inputFiles.forEach { file ->
-            cli.parseArgs(arrayOf("--export-kson", file.parent, file.path))//File(project.buildDir, file.path).path))
+            cli.parseArgs(arrayOf("--export-kson", file.parent, file.path)) // TODO the result should be written to /build/resources/... File(project.buildDir, file.path).path))
         }
     }
 }

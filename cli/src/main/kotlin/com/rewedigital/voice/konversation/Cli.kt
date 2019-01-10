@@ -11,7 +11,8 @@ import java.util.stream.Stream
 import kotlin.system.exitProcess
 
 open class Cli {
-    private lateinit var intents: MutableList<Intent>
+    //private lateinit var intents: MutableList<Intent>
+    val intentDb = mutableMapOf<String, MutableList<Intent>>()
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
@@ -22,6 +23,7 @@ open class Cli {
     private var dumpOnly = false
     private var invocationName: String? = null
     private var exportAlexa: Boolean = false
+    private var inputFileCount = 0
 
     fun parseArgs(args: Array<String>) {
         var input: String? = null
@@ -86,8 +88,6 @@ open class Cli {
                         "-prettyprint" -> prettyPrint = true
                         "dump",
                         "-dump" -> dumpOnly = true
-                        //"compile",
-                        //"-compile" -> ksonExport = true
                         else -> println("Unknown argument \"$arg\".")
                     }
                 }
@@ -95,31 +95,39 @@ open class Cli {
             }
 
             val inputFile = File(input.orEmpty())
-            if (inputFile.isFile) {
-                input?.let {
-                    parseFiles(it, inputFile.parentFile)
+            when {
+                inputFile.isFile -> input?.let {
+                    inputFileCount = 1
+                    intentDb.getOrPut("") { mutableListOf() } += Parser(input).intents
                 }
-            } else if (inputFile.isDirectory) {
-                inputFile.listFiles { dir: File?, name: String? ->
+                inputFile.isDirectory -> inputFile.listFiles { dir: File?, name: String? ->
                     File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
                 }.toList()
-                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") }.toList() }
+                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") }.toList() } // TODO grammar files are missing!
+                    .also {
+                        inputFileCount = it.size
+                    }
                     .forEach {
-                        val target = File(ksonDir + it.absolutePath.substring(inputFile.absolutePath.length))
-                        parseFiles(it.path, target.parentFile)
+                        val prefix = it.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
+                        intentDb.getOrPut(prefix) { mutableListOf() } += Parser(it.path).intents
                     }
                 //.map { it.absolutePath.substring(inputFile.absolutePath.length) to it }
                 //.map(::println)
-            } else {
-                println("Input file not found!")
-                exit(-1)
+                else -> {
+                    println("Input file not found!")
+                    exit(-1)
+                }
             }
+
+            showStats()
+            exportData(inputFile.parentFile)
         }
     }
 
-    open fun parseFiles(input: String, targetDir: File) {
-        intents = Parser(input).intents
-        println("Parsing finished. Found ${intents.size} intents.")
+    fun showStats() {
+        val intents = intentDb[""]!!
+        val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
+        println("Parsing of $inputFileCount file${if(inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if(intentCount != 1) "s" else ""}.")
 
         if (countPermutations) {
             fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)
@@ -163,21 +171,24 @@ open class Cli {
         }
 
         // FIXME or remove me
-        if (!input.endsWith(".grammar") && dumpOnly) {
-            intents.forEach { intent ->
-                println("Response of ${intent.name}")
-                //intent.prompt.create().runIfNotNullOrEmpty(::println)
-                println("---")
-            }
-        }
+        //if (!input.endsWith(".grammar") && dumpOnly) {
+        //    intents.forEach { intent ->
+        //        println("Response of ${intent.name}")
+        //        //intent.prompt.create().runIfNotNullOrEmpty(::println)
+        //        println("---")
+        //    }
+        //}
 
         //println(intents[1].prompt.create())
+    }
 
+    fun exportData(baseDir: File) = intentDb.forEach { (config, intents) ->
+        val targetDir = File(baseDir.path + File.separator + "konversation".join("-", config))
         ksonDir?.let {
             intents.forEach { intent ->
                 val exporter = KsonExporter(intent.name)
                 targetDir.mkdirs()
-                val stream = File(targetDir,"${intent.name}.kson").outputStream()
+                val stream = File(targetDir, "${intent.name}.kson").outputStream()
                 val printer: Printer = { line ->
                     stream.write(line.toByteArray())
                 }
@@ -253,6 +264,13 @@ fun <T> Iterable<T>.forEachBreakable(block: BreakableIterator<T>.(element: T) ->
     val iterator = BreakableIterator(iterator())
     while (iterator.hasNext()) block(iterator, iterator.next())
 }
+
+fun String.join(delimiter: String, value: String?) =
+    if (value.isNullOrBlank()) {
+        this
+    } else {
+        "$this$delimiter$value"
+    }
 
 class BreakableIterator<T>(private val inner: Iterator<T>) : Iterator<T> {
     private var resume = true

@@ -33,8 +33,57 @@ Hello:                                   // Second intent
 ```
 
 ## Usage
+
+### Gradle plugin
+
+The gradle plugin is an easy way to integrate the processing of the ksv files in your build process. So you just need to place your
+kvs files in one place and the plugin will put the kson files into the resource directory. Kson just means **K**onver**s**ation
+**O**bject **N**otation, which is basically just a JSON file with the structure for the runtime.
+
+This is an example for `build.gradle` file:
+
+```
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.10'
+    id 'com.rewedigital.voice.konversation' version '0.1'
+}
+
+apply plugin: 'kotlin'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-stdlib"
+}
+
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin/'
+    test.java.srcDirs += 'src/test/kotlin/'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+konversation {
+    invocationName = "test" // the invocation name for the alexa intent schema
+}
+```
+
+
 ### CLI
+
+Konversation has its own command line interface, which you can use for generating the kson files for the runtime. You can use it for
+validate the syntax of the input files or to integrate it into your own build system.
+
 #### Setup
+
 At first you need to download the latest konversation.jar and create in Windows a file called `konversation.cmd` e.g. in 
 `c:\Windows\system32` directory (yep dirty hack sorry) and add the content:
 
@@ -51,6 +100,7 @@ konversation cli version number and exit then.
 Please note we know that this is not an ideal way for an installation, better ways are planed for future releases.
 
 #### Arguments
+
 ```
 Arguments for konversation:
 [-help]                     Print this help
@@ -67,6 +117,7 @@ Arguments for konversation:
 ```
     
 ### JVM
+
 When you have your kson files in your resource directory you can use the runtime like this:
 
     val konveration = Konversation(intentName, Environment("google", "de-DE"))
@@ -94,6 +145,7 @@ A more complex example can be found in the [readme](https://github.com/rewe-digi
 of the [konversation plugin](https://github.com/rewe-digital-incubator/dialog/konversation-plugin).
 
 ### Node.js
+
 At first install the dependency "konversation" with the command:
 
 `> npm install konversation`
@@ -107,9 +159,11 @@ Then you can use this example code:
     const displayText = output.displayText;
 
 ## Deep dive for development
+
 Here is a overview about the project structure.
 
 ### CLI
+
 Konversation has it's own command line interface which you can use for generating the kson files for the runtime. Kson just means
 **K**onver**s**ation **O**bject **N**otation, which is basically just a JSON file with the structure for the runtime.
 

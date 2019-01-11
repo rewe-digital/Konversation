@@ -98,7 +98,7 @@ open class Cli {
             when {
                 inputFile.isFile -> input?.let {
                     inputFileCount = 1
-                    intentDb.getOrPut("") { mutableListOf() } += Parser(input).intents
+                    intentDb.getOrPut("") { mutableListOf() } += parseFile(input)
                 }
                 inputFile.isDirectory -> inputFile.listFiles { dir: File?, name: String? ->
                     File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
@@ -109,7 +109,7 @@ open class Cli {
                     }
                     .forEach {
                         val prefix = it.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
-                        intentDb.getOrPut(prefix) { mutableListOf() } += Parser(it.path).intents
+                        intentDb.getOrPut(prefix) { mutableListOf() } += parseFile(it.path)
                     }
                 //.map { it.absolutePath.substring(inputFile.absolutePath.length) to it }
                 //.map(::println)
@@ -123,6 +123,8 @@ open class Cli {
             exportData(inputFile.parentFile)
         }
     }
+
+    open fun parseFile(file: String): List<Intent> = Parser(file).intents
 
     fun showStats() {
         val intents = intentDb[""]!!

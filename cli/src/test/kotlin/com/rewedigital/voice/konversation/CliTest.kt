@@ -199,9 +199,10 @@ class CliTest {
             parseArgs(arrayOf(path, "-dump"))
         }
 
-        //override fun parseFiles(input: String, targetDir: File) {
-        //    files.add(input)
-        //}
+        override fun parseFile(file: String) : List<Intent> {
+            files.add(file)
+            return emptyList()
+        }
     }
 
     companion object {

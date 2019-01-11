@@ -103,7 +103,7 @@ open class Cli {
                 inputFile.isDirectory -> inputFile.listFiles { dir: File?, name: String? ->
                     File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
                 }.toList()
-                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") }.toList() } // TODO grammar files are missing!
+                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList() }
                     .also {
                         inputFileCount = it.size
                     }
@@ -111,8 +111,6 @@ open class Cli {
                         val prefix = it.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
                         intentDb.getOrPut(prefix) { mutableListOf() } += parseFile(it.path)
                     }
-                //.map { it.absolutePath.substring(inputFile.absolutePath.length) to it }
-                //.map(::println)
                 else -> {
                     println("Input file not found!")
                     exit(-1)
@@ -129,7 +127,7 @@ open class Cli {
     fun showStats() {
         val intents = intentDb[""]!!
         val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
-        println("Parsing of $inputFileCount file${if(inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if(intentCount != 1) "s" else ""}.")
+        println("Parsing of $inputFileCount file${if (inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if (intentCount != 1) "s" else ""}.")
 
         if (countPermutations) {
             fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)

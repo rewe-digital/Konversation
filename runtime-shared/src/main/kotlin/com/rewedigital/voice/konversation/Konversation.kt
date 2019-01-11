@@ -1,5 +1,7 @@
 package com.rewedigital.voice.konversation
 
+import kotlin.js.JsName
+
 class Konversation(val name: String, environment: Environment) {
     private val answer = Reader().loadAnswer(name, environment)
 
@@ -24,6 +26,7 @@ class Konversation(val name: String, environment: Environment) {
             }
         }
 
+    @JsName("createOutput")
     fun createOutput(data: Map<String, Any> = emptyMap()) =
             Output(displayText = create(data, true),
                    ssml = create(data, false),

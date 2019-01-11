@@ -10,14 +10,18 @@ actual class Reader {
             val content = fs.readFileSync("./$name.kson", "utf8") as String
             JSON.parse(content) as dynamic
         } catch (e: Throwable) {
-            val request = XMLHttpRequest()
-            request.open("GET", "$name.kson", false)
-            request.send(null)
+            if (e.message?.startsWith("ENOENT:") == false) {
+                val request = XMLHttpRequest()
+                request.open("GET", "$name.kson", false)
+                request.send(null)
 
-            if (request.status == 200) {
-                JSON.parse(request.responseText)
+                if (request.status == 200) {
+                    JSON.parse(request.responseText)
+                } else {
+                    throw Error("HTTP-Error: " + request.status)
+                }
             } else {
-                throw Error("HTTP-Error: " + request.status)
+                throw e
             }
         }
         return PromptImpl(json)

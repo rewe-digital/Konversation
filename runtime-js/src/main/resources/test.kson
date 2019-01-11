@@ -1,7 +1,7 @@
 {
   "parts": [
     {
-      "type": "VoiceOnly",
+      "type": "Text",
       "variants": [
         "Deine Liste ist leer.",
         "Du hast keine Einträge auf deiner Einkaufsliste.",

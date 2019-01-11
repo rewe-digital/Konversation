@@ -1,0 +1,1 @@
+module.exports = require("./runtime.js").com.rewedigital.voice.konversation;

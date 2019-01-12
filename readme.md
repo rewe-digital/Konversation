@@ -1,16 +1,17 @@
 # Konversation
 
-Konversation is a tool to generate rich and diversified responses to the user of a voice application. This library can be used in Kotlin,
-Java, node.js and theoretically in the browser.
-
-### 
+Konversation is a tool to generate rich and diversified responses to the user of a voice application. You can support multiple platforms
+and different output devices at once, as watches, speaker, smart displays and TVs. Multiple languages are also supported.   
+This library can be used in Kotlin, Java, node.js and in the browser. You can define your intent model in ksv files. Which you can export
+directly to the Alexa Developer console, together with the ASK SDK you can deploy it directly to Amazon if you like.
 
 ## ksv file syntax
+
 ```
 Help:                                    // Intent name
 !Help {|me|us|how does this app work}    // Utterance how the user can call this intent
 !How {works|do I use} this App           // more utterances
--You can use this app                    // A block for a response within a block
+-You can use this app to                 // A block for a response within a block
 -With this app you can                   // a line will be randomly choosen.
 +                                        // Concats two blocks without a linebreak
 -{read|hear}                             // elements in brackets are alterntives
@@ -31,6 +32,22 @@ Hello:                                   // Second intent
 -Great to see you                        // First response block of the Hello intent
 // ...                                   // A comment :-)
 ```
+
+The example above will creat the following utterances (also called invocation):
+
+- Help
+- Help me
+- Help us
+- Help how does this app work
+- How works this App
+- How do I use this App
+
+You can create really tones of utterances for you skill or action. We already generated a 15GB file with it. However there are multiple
+restrictions on the Alexa server side which makes it impossible to upload such crazy large files.
+
+The displayed result could be e.g.: *"You can use this app to read Recipies and offers."* followed by just the spoken text *"Cool isn't it?
+How should we continue now?"*. This is very useful if you have some visual parts which you would just repeat. The example above has also
+31 more permutations.
 
 ## Usage
 
@@ -57,18 +74,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-stdlib"
-}
-
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin/'
-    test.java.srcDirs += 'src/test/kotlin/'
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    compile "com.rewedigital.voice:konversation-jvm:0.1"
 }
 
 konversation {
@@ -76,6 +82,7 @@ konversation {
 }
 ```
 
+This will place your kson files into your resource directory, which can be used by the runtime.
 
 ### CLI
 
@@ -84,7 +91,7 @@ validate the syntax of the input files or to integrate it into your own build sy
 
 #### Setup
 
-At first you need to download the latest konversation.jar and create in Windows a file called `konversation.cmd` e.g. in 
+At first you need to download the latest version of the konversation.jar. Then create in Windows a file called `konversation.cmd` e.g. in 
 `c:\Windows\system32` directory (yep dirty hack sorry) and add the content:
 
     java -jar path/to/your/konveration.jar %1 %2 %3 %4 %5 %6 %7 %8 %9

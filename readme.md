@@ -61,7 +61,7 @@ This is an example for `build.gradle` file:
 
 ```
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.11'
     id 'com.rewedigital.voice.konversation' version '0.1'
 }
 

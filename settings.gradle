@@ -2,26 +2,23 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "kotlin-platform-common") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10")
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.11")
             }
 
             if (requested.id.id == "kotlin-platform-jvm") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10")
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.11")
             }
 
             if (requested.id.id == "kotlin-platform-js") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10")
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.11")
             }
         }
     }
 
-    // just for 1.3
     repositories {
         mavenLocal() // just for plugin development
         jcenter()
-        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
         maven { url "https://plugins.gradle.org/m2/" }
-        mavenCentral()
     }
 }
 rootProject.name = 'konversation'
@@ -29,3 +26,5 @@ rootProject.name = 'konversation'
 include 'runtime-shared', 'runtime-jvm', 'runtime-js', 'cli', 'shared', 'gradle-plugin', 'plugin-example'
 
 project(":gradle-plugin").name = "konversation" // just a hack to force maven to use this name
+
+enableFeaturePreview('STABLE_PUBLISHING') // not sure why, but this removes a warning related to gradle 5.0

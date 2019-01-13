@@ -26,21 +26,9 @@ compileKotlin2Js {
     kotlinOptions.moduleKind = "umd"
 }
 
-task assembleWeb(type: Sync) {
-    configurations.compile.each { File file ->
-        from(zipTree(file.absolutePath), {
-            includeEmptyDirs = false
-            include { fileTreeElement ->
-                def path = fileTreeElement.path
-                path.endsWith(".js") && (path.startsWith("META-INF/resources/") ||
-                        !path.startsWith("META-INF/"))
-            }
-        })
-    }
-    from compileKotlin2Js.destinationDir
-    into "${buildDir}/out"
-
-    dependsOn compileKotlin2Js
+node {
+    download = true
+    nodeModulesDir = file("${buildDir}/out")
 }
 
 task copyResources(type: Copy) {
@@ -49,52 +37,51 @@ task copyResources(type: Copy) {
     into file("${buildDir}/out")
 }
 
-//assemble.dependsOn assembleWeb
-//assembleWeb.dependsOn compileKotlin2Js
-//assembleWeb.dependsOn copyResources
-//assembleWeb.dependsOn copyStarter
-//compileKotlin2Js.dependsOn classes
-//copyResources.dependsOn classes
-//copyStarter.dependsOn classes
-
-node {
-    download = true
-    nodeModulesDir = file("${buildDir}/out")
+task copyTest(type: Copy) {
+    from file("${projectDir}/src/test/")
+    include "**/*.js"
+    into file("${buildDir}/out/test")
 }
 
-task prepairNpmPack(type: NpmTask, dependsOn: [compileTestKotlin2Js, copyResources]) {
+task copySources(type: Copy) {
+    from file("${projectDir}/src/main/javascript")
+    include "**/*"
+    into file("${buildDir}/out/")
+}
+
+task copyReadme(type: Copy) {
+    from file("${projectDir}/readme.md")
+    include "**/*"
+    into file("${buildDir}/out/")
+}
+
+task prepairNpmPackage(type: NpmTask, dependsOn: [compileTestKotlin2Js, copyResources, copyTest, copySources, copyReadme]) {
     inputs.file('package.json')
-    outputs.upToDateWhen { file('node_modules').exists() }
+    outputs.upToDateWhen { file("${buildDir}/out/node_modules").exists() }
     npmCommand = ['install', 'kotlin']
 }
 
-task npmPack(type: NpmTask, dependsOn: prepairNpmPack) {
+task npmPack(type: NpmTask, dependsOn: prepairNpmPackage) {
     inputs.file('package.json')
-    outputs.upToDateWhen { file('konversation-0.1.0.tgz').exists() }
+    outputs.upToDateWhen { file("${buildDir}/out/konversation-0.1.0.tgz").exists() }
     npmCommand = ['pack']
 }
 
-task copyTest(type: Copy, dependsOn: npmPack) {
-    from file("${projectDir}/src/test/javascript")
-    include "**/*"
+task overridePackageForTesting(type: Copy, dependsOn: npmPack) {
+    from file("${projectDir}/src/test/")
+    include "**/package.json"
     into file("${buildDir}/out")
 }
 
-task installPreview(type: NpmTask, dependsOn: copyTest) {
+task installSnapshotForTesting(type: NpmTask, dependsOn: overridePackageForTesting) {
     inputs.file('package.json')
-    outputs.upToDateWhen { file('node_modules/konversation').exists() }
+    outputs.upToDateWhen { file("${buildDir}/out/node_modules/konversation").exists() }
     npmCommand = ['install', './konversation-0.1.0.tgz', 'mocha']
 }
 
-task runNpmTest(type: NpmTask, dependsOn: installPreview) {
+task runNpmTest(type: NpmTask, dependsOn: installSnapshotForTesting) {
     inputs.file('package.json')
-    //outputs.upToDateWhen { file('xxx').exists() }
     npmCommand = ['test']
 }
 
-//task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installMocha]) {
-//    script = file('node_modules/mocha/bin/mocha')
-//    args = [compileTestKotlin2Js.outputFile]
-//}
-
-//test.dependsOn runMocha
+test.dependsOn runNpmTest

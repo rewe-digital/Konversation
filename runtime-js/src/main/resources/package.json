@@ -1,0 +1,28 @@
+{
+  "name": "konversation",
+  "version": "0.1.0",
+  "description": "Konversation is a tool to generate rich and diversified responses to the user of a voice application.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "René Kilczan",
+  "license": "MIT",
+  "dependencies": {
+    "kotlin": "^1.3.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rewe-digital-incubator/konversation.git"
+  },
+  "keywords": [
+    "konversation",
+    "google home",
+    "actions on google",
+    "alexa"
+  ],
+  "bugs": {
+    "url": "https://github.com/rewe-digital-incubator/konversation/issues"
+  },
+  "homepage": "https://github.com/rewe-digital-incubator/konversation#readme"
+}

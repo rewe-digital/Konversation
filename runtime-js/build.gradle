@@ -1,5 +1,6 @@
 plugins {
     id 'kotlin-platform-js' version '1.3.11'
+    id "com.moowork.node" version "1.2.0"
 }
 repositories {
     mavenCentral()
@@ -44,20 +45,56 @@ task assembleWeb(type: Sync) {
 
 task copyResources(type: Copy) {
     from file("${projectDir}/src/main/resources/")
-    include "**/*.kson"
-    into file("${buildDir}/out")
-}
-
-task copyStarter(type: Copy) {
-    from file("${projectDir}/src/test")
     include "**/*"
     into file("${buildDir}/out")
 }
 
-assemble.dependsOn assembleWeb
-assembleWeb.dependsOn compileKotlin2Js
-assembleWeb.dependsOn copyResources
-assembleWeb.dependsOn copyStarter
+//assemble.dependsOn assembleWeb
+//assembleWeb.dependsOn compileKotlin2Js
+//assembleWeb.dependsOn copyResources
+//assembleWeb.dependsOn copyStarter
 //compileKotlin2Js.dependsOn classes
 //copyResources.dependsOn classes
 //copyStarter.dependsOn classes
+
+node {
+    download = true
+    nodeModulesDir = file("${buildDir}/out")
+}
+
+task prepairNpmPack(type: NpmTask, dependsOn: [compileTestKotlin2Js, copyResources]) {
+    inputs.file('package.json')
+    outputs.upToDateWhen { file('node_modules').exists() }
+    npmCommand = ['install', 'kotlin']
+}
+
+task npmPack(type: NpmTask, dependsOn: prepairNpmPack) {
+    inputs.file('package.json')
+    outputs.upToDateWhen { file('konversation-0.1.0.tgz').exists() }
+    npmCommand = ['pack']
+}
+
+task copyTest(type: Copy, dependsOn: npmPack) {
+    from file("${projectDir}/src/test/javascript")
+    include "**/*"
+    into file("${buildDir}/out")
+}
+
+task installPreview(type: NpmTask, dependsOn: copyTest) {
+    inputs.file('package.json')
+    outputs.upToDateWhen { file('node_modules/konversation').exists() }
+    npmCommand = ['install', './konversation-0.1.0.tgz', 'mocha']
+}
+
+task runNpmTest(type: NpmTask, dependsOn: installPreview) {
+    inputs.file('package.json')
+    //outputs.upToDateWhen { file('xxx').exists() }
+    npmCommand = ['test']
+}
+
+//task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installMocha]) {
+//    script = file('node_modules/mocha/bin/mocha')
+//    args = [compileTestKotlin2Js.outputFile]
+//}
+
+//test.dependsOn runMocha

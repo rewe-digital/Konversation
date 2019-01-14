@@ -26,5 +26,3 @@ rootProject.name = 'konversation'
 include 'runtime-shared', 'runtime-jvm', 'runtime-js', 'cli', 'shared', 'gradle-plugin', 'plugin-example'
 
 project(":gradle-plugin").name = "konversation" // just a hack to force maven to use this name
-
-enableFeaturePreview('STABLE_PUBLISHING') // not sure why, but this removes a warning related to gradle 5.0

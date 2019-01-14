@@ -56,13 +56,13 @@ task copyReadme(type: Copy) {
 }
 
 task prepairNpmPackage(type: NpmTask, dependsOn: [compileTestKotlin2Js, copyResources, copyTest, copySources, copyReadme]) {
-    inputs.file('package.json')
+    inputs.file("${buildDir}/out/package.json")
     outputs.upToDateWhen { file("${buildDir}/out/node_modules").exists() }
     npmCommand = ['install', 'kotlin']
 }
 
 task npmPack(type: NpmTask, dependsOn: prepairNpmPackage) {
-    inputs.file('package.json')
+    inputs.file("${buildDir}/out/package.json")
     outputs.upToDateWhen { file("${buildDir}/out/konversation-0.1.0.tgz").exists() }
     npmCommand = ['pack']
 }
@@ -74,13 +74,13 @@ task overridePackageForTesting(type: Copy, dependsOn: npmPack) {
 }
 
 task installSnapshotForTesting(type: NpmTask, dependsOn: overridePackageForTesting) {
-    inputs.file('package.json')
+    inputs.file("${buildDir}/out/package.json")
     outputs.upToDateWhen { file("${buildDir}/out/node_modules/konversation").exists() }
     npmCommand = ['install', './konversation-0.1.0.tgz', 'mocha']
 }
 
 task runNpmTest(type: NpmTask, dependsOn: installSnapshotForTesting) {
-    inputs.file('package.json')
+    inputs.file("${buildDir}/out/package.json")
     npmCommand = ['test']
 }
 

@@ -201,3 +201,6 @@ The sources of the gradle plugin the preferec way to create the kson files, with
 - A [Homebrew](https://brew.sh/) [Formula](https://docs.brew.sh/Formula-Cookbook) or at least a
 [tap](https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap) to install the konversation cli via brew
 - A [PowerShell Module](https://docs.microsoft.com/en-us/powershell/developer/module/writing-a-windows-powershell-module)
+- Grammar file inline support
+- Slot value inline format support
+- Extending system slot types

@@ -23,7 +23,8 @@ Please note we know that this is not an ideal way for an installation, better wa
 
 ## Usage
 
-Place your files... TODO
+You can process a single file or a directory to convert a batch of files. Currently are two formats supported: `.ksv` files and `.grammar`
+files. Check also the specification of the [supported file formats](./file-formats.md).
 
     konversation <path/to/process> --export-kson outdir
 

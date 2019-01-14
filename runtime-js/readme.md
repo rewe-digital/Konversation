@@ -1,7 +1,7 @@
 # Koversation (JS-Runtime) [![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][downloads-url] [![License: MIT][mit-image]][mit-url]
 
-This is the runtime library of [Konversation][github-url]. You can create with this library the output
-for your voice application.
+This is the runtime library of [Konversation][github-url]. Konversation is a tool to generate rich and
+diversified responses to the user of a voice application.
 
 ## Usage
 
@@ -18,7 +18,8 @@ Then you can use this example code:
     const displayText = output.displayText;
     
 The example above requires that you have a `test.kson` file in the same directory as the script itself.
-If you want to know check the documentation of the [konversation cli][cli-readme-url]. 
+If you want to know how to create the kson files, please check the documentation of the
+[konversation cli][cli-readme-url]. 
     
     
 [npm-image]: https://img.shields.io/npm/v/konversation.svg

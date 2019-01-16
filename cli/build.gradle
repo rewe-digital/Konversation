@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'application'
 apply plugin: 'kotlin'
 
-group 'com.rewedigital.voice'
+group 'org.rewedigital.voice'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -40,11 +40,11 @@ compileTestKotlin {
 }
 
 task fatJar(type: Jar) {
-    manifest.attributes 'Main-Class': 'com.rewedigital.voice.konversation.Cli'
+    manifest.attributes 'Main-Class': 'org.rewedigital.konversation.Cli'
     archiveName "konversation.jar"
     baseName = project.name
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
-mainClassName = 'com.rewedigital.voice.konversation.Cli'
-run.main = 'com.rewedigital.voice.konversation.Cli'
+mainClassName = 'org.rewedigital.konversation.Cli'
+run.main = 'org.rewedigital.konversation.Cli'

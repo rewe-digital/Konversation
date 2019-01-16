@@ -1,0 +1,25 @@
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+    outputFormat = 'gfm'
+    outputDirectory = "$rootDir/docs"
+    jdkVersion = 8
+    includeNonPublic = false
+    reportUndocumented = true
+
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/rewe-digital-incubator/${rootProject.name}/blob/master/$moduleName/src/main/kotlin"
+        suffix = "#L"
+    }
+
+    // Allows linking to documentation of the project's dependencies (generated with Javadoc or Dokka)
+    // Repeat for multiple links
+    //externalDocumentationLink {
+    //    // Root URL of the generated documentation to link with. The trailing slash is required!
+    //    url = new URL("https://github.com/rewe-digital-incubator/${rootProject.name}/blob/master/runtime-shared/src/main/kotlin")
+    //
+    //    // If package-list file located in non-standard location
+    //    packageListUrl = Paths.get("$rootDir/docs/runtime-shared/package-list").toUri().toURL()
+    //}
+}

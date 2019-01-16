@@ -7,7 +7,7 @@ plugins {
 
 apply plugin: 'kotlin'
 
-group 'com.rewedigital.voice'
+group 'org.rewedigital.voice'
 version '0.1'
 
 configurations {
@@ -28,10 +28,10 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'com.rewedigital.voice'
+            groupId 'org.rewedigital.voice'
             artifactId 'konversation'
-            //groupId 'com.rewedigital.voice.konversation'
-            //artifactId 'com.rewedigital.voice.konversation.gradle.plugin'
+            //groupId 'org.rewedigital.konversation'
+            //artifactId 'org.rewedigital.konversation.gradle.plugin'
             version '0.1'
 
             from components.java
@@ -52,7 +52,7 @@ pluginBundle {
     }
 
     mavenCoordinates {
-        groupId = "com.rewedigital.voice"
+        groupId = "org.rewedigital.voice"
         artifactId = "konversation"
         version = "0.1"
     }
@@ -61,9 +61,9 @@ pluginBundle {
 gradlePlugin {
     plugins {
         konversation {
-            id = 'com.rewedigital.voice.konversation'
+            id = 'org.rewedigital.konversation'
             description = 'Konversation TODO'
-            implementationClass = 'com.rewedigital.voice.konversation.KonversationPlugin'
+            implementationClass = 'org.rewedigital.konversation.KonversationPlugin'
         }
     }
 }

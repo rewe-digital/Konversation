@@ -1,11 +1,11 @@
 plugins {
     id 'kotlin-platform-jvm' version '1.3.11'
     // FIX COMPILE ERROR WITH THIS
-    // id 'org.jetbrains.kotlin.kapt' version '1.3.11'
+    //id 'org.jetbrains.kotlin.kapt' version '1.3.11'
     id 'application'
 }
 repositories {
-    mavenCentral()
+    jcenter()
     maven { url "https://plugins.gradle.org/m2/" }
     maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
 }
@@ -20,26 +20,19 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
     // FIX COMPILE ERROR WITH THIS
-    // kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
-    compile 'com.squareup.moshi:moshi-kotlin:1.6.0'
+    //kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.8.0'
+    compile 'com.squareup.moshi:moshi-kotlin:1.8.0'
 }
 
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 
-    // For kapt stubs
-    main.java.srcDirs += file("$buildDir/generated/source/kapt/main")
-
     // FIX COMPILE ERROR WITH THIS
-    // main.java.srcDirs += file("$buildDir/../../shared/src/main/kotlin")
+    //main.java.srcDirs += file("$buildDir/stubs")
 
     // For kotlin code gen during kapt
     main.java.srcDirs += [file("$buildDir/generated/source/kaptKotlin/main")]
 }
-
-//kapt {
-//    generateStubs = true
-//}
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
@@ -51,11 +44,28 @@ sourceCompatibility = "1.8"
 
 
 task fatJar(type: Jar) {
-    manifest.attributes 'Main-Class': 'com.rewedigital.voice.konversation.Shell'
-    archiveName "start-jvm.jar"
-    baseName = project.name
+    manifest.attributes 'Main-Class': 'org.rewedigital.konversation.Shell'
+    archiveFileName = "start-jvm.jar"
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
-mainClassName = 'com.rewedigital.voice.konversation.Shell'
-run.main = 'com.rewedigital.voice.konversation.Shell'
+mainClassName = 'org.rewedigital.konversation.Shell'
+run.main = 'org.rewedigital.konversation.Shell'
+
+task copyStubs(type: Copy) {
+    from file("$rootDir/shared/src/main/kotlin/org/rewedigital/konversation/")
+    include "**/Part*.kt"
+    into file("$buildDir/stubs/org/rewedigital/konversation/")
+}
+build.dependsOn copyStubs
+
+apply from: '../docu.gradle'
+//dokka {
+//    externalDocumentationLink {
+//        // Root URL of the generated documentation to link with. The trailing slash is required!
+//        url = new URL("https://github.com/rewe-digital-incubator/${rootProject.name}/blob/master/runtime-shared/src/main/kotlin")
+//
+//        // If package-list file located in non-standard location
+//        packageListUrl = Paths.get("$rootDir/docs/runtime-shared/package-list").toUri().toURL()
+//    }
+//}

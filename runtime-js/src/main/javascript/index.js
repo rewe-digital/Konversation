@@ -1,1 +1,1 @@
-module.exports = require("./runtime.js").com.rewedigital.voice.konversation;
+module.exports = require("./runtime.js").org.rewedigital.konversation;

@@ -11,7 +11,7 @@ This is an example for `build.gradle` file:
 ```
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.11'
-    id 'com.rewedigital.voice.konversation' version '0.1'
+    id 'org.rewedigital.konversation' version '0.1'
 }
 
 apply plugin: 'kotlin'
@@ -23,7 +23,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile "com.rewedigital.voice:konversation-jvm:0.1"
+    compile "org.rewedigital.voice:konversation-jvm:0.1"
 }
 
 konversation {

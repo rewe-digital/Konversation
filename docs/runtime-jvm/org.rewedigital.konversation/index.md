@@ -15,5 +15,3 @@
 | [PartImplJsonAdapter](-part-impl-json-adapter/index.md) | `class PartImplJsonAdapter` |
 | [Random](-random/index.md) | `actual class Random` |
 | [Reader](-reader/index.md) | `actual class Reader` |
-| [SuggestionImpl](-suggestion-impl/index.md) | `data class SuggestionImpl` |
-| [SuggestionImplJsonAdapter](-suggestion-impl-json-adapter/index.md) | `class SuggestionImplJsonAdapter` |

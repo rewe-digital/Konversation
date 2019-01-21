@@ -1,6 +1,9 @@
 package org.rewedigital.konversation.parser
 
-import org.rewedigital.konversation.*
+import org.rewedigital.konversation.Intent
+import org.rewedigital.konversation.Part
+import org.rewedigital.konversation.PartImpl
+import org.rewedigital.konversation.PartType
 import java.io.File
 import java.text.ParseException
 import java.util.*
@@ -27,14 +30,14 @@ class Parser(input: String) {
                 line.trim() == "-" -> addTo {
                     // add a line break
                     lastPart = null
-                    prompt.parts.add(PartImpl(type = PartType.Text, variants = mutableListOf(" \n")))
+                    prompt.add(PartImpl(type = PartType.Text, variants = mutableListOf(" \n")))
                 }
                 line.startsWith("~") -> addTo {
                     // Voice only
                     val text = line.substring(1).trim()
                     if (lastPart?.type ?: PartType.Text == PartType.Text) {
                         lastPart = PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())
-                        prompt.parts.add(lastPart!!)
+                        prompt.add(lastPart!!)
                     }
                     lastPart?.variants?.addAll(Permutator.generate(text))
                 }
@@ -43,7 +46,7 @@ class Parser(input: String) {
                     val text = line.substring(1).trim()
                     if (lastPart?.type ?: PartType.VoiceOnly == PartType.VoiceOnly) {
                         lastPart = PartImpl(type = PartType.Text, variants = mutableListOf())
-                        prompt.parts.add(lastPart!!)
+                        prompt.add(lastPart!!)
                     }
                     lastPart?.variants?.addAll(Permutator.generate(text))
                 }
@@ -54,8 +57,8 @@ class Parser(input: String) {
                     // reprompt
                     val level = line.substring(1, line.indexOf(" ")).toIntOrNull() ?: 1
                     val text = line.substring(line.indexOf(" "))
-                    val prompt = reprompt.getOrPut(level) { Prompt(PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())) }
-                    prompt.parts.first().variants.addAll(Permutator.generate(text))
+                    val prompt = reprompt.getOrPut(level) { mutableListOf(PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())) }
+                    prompt.first().variants.addAll(Permutator.generate(text))
                 }
                 line.startsWith("[") && line.endsWith("]") -> addTo {
                     // suggestions

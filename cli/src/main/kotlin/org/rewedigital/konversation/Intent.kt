@@ -1,5 +1,9 @@
 package org.rewedigital.konversation
 
+import org.rewedigital.konversation.parser.Utterance
+
+typealias Prompt = MutableList<Part>
+
 /**
  * The intent of the user, holding the utterances, prompts and so on.
  */
@@ -9,7 +13,7 @@ data class Intent(
     /** The utterances of this intent. That are the sentences the user can say to invoke this intent. */
     val utterances: MutableList<Utterance> = mutableListOf(),
     /** The prompt of this intent. That are the outputs what the voice application will say or show the user. */
-    val prompt: Prompt = Prompt(),
+    val prompt: Prompt = mutableListOf(),
     /** The reprompt which is said when the user gives no input. */
     val reprompt: MutableMap<Int, Prompt> = mutableMapOf(),
     /** The input context, for future usage. */

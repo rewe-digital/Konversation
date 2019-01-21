@@ -11,7 +11,3 @@ class AnswerImpl(
 @JsonClass(generateAdapter = true)
 data class PartImpl(override val variants: MutableList<String>,
                     override val type: PartType) : Part
-
-@JsonClass(generateAdapter = true)
-data class SuggestionImpl(override val label: String,
-                          override val data: String) : Suggestion

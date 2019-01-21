@@ -13,5 +13,3 @@
 | [org.rewedigital.konversation.PartImplJsonAdapter](../org.rewedigital.konversation/-part-impl-json-adapter/index.md) |  |
 | [org.rewedigital.konversation.Random](../org.rewedigital.konversation/-random/index.md) |  |
 | [org.rewedigital.konversation.Reader](../org.rewedigital.konversation/-reader/index.md) |  |
-| [org.rewedigital.konversation.SuggestionImpl](../org.rewedigital.konversation/-suggestion-impl/index.md) |  |
-| [org.rewedigital.konversation.SuggestionImplJsonAdapter](../org.rewedigital.konversation/-suggestion-impl-json-adapter/index.md) |  |

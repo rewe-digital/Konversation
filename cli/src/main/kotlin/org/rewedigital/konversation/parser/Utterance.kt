@@ -6,16 +6,16 @@ import java.text.ParseException
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class Utterance(val line: String, val name: String) : org.rewedigital.konversation.Utterance {
+class Utterance(val line: String, val name: String) {
 
     private var cache: SwapingHashedList? = null
 
-    override val permutations: SwapingHashedList
+    val permutations: SwapingHashedList
         get() = cache ?: generatePermutations()
 
-    override val slotTypes = mutableListOf<String>()
+    val slotTypes = mutableListOf<String>()
 
-    override val permutationCount: Long
+    val permutationCount: Long
         get() {
             var total: Long = 1
             val slots: List<String> = validate().flatMap { line ->

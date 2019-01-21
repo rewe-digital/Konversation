@@ -10,7 +10,6 @@ class AdapterFactory : Factory {
         when (type) {
             Prompt::class.java -> AnswerImplJsonAdapter(moshi)
             Part::class.java -> PartImplJsonAdapter(moshi)
-            Suggestion::class.java -> SuggestionImplJsonAdapter(moshi)
             else -> null
         }
 }

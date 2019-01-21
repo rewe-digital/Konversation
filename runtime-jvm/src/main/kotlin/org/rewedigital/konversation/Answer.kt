@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 class AnswerImpl(
     override val parts: MutableList<Part> = mutableListOf(),
     override val suggestions: MutableList<String> = mutableListOf(),
-    override val reprompts: MutableMap<String, List<String>> = mutableMapOf()) : Prompt(parts, suggestions, reprompts)
+    override val reprompts: MutableMap<String, List<String>> = mutableMapOf()) : Reply(parts, suggestions, reprompts)
 
 @JsonClass(generateAdapter = true)
 data class PartImpl(override val variants: MutableList<String>,

@@ -14,4 +14,4 @@
 
 | Name | Summary |
 |---|---|
-| [loadAnswer](load-answer.md) | `fun loadAnswer(name: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`, environment: `[`Environment`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-environment/index.md)`): <ERROR CLASS>` |
+| [loadReply](load-reply.md) | `fun loadReply(name: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`, environment: `[`Environment`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-environment/index.md)`): <ERROR CLASS>` |

@@ -4,7 +4,7 @@
 
 `interface Part`
 
-One part of the [Prompt](../-prompt/index.md) for the user. There can be two types: Text and VoiceOnly. The runtime will contact the parts and add separators (spaces).
+One part of the [Reply](../-reply/index.md) for the user. There can be two types: Text and VoiceOnly. The runtime will contact the parts and add separators (spaces).
 
 ### Properties
 

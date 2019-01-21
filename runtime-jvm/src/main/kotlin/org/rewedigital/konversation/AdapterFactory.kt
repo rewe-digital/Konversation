@@ -8,7 +8,7 @@ import java.lang.reflect.Type
 class AdapterFactory : Factory {
     override fun create(type: Type?, annotations: MutableSet<out Annotation>?, moshi: Moshi): JsonAdapter<*>? =
         when (type) {
-            Prompt::class.java -> AnswerImplJsonAdapter(moshi)
+            Reply::class.java -> AnswerImplJsonAdapter(moshi)
             Part::class.java -> PartImplJsonAdapter(moshi)
             else -> null
         }

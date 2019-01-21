@@ -10,10 +10,9 @@
 | [Formatter](-formatter/index.md) | `actual class Formatter` |
 | [Math](-math/index.md) | `external class Math` |
 | [PartImpl](-part-impl/index.md) | `data class PartImpl` |
-| [PromptImpl](-prompt-impl/index.md) | `class PromptImpl` |
 | [Random](-random/index.md) | `actual class Random` |
 | [Reader](-reader/index.md) | `actual class Reader` |
-| [SuggestionImpl](-suggestion-impl/index.md) | `data class SuggestionImpl` |
+| [ReplyImpl](-reply-impl/index.md) | `class ReplyImpl` |
 | [XMLHttpRequest](-x-m-l-http-request/index.md) | `external class XMLHttpRequest` |
 
 ### Functions

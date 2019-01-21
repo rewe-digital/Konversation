@@ -3,7 +3,7 @@ package org.rewedigital.konversation
 external fun require(module: String): dynamic
 
 actual class Reader {
-    actual fun loadAnswer(name: String, environment: Environment): Prompt {
+    actual fun loadReply(name: String, environment: Environment): Reply {
         val json = try {
             //require("./$name.kson")
             val fs = require("fs")
@@ -24,7 +24,7 @@ actual class Reader {
                 throw e
             }
         }
-        return PromptImpl(json)
+        return ReplyImpl(json)
     }
 }
 

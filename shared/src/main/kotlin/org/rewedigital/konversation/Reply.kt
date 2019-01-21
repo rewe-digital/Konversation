@@ -3,7 +3,7 @@ package org.rewedigital.konversation
 /**
  * Each prompt consists of multiple [Part]s which can be for the display or just for the audio output.
  */
-open class Prompt(
+open class Reply(
     /** The parts of the response which should be build. */
     open val parts: MutableList<Part> = mutableListOf(),
     /** The suggestions which are used in context of the runtime. TODO this is for the Reply part only */

@@ -14,4 +14,4 @@
 
 | Name | Summary |
 |---|---|
-| [loadAnswer](load-answer.md) | `actual fun loadAnswer(name: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`, environment: <ERROR CLASS>): <ERROR CLASS>` |
+| [loadReply](load-reply.md) | `actual fun loadReply(name: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`, environment: <ERROR CLASS>): <ERROR CLASS>` |

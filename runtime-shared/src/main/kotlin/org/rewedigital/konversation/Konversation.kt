@@ -3,7 +3,7 @@ package org.rewedigital.konversation
 import kotlin.js.JsName
 
 class Konversation(val name: String, environment: Environment) {
-    private val answer = Reader().loadAnswer(name, environment)
+    private val answer = Reader().loadReply(name, environment)
 
     private fun create(data: Map<String, Any>, onlyDisplayText: Boolean): String {
         val sb = StringBuilder()

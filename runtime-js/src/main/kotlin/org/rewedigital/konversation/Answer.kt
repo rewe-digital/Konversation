@@ -1,6 +1,6 @@
 package org.rewedigital.konversation
 
-class PromptImpl(json: dynamic) : org.rewedigital.konversation.Prompt((json.parts as Array<dynamic>).map { PartImpl(it) }.toMutableList<Part>())
+class ReplyImpl(json: dynamic) : org.rewedigital.konversation.Reply((json.parts as Array<dynamic>).map { PartImpl(it) }.toMutableList<Part>())
 
 data class PartImpl(override val variants: MutableList<String>,
                     override val type: PartType) : Part {

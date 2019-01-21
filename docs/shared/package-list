@@ -1,0 +1,5 @@
+$dokka.format:gfm
+$dokka.linkExtension:md
+
+org.rewedigital.konversation
+org.rewedigital.konversation.parts

@@ -1,7 +1,9 @@
+import java.nio.file.Paths
+
 plugins {
-    id 'kotlin-platform-js' version '1.3.11'
+    id 'kotlin-platform-js'
     id 'com.moowork.node' version '1.2.0'
-    //id 'org.jetbrains.dokka'// version '0.9.17'
+    id 'org.jetbrains.dokka'
 }
 apply from: '../docu.gradle'
 
@@ -28,6 +30,24 @@ compileKotlin2Js {
 node {
     download = true
     nodeModulesDir = file("${buildDir}/out")
+}
+
+dokka {
+    impliedPlatforms = ["JS"] // This will force platform tags for all non-common sources e.g. "JVM"
+    kotlinTasks {
+        // dokka fails to retrieve sources from MPP-tasks so they must be set empty to avoid exception
+        // use sourceRoot instead (see below)
+        []
+    }
+    sourceRoot {
+        // assuming there is only a single source dir...
+        path = kotlin.sourceSets.main.kotlin.srcDirs[0]
+        platforms = ["JS"]
+    }
+    externalDocumentationLink {
+        url = new URL("https://github.com/rewe-digital-incubator/${rootProject.name}/blob/master/docs/shared/")
+        packageListUrl = Paths.get("$rootDir/docs/shared/package-list").toUri().toURL()
+    }
 }
 
 task copyResources(type: Copy) {
@@ -60,13 +80,14 @@ task prepairNpmPackage(type: NpmTask, dependsOn: [compileTestKotlin2Js, copyReso
     npmCommand = ['install', 'kotlin']
 }
 
-task npmPack(type: NpmTask, dependsOn: prepairNpmPackage) {
+task buildNpmPackage(type: NpmTask, dependsOn: prepairNpmPackage) {
+    group = 'build'
     inputs.file("${buildDir}/out/package.json")
     outputs.upToDateWhen { file("${buildDir}/out/konversation-0.1.0.tgz").exists() }
     npmCommand = ['pack']
 }
 
-task overridePackageForTesting(type: Copy, dependsOn: npmPack) {
+task overridePackageForTesting(type: Copy, dependsOn: buildNpmPackage) {
     from file("${projectDir}/src/test/")
     include "**/package.json"
     into file("${buildDir}/out")
@@ -79,6 +100,7 @@ task installSnapshotForTesting(type: NpmTask, dependsOn: overridePackageForTesti
 }
 
 task runNpmTest(type: NpmTask, dependsOn: installSnapshotForTesting) {
+    group = 'verification'
     inputs.file("${buildDir}/out/package.json")
     npmCommand = ['test']
 }

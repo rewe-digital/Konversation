@@ -19,3 +19,18 @@ sourceSets {
     main.java.srcDirs += 'src/main/kotlin/'
     test.java.srcDirs += 'src/test/kotlin/'
 }
+
+apply from: '../docu.gradle'
+dokka {
+    impliedPlatforms = ["COMMON"] // This will force platform tags for all non-common sources e.g. "JVM"
+    kotlinTasks {
+        // dokka fails to retrieve sources from MPP-tasks so they must be set empty to avoid exception
+        // use sourceRoot instead (see below)
+        []
+    }
+    sourceRoot {
+        // assuming there is only a single source dir...
+        path = kotlin.sourceSets.main.kotlin.srcDirs[0]
+        platforms = ["COMMON"]
+    }
+}

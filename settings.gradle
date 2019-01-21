@@ -24,5 +24,3 @@ pluginManagement {
 rootProject.name = 'konversation'
 
 include 'runtime-shared', 'runtime-jvm', 'runtime-js', 'cli', 'shared', 'gradle-plugin', 'plugin-example'
-
-project(":gradle-plugin").name = "konversation" // just a hack to force maven to use this name

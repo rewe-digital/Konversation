@@ -2,6 +2,13 @@ package org.rewedigital.konversation
 
 import kotlin.js.JsName
 
+/**
+ * The interface for accessing Konversation.
+ *
+ * @property name The conversation name you want to load.
+ * @param environment The environment of the conversation to load.
+ * @constructor Creates a new Konversation object with the given options.
+ */
 class Konversation(val name: String, environment: Environment) {
     private val answer = Reader().loadReply(name, environment)
 
@@ -26,6 +33,10 @@ class Konversation(val name: String, environment: Environment) {
             }
         }
 
+    /**
+     * Creates a static randomized output for your voice application.
+     * The [data] will be applied to the output so that you can customize the output with your values.
+     */
     @JsName("createOutput")
     fun createOutput(data: Map<String, Any> = emptyMap()) =
             Output(displayText = create(data, true),
@@ -35,7 +46,9 @@ class Konversation(val name: String, environment: Environment) {
                    extras = emptyMap())
 
     companion object {
+        /** The randomness implementation which can be modified for testing. */
         val random = Random()
+        /** A regular expression to apply the actual values. */
         val regex = "(\\$([a-zA-Z_][_a-zA-Z0-9]*)|\\$\\{([a-zA-Z_][a-zA-Z0-9._]+[a-zA-Z_])}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z_][A-zA-z0-9._]+[a-zA-Z_]|[a-zA-Z_]))".toRegex()
     }
 }

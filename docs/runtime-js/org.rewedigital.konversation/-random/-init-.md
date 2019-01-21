@@ -3,3 +3,6 @@
 # &lt;init&gt;
 
 `Random()`
+
+JavaScript implementation for a random number generator.
+

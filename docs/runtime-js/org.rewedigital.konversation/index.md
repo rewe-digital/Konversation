@@ -6,17 +6,7 @@
 
 | Name | Summary |
 |---|---|
-| [FileChecker](-file-checker/index.md) | `actual class FileChecker` |
-| [Formatter](-formatter/index.md) | `actual class Formatter` |
-| [Math](-math/index.md) | `external class Math` |
-| [PartImpl](-part-impl/index.md) | `data class PartImpl` |
-| [Random](-random/index.md) | `actual class Random` |
-| [Reader](-reader/index.md) | `actual class Reader` |
-| [ReplyImpl](-reply-impl/index.md) | `class ReplyImpl` |
-| [XMLHttpRequest](-x-m-l-http-request/index.md) | `external class XMLHttpRequest` |
-
-### Functions
-
-| Name | Summary |
-|---|---|
-| [require](require.md) | `external fun require(module: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`): dynamic` |
+| [FileChecker](-file-checker/index.md) | `actual class FileChecker`<br>Helper tool to verify if the given file exists. |
+| [Formatter](-formatter/index.md) | `actual class Formatter`<br>JavaScript implementation to format a string. This function just provides a platform specific `sprintf()` implementation. |
+| [Random](-random/index.md) | `actual class Random`<br>JavaScript implementation for a random number generator. |
+| [Reader](-reader/index.md) | `actual class Reader`<br>Helper class to read files. |

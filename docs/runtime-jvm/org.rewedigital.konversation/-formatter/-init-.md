@@ -3,3 +3,6 @@
 # &lt;init&gt;
 
 `Formatter()`
+
+Java implementation to format a string. This function just provides a platform specific `sprintf()` implementation.
+

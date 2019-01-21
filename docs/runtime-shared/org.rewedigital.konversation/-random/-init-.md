@@ -3,3 +3,6 @@
 # &lt;init&gt;
 
 `Random()`
+
+Abstraction layer for a random number generator.
+

@@ -3,3 +3,6 @@
 # regex
 
 `val regex: <ERROR CLASS>`
+
+A regular expression to apply the actual values.
+

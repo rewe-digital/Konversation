@@ -3,3 +3,6 @@
 # &lt;init&gt;
 
 `Formatter()`
+
+Abstraction layer to format a string. This function just provides a platform specific `sprintf()` implementation.
+

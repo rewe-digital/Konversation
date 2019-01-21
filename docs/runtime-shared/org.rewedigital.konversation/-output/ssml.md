@@ -3,3 +3,6 @@
 # ssml
 
 `val ssml: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)
+
+The Speech Synthesis Markup Language, the spoken output.
+

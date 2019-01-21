@@ -3,3 +3,6 @@
 # random
 
 `val random: `[`Random`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-random/index.md)
+
+The randomness implementation which can be modified for testing.
+

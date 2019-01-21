@@ -1,8 +1,16 @@
 package org.rewedigital.konversation
 
-external fun require(module: String): dynamic
+internal external fun require(module: String): dynamic
 
+/**
+ * Helper class to read files.
+ */
 actual class Reader {
+    /**
+     * Loads a reply for a given environment.
+     * @param name The name of the reply.
+     * @param environment The environment of the reply.
+     */
     actual fun loadReply(name: String, environment: Environment): Reply {
         val json = try {
             //require("./$name.kson")
@@ -28,7 +36,7 @@ actual class Reader {
     }
 }
 
-external class XMLHttpRequest {
+internal external class XMLHttpRequest {
     fun open(method: String, file: String, async: Boolean)
     fun send(payload: String?)
 

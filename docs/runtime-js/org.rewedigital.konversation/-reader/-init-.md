@@ -3,3 +3,6 @@
 # &lt;init&gt;
 
 `Reader()`
+
+Helper class to read files.
+

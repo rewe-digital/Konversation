@@ -9,7 +9,8 @@
   "author": "René Kilczan",
   "license": "MIT",
   "dependencies": {
-    "kotlin": "^1.3.11"
+    "kotlin": "^1.3.11",
+    "sprintf-js": "^1.1.2"
   },
   "repository": {
     "type": "git",

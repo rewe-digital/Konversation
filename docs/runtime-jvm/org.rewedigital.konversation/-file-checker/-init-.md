@@ -3,3 +3,6 @@
 # &lt;init&gt;
 
 `FileChecker()`
+
+Helper tool to verify if the given file exists.
+

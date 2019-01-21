@@ -1,6 +1,12 @@
 package org.rewedigital.konversation
 
-open class ResourceLocator {
+/**
+ * Internal helper for choosing the right resources.
+ */
+internal open class ResourceLocator {
+    /**
+     * Loads a resource by name and its specific environment.
+     */
     fun locate(konversation: String, environment: Environment): String {
         val prefix = "konversation"
         val locale = environment.locale.toLowerCase().replace('-', '_')
@@ -14,7 +20,9 @@ open class ResourceLocator {
             .orThrow("Konversation with the name \"$konversation\" not found")
     }
 
-    // open for testing
+    /**
+     * @hide internal method just open for testing
+     */
     open fun checkPath(path: String): Boolean = FileChecker().exists(path)
 
     private fun returnIfExists(path: String): String? =

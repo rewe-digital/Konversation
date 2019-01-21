@@ -3,3 +3,6 @@
 # &lt;init&gt;
 
 `Random()`
+
+Java implementation for a random number generator.
+

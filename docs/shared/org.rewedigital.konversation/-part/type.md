@@ -3,3 +3,6 @@
 # type
 
 `abstract val type: `[`PartType`](../-part-type/index.md)
+
+The type of this part can be Text and VoiceOnly.
+

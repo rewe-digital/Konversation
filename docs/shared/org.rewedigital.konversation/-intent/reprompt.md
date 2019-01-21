@@ -3,3 +3,6 @@
 # reprompt
 
 `val reprompt: `[`MutableMap`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-map/index.html)`<`[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)`, `[`Prompt`](../-prompt/index.md)`>`
+
+The reprompt which is said when the user gives no input.
+

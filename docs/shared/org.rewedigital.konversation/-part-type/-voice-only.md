@@ -3,3 +3,6 @@
 # VoiceOnly
 
 `VoiceOnly`
+
+A voice only block which should be just spoken and never displayed.
+

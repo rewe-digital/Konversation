@@ -9,5 +9,6 @@ internal class AnswerImpl(
     override val reprompts: MutableMap<String, List<String>> = mutableMapOf()) : Reply(parts, suggestions, reprompts)
 
 @JsonClass(generateAdapter = true)
-internal data class PartImpl(override val variants: MutableList<String>,
+// TODO find a trick to make it internal and visible for the parser
+data class PartImpl(override val variants: MutableList<String>,
                     override val type: PartType) : Part

@@ -11,7 +11,6 @@ import java.util.stream.Stream
 import kotlin.system.exitProcess
 
 open class Cli {
-    //private lateinit var intents: MutableList<Intent>
     val intentDb = mutableMapOf<String, MutableList<Intent>>()
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false

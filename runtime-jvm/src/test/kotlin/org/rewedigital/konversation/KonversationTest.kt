@@ -9,7 +9,7 @@ class KonversationTest {
     @Test
     fun `Check display and ssml responses`() {
         Random.forcedValue = 0
-        val sut = Konversation("help", Environment("google", "de-DE", false)).createOutput()
+        val sut = Konversation("help", Environment("google", "de-DE")).createOutput()
         assertEquals("Du kannst mit dieser App Rezepte und Angebote anhören.", sut.displayText)
         assertEquals("Du kannst mit dieser App Rezepte und Angebote anhören. Cool nicht wahr? Womit sollen wir weiter machen?", sut.ssml)
     }
@@ -17,7 +17,7 @@ class KonversationTest {
     @Test
     fun `Check varity of responses`() {
         Random.forcedValue = null
-        val sut = Konversation("help", Environment("google", "de-DE", false))
+        val sut = Konversation("help", Environment("google", "de-DE"))
         val displayTexts = mutableListOf<String>()
         val ssml = mutableListOf<String>()
         for (i in 0 .. 50) {
@@ -32,14 +32,14 @@ class KonversationTest {
     @Test
     fun `Check suggestions`() {
         Random.forcedValue = 0
-        val sut = Konversation("help", Environment("google", "de-DE", false)).createOutput()
+        val sut = Konversation("help", Environment("google", "de-DE")).createOutput()
         assertEquals(listOf("Angebote", "Rezept"), sut.suggestions)
     }
 
     @Test
     fun `Check reprompts`() {
         Random.forcedValue = 0
-        val sut = Konversation("help", Environment("google", "de-DE", false)).createOutput()
+        val sut = Konversation("help", Environment("google", "de-DE")).createOutput()
         assertNull(sut.reprompts[0])
         assertEquals("Kann ich dir noch helfen?", sut.reprompts[1])
         assertEquals("Womit sollen wir weitermachen?", sut.reprompts[2])

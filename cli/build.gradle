@@ -20,6 +20,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-stdlib"
     compile project(':shared')
+    testCompile project(':shared')
     //compile project(':runtime-shared')
     compile project(':runtime-jvm')
     testCompile "junit:junit:4.12"

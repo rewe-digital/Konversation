@@ -77,9 +77,7 @@ class CliTest {
         val outputFile = File(testOutputFile)
         try {
             val sut = CliTestHelper.getOutput("cli/src/test/resources/help.kvs", "-dump")
-            assertEquals(sut.output, "Parsing finished. Found 1 intents.\nDumping Help...\n" +
-                    "Response of Help\n" +
-                    "---\n")
+            assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\nDumping Help...\n")
             assertNull(sut.exitCode)
             assertTrue(outputFile.exists())
             assertTrue(File(expectedOutputFile).exists())

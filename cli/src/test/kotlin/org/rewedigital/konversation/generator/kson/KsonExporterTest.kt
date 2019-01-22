@@ -1,7 +1,8 @@
 package org.rewedigital.konversation.generator.kson
 
-import org.rewedigital.konversation.parser.Parser
 import org.junit.Test
+import org.rewedigital.konversation.assertEqualsIgnoringLineBreaks
+import org.rewedigital.konversation.parser.Parser
 import java.io.File
 import kotlin.test.assertEquals
 
@@ -12,7 +13,7 @@ class KsonExporterTest {
         val sb = StringBuilder()
         val exporter = KsonExporter("Help")
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
-        assertEquals(expectedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
     //@Test

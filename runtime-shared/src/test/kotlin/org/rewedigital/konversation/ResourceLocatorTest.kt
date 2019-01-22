@@ -26,13 +26,13 @@ open class ResourceLocatorTest {
                                       "konversation-google-en/test.kson",
                                       "konversation-google-en_us/test.kson",
                                       "konversation-google-en_gb/test.kson")
-        assertEquals("konversation/test.kson", sut.locate("test", Environment("magenta", "es", true)), "Should fallback to generic konversation.")
-        assertEquals("konversation-de_de/test.kson", sut.locate("test", Environment("magenta", "de_DE", true)), "Should provide correct locale.")
-        assertEquals("konversation-de_de/test.kson", sut.locate("test", Environment("magenta", "De_dE", true)), "Should provide correct locale with nonsense cases.")
-        assertEquals("konversation-google-de_de/test.kson", sut.locate("test", Environment("google", "de_de", true)), "Should provide correct locale and platform.")
-        assertEquals("konversation-fr/test.kson", sut.locate("test", Environment("magenta", "fr_FR", true)), "Should fallback to generic locale.")
-        assertEquals("konversation-alexa/test.kson", sut.locate("test", Environment("alexa", "es", true)), "Should fallback to generic platform.")
-        assertFailsWith(RuntimeException::class, message = "Should throw exception when the conversation is not found.") {sut.locate("404", Environment("alexa", "es", true))}
+        assertEquals("konversation/test.kson", sut.locate("test", Environment("magenta", "es")), "Should fallback to generic konversation.")
+        assertEquals("konversation-de_de/test.kson", sut.locate("test", Environment("magenta", "de_DE")), "Should provide correct locale.")
+        assertEquals("konversation-de_de/test.kson", sut.locate("test", Environment("magenta", "De_dE")), "Should provide correct locale with nonsense cases.")
+        assertEquals("konversation-google-de_de/test.kson", sut.locate("test", Environment("google", "de_de")), "Should provide correct locale and platform.")
+        assertEquals("konversation-fr/test.kson", sut.locate("test", Environment("magenta", "fr_FR")), "Should fallback to generic locale.")
+        assertEquals("konversation-alexa/test.kson", sut.locate("test", Environment("alexa", "es")), "Should fallback to generic platform.")
+        assertFailsWith(RuntimeException::class, message = "Should throw exception when the conversation is not found.") {sut.locate("404", Environment("alexa", "es"))}
     }
 }
 

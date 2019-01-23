@@ -45,17 +45,6 @@ compileTestKotlin {
 }
 sourceCompatibility = "1.8"
 
-
-task buildPreviewJar(type: Jar) {
-    group = 'build'
-    manifest.attributes 'Main-Class': 'org.rewedigital.konversation.Shell'
-    archiveFileName = "konversation-bundle.jar"
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-mainClassName = 'org.rewedigital.konversation.Shell'
-run.main = 'org.rewedigital.konversation.Shell'
-
 task copyStubs(type: Copy) {
     from file("$rootDir/shared/src/main/kotlin/org/rewedigital/konversation/")
     include "**/Part*.kt"
@@ -84,7 +73,7 @@ dokka {
 
 publishing.publications {
     maven(MavenPublication) {
-        groupId = 'org.rewedigital'
+        groupId = 'org.rewedigital.voice'
         artifactId = 'konversation'
         version = '0.1'
 

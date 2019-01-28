@@ -49,15 +49,15 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
     // load the hashes just when required
     private fun loadHashes(): HashSet<Int> {
         val hashList = HashSet<Int>()
-        //println("FYI using temp file $cacheFile")
+        //Cli.L.debug("FYI using temp file $cacheFile")
         if (hashFile.exists() && cacheFile.exists()) {
-            println("Reading hash file...")
+            Cli.L.debug("Reading hash file...")
             val stream = FileInputStream(hashFile)
             val buf = try {
                 ByteArray(Math.min(hashFile.length(), 1073741824).toInt()) // 1GB or less
             } catch (e: OutOfMemoryError) {
                 // Okay we are less greedy
-                println("Low memory detected.")
+                Cli.L.warn("Low memory detected.")
                 ByteArray(104857600) // 100MB
             }
             var read = stream.read(buf, 0, buf.size)
@@ -65,12 +65,12 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
                 for (i in 0 until read step 4) {
                     hashList.add(buf.getIntAt(i))
                 }
-                println("size: ${hashList.size}")
+                Cli.L.debug("size: ${hashList.size}")
                 read = stream.read(buf, 0, buf.size)
             } while (read > 0)
         } else if (cacheFile.exists()) {
             if(cacheFile.length() > 0) {
-                println("Warning: Hash file is missing, rebuilding it.")
+                Cli.L.debug("Warning: Hash file is missing, rebuilding it.")
             }
             val inputStream = FileInputStream(cacheFile)
             val outputStream = FileOutputStream(hashFile)
@@ -78,7 +78,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
             while (sc.hasNextLine()) {
                 bigListSize++
                 if ((bigListSize % 100000) == 0) {
-                    println(">> $bigListSize")
+                    Cli.L.debug(">> $bigListSize")
                 }
                 val hash = sc.nextLine().hashCode()
                 hashList.add(hash)
@@ -89,7 +89,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
         }
         if (cacheFile.exists() && !offsetFile.exists()) {
             if(cacheFile.length() > 0) {
-                println("For a faster usage a offset file will be generated")
+                Cli.L.debug("For a faster usage a offset file will be generated")
             }
             val inputStream = FileInputStream(cacheFile)
             val sc = Scanner(inputStream, "UTF-8")
@@ -236,7 +236,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
 
     private fun swapIt(elements: Collection<String>): Boolean {
         isSwapping = true
-        //println("##################### STARTED SWAPPING #######################")
+        //Cli.L.debug("##################### STARTED SWAPPING #######################")
         isSwapping = true
         synchronized(writer) {
             smallList.map { element ->

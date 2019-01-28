@@ -8,12 +8,15 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.operations.DefaultBuildOperationIdFactory
+import org.gradle.internal.time.Time
+import org.gradle.tooling.internal.consumer.SynchronizedLogging
+import org.rewedigital.konversation.parser.Utterance
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 
 open class KonversationPlugin : Plugin<Project> {
-
-    //private val logger = LoggerFactory.getLogger(KonversationPlugin::class.java)
-
     override fun apply(project: Project): Unit = with(project) {
 
         extensions.create("konversation", KonversationExtension::class.java, project)
@@ -65,8 +68,22 @@ open class KonversationExtension(project: Project) {
     var invocationName: String? = null
 }
 
+fun createLoggingFacade(logger: Logger) = object: LoggerFacade {
+    override fun log(msg: String) = logger.info(msg)
+    override fun debug(msg: String) = logger.debug(msg)
+    override fun info(msg: String) = logger.info(msg)
+    override fun error(msg: String) = logger.error(msg)
+    override fun warn(msg: String) = logger.warn(msg)
+}
+
 @CacheableTask
 open class CompileTask : DefaultTask() {
+
+    private val progressLoggerFactory = SynchronizedLogging(Time.clock(), DefaultBuildOperationIdFactory()).progressLoggerFactory
+    private val LOGGER = LoggerFactory.getLogger(CompileTask::class.java)
+    init {
+        Cli.L = createLoggingFacade(LOGGER)
+    }
 
     @InputFiles
     val inputFiles = mutableListOf<File>()
@@ -76,9 +93,22 @@ open class CompileTask : DefaultTask() {
         val cli = Cli()
         val config = project.extensions.getByName("konversation") as? KonversationExtension
         org.rewedigital.konversation.parser.Utterance.cacheDir = config?.cacheDir ?: project.buildDir.path + "/konversation-cache"
+        val op = progressLoggerFactory.newOperation(CompileTask::class.java)
+        //op.loggingHeader = "header"
+        op.description = "description"
+        //org.gradle.api.logging.Logger().lifecycle("blah")
+        //op.setShortDescription("description")
+        //val foo = op.start("description", "description")
+        LOGGER.debug("Hallo")
+        op.started()
         inputFiles.forEach { file ->
+            Thread.sleep(5000)
+            op.progress("${op.description}: ${file.path}")
+            LOGGER.debug("${op.description}: ${file.path}")
             cli.parseArgs(arrayOf("--export-kson", file.parent, file.path)) // TODO the result should be written to /build/resources/... File(project.buildDir, file.path).path))
         }
+        Thread.sleep(3000)
+        op.completed()
     }
 }
 
@@ -94,7 +124,7 @@ open class AlexaExportTask : DefaultTask() {
         val config = project.extensions.getByName("konversation") as? KonversationExtension ?: throw IllegalStateException("The alexa export task required the konversation configuration to define the invocation name")
         if(config.invocationName.isNullOrBlank()) throw IllegalStateException("The alexa export task required the invocation name in the konversation configuration")
 
-        org.rewedigital.konversation.parser.Utterance.cacheDir = config.cacheDir
+        Utterance.cacheDir = config.cacheDir
         inputFiles.forEach { file ->
             cli.parseArgs(arrayOf("-invocation", config.invocationName!!, "--export-alexa", file.parent, file.path))
         }

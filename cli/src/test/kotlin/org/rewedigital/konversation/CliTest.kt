@@ -46,8 +46,8 @@ class CliTest {
     @Test
     fun `Check handling of missing invocation name`() {
         val sut = CliTestHelper.getOutput("cli/src/test/resources/help.grammar", "--export-alexa", "test.out")
-        assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n" +
-                "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n")
+        assertEquals("Parsing of 1 file finished. Found 1 intent.\n" +
+                "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
         assertEquals(-1, sut.exitCode)
     }
 
@@ -176,13 +176,17 @@ class CliTest {
             fun getOutput(vararg args: String): TestResult {
                 val outputStream = ByteArrayOutputStream(4096)
                 val out = System.out
+                val err = System.err
                 System.setOut(PrintStream(outputStream))
+                System.setErr(PrintStream(outputStream))
                 val helper = CliTestHelper()
                 try {
                     helper.parseArgs(args.toList().toTypedArray())
                 } catch (e: ExitException) {}
                 System.out.flush()
+                System.err.flush()
                 System.setOut(out)
+                System.setErr(err)
                 return TestResult(outputStream.toString().replace("\r", ""), helper.exitCode)
             }
         }

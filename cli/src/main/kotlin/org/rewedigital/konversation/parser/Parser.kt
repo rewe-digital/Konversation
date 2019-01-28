@@ -1,9 +1,6 @@
 package org.rewedigital.konversation.parser
 
-import org.rewedigital.konversation.Intent
-import org.rewedigital.konversation.Part
-import org.rewedigital.konversation.PartImpl
-import org.rewedigital.konversation.PartType
+import org.rewedigital.konversation.*
 import java.io.File
 import java.text.ParseException
 import java.util.*
@@ -113,7 +110,7 @@ class Parser(input: String) {
     }
 
     private fun printErr(errorMsg: String) =
-        System.err.println(errorMsg)
+        Cli.L.error(errorMsg)
 
     private fun addTo(block: Intent.() -> Unit) = lastIntent?.let(block::invoke) ?: printErr("No intent defined.")
 }

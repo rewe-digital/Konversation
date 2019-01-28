@@ -27,8 +27,8 @@ open class Cli {
     fun parseArgs(args: Array<String>) {
         var input: String? = null
         if (args.isEmpty()) {
-            println("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
-            println()
+            L.error("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
+            L.error()
             help()
             exit(-1)
         } else {
@@ -54,7 +54,7 @@ open class Cli {
                             exportAlexa = true
                             outputFile = args[argNo]
                         } else {
-                            println("Target is missing")
+                            L.error("Target is missing")
                             exit(-1)
                         }
                         "invocation",
@@ -64,7 +64,7 @@ open class Cli {
                         "--export-kson" -> if (++argNo < args.size) {
                             ksonDir = args[argNo]
                         } else {
-                            println("Target directory is missing")
+                            L.error("Target directory is missing")
                             exit(-1)
                         }
                         "stats",
@@ -76,18 +76,18 @@ open class Cli {
                             try {
                                 limit = args[argNo].toLong()
                             } catch (e: Throwable) {
-                                println("\"${args[argNo]}\" is no valid count of utterances.")
+                                L.error("\"${args[argNo]}\" is no valid count of utterances.")
                                 exit(-1)
                             }
                         } else {
-                            println("Count is missing!")
+                            L.error("Count is missing!")
                             exit(-1)
                         }
                         "prettyprint",
                         "-prettyprint" -> prettyPrint = true
                         "dump",
                         "-dump" -> dumpOnly = true
-                        else -> println("Unknown argument \"$arg\".")
+                        else -> L.error("Unknown argument \"$arg\".")
                     }
                 }
                 argNo++
@@ -111,13 +111,13 @@ open class Cli {
                         intentDb.getOrPut(prefix) { mutableListOf() } += parseFile(it.path)
                     }
                 else -> {
-                    println("Input file not found!")
+                    L.error("Input file not found!")
                     exit(-1)
                 }
             }
 
             showStats()
-            exportData(inputFile.parentFile)
+            exportData(ksonDir?.let(::File) ?: inputFile.absoluteFile.parentFile)
         }
     }
 
@@ -126,7 +126,7 @@ open class Cli {
     fun showStats() {
         val intents = intentDb[""]!!
         val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
-        println("Parsing of $inputFileCount file${if (inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if (intentCount != 1) "s" else ""}.")
+        L.info("Parsing of $inputFileCount file${if (inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if (intentCount != 1) "s" else ""}.")
 
         if (countPermutations) {
             fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)
@@ -135,27 +135,27 @@ open class Cli {
             intents.forEach { intent: Intent ->
                 var count = 0L
                 intent.utterances.forEach { it -> count += it.permutationCount }
-                if (stats) println("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
+                if (stats) L.debug("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
                 total += count
             }
-            if (stats) println("That are in total ${total.formatted()} permutations!")
+            if (stats) L.debug("That are in total ${total.formatted()} permutations!")
         }
 
         val all = intents.sumBy { intent ->
             val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
-            if (stats) println("${intent.name} has now $permutations sample utterances")
+            if (stats) L.debug("${intent.name} has now $permutations sample utterances")
             permutations
         }
-        if (stats) println("Generated in total $all Utterances")
+        if (stats) L.info("Generated in total $all Utterances")
         //println("- " + all.sorted().joinToString(separator = "\n- "))
 
         if (dumpOnly) {
             outputFile = null
             intents.forEach { intent ->
                 if (intent.utterances.isEmpty()) {
-                    println("Skipping empty intent ${intent.name}...")
+                    L.info("Skipping empty intent ${intent.name}...")
                 } else {
-                    println("Dumping ${intent.name}...")
+                    L.log("Dumping ${intent.name}...")
                     val stream = File("${intent.name}.txt").outputStream()
                     intent.utterances.forEach { utterance ->
                         utterance.permutations.forEach { permutation ->
@@ -214,7 +214,7 @@ open class Cli {
                         exporter.minified(printer, intents)
                     }
                 } ?: run {
-                    println("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+                    L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
                     exit(-1)
                 }
             }
@@ -222,19 +222,19 @@ open class Cli {
     }
 
     private fun help() {
-        println("Arguments for konversation:")
-        println("[-help]                     Print this help")
-        println("[-count]                    Count the permutations and print this to the console")
-        println("[-stats]                    Print out some statistics while generation")
-        println("[-cache]                    Cache everything even if an utterance has just a single permutation")
-        println("[--export-alexa <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json")
-        println("[-invocation <NAME>]        Define the invocation name for the Alexa export")
-        println("[-limit <COUNT>]            While pretty printing the json to the output file limit the utterances count per intent")
-        println("[--export-kson <OUTDIR>]    Compiles the kvs file to kson resource files which are required for the runtime")
-        println("[-dump]                     Dump out all intents to its own txt file")
-        println("[-prettyprint]              Generate a well formatted json for easier debugging")
-        println("<FILE>                      The grammar or kvs file to parse")
-        println()
+        L.log("Arguments for konversation:")
+        L.log("[-help]                     Print this help")
+        L.log("[-count]                    Count the permutations and print this to the console")
+        L.log("[-stats]                    Print out some statistics while generation")
+        L.log("[-cache]                    Cache everything even if an utterance has just a single permutation")
+        L.log("[--export-alexa <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json")
+        L.log("[-invocation <NAME>]        Define the invocation name for the Alexa export")
+        L.log("[-limit <COUNT>]            While pretty printing the json to the output file limit the utterances count per intent")
+        L.log("[--export-kson <OUTDIR>]    Compiles the kvs file to kson resource files which are required for the runtime")
+        L.log("[-dump]                     Dump out all intents to its own txt file")
+        L.log("[-prettyprint]              Generate a well formatted json for easier debugging")
+        L.log("<FILE>                      The grammar or kvs file to parse")
+        L.log()
     }
 
     open fun exit(status: Int) {
@@ -246,6 +246,8 @@ open class Cli {
         fun main(args: Array<String>) {
             Cli().parseArgs(args)
         }
+
+        var L : LoggerFacade = DefaultLogger()
     }
 }
 

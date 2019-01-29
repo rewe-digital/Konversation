@@ -8,30 +8,42 @@ import org.rewedigital.konversation.generator.Printer
 class KsonExporter(private val filter: String) : Exporter {
 
     override fun prettyPrinted(printer: Printer, intents: MutableList<Intent>) {
-        printer("{\r\n")
-        printer("  \"parts\": [\r\n")
+        printer("{\n")
+        printer("  \"parts\": [\n")
         val intent = intents.first { it.name == filter }
         intent.prompt.forEachIterator { part ->
-            printer("    {\r\n")
-            printer("      \"type\": \"${part.type}\",\r\n")
-            printer("      \"variants\": [\r\n")
-            printer(part.variants.joinToString(separator = ",\r\n        ", prefix = "        ", postfix = "\r\n      ]\r\n") {
+            printer("    {\n")
+            printer("      \"type\": \"${part.type}\",\n")
+            printer("      \"variants\": [")
+            if(part.variants.isEmpty()) {
+                printer("]")
+            }
+            printer("\n")
+            printer(part.variants.joinToString(separator = ",\n        ", prefix = "        ", postfix = "\n      ]\n") {
                 "\"${it.replace("\n", "\\n").replace("\r", "\\r").replace("\"", "\\\" ")}\""
             })
             printer("    }")
             if (hasNext()) {
                 printer(",")
             }
-            printer("\r\n")
+            printer("\n")
         }
-        printer("  ],\r\n")
-        printer("  \"suggestions\": [\r\n")
-        printer(intent.suggestions.joinToString(separator = ",\r\n    ", prefix = "    ", postfix = "\r\n  ],\r\n") {
+        printer("  ],\n")
+        printer("  \"suggestions\": [")
+        if(intent.suggestions.isEmpty()) {
+            printer("]")
+        }
+        printer("\n")
+        printer(intent.suggestions.joinToString(separator = ",\n    ", prefix = "    ", postfix = "\n  ],\n") {
             "\"${it.replace("\n", "\\n").replace("\r", "\\r").replace("\"", "\\\" ")}\""
         })
-        printer("  \"reprompts\": {\r\n")
-        printer(intent.reprompt.entries.joinToString(separator = ",\r\n", postfix = "\r\n  }\r\n") { entry ->
-            entry.value.first().variants.joinToString(separator = ",\r\n      ", prefix = "    \"${entry.key}\": [\r\n      ", postfix = "\r\n    ]") {
+        printer("  \"reprompts\": {")
+        if(intent.suggestions.isEmpty()) {
+            printer("}")
+        }
+        printer("\n")
+        printer(intent.reprompt.entries.joinToString(separator = ",\n", postfix = "\n  }\n") { entry ->
+            entry.value.first().variants.joinToString(separator = ",\n      ", prefix = "    \"${entry.key}\": [\n      ", postfix = "\n    ]") {
             "\"${it.replace("\n", "\\n").replace("\r", "\\r").replace("\"", "\\\" ")}\""
         }
         })

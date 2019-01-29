@@ -5,13 +5,15 @@ import java.io.File
 import java.text.ParseException
 import java.util.*
 
-class Parser(input: String) {
+class Parser(input: File) {
+    constructor(input: String): this(File(input))
+
     val intents = mutableListOf<Intent>()
     private var lastIntent : Intent? = null
 
     init {
-        val isGrammarFile = input.endsWith(".grammar")
-        val lines = File(input).readLines()
+        val isGrammarFile = input.name.endsWith(".grammar")
+        val lines = input.readLines()
         var lastPart: Part? = null
         var lastIntentName = UUID.randomUUID().toString()
         lines.filter { it.isNotBlank() }.forEachIndexed { index, line ->

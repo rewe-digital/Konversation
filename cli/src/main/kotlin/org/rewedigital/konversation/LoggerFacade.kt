@@ -17,5 +17,5 @@ class DefaultLogger: LoggerFacade {
 
     override fun error(msg: String) = System.err.println(msg)
 
-    override fun warn(msg: String) = System.err.println(msg)
+    override fun warn(msg: String) = System.err.println("WARNING: $msg")
 }

@@ -15,7 +15,7 @@ open class Cli {
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
-    private var outputFile: String? = "result.json"
+    private var outputFile = File("result.json")
     private var limit: Long? = null
     private var prettyPrint = false
     private var ksonDir: String? = null
@@ -25,7 +25,7 @@ open class Cli {
     private var inputFileCount = 0
 
     fun parseArgs(args: Array<String>) {
-        var input: String? = null
+        val inputFiles = mutableListOf<File>()
         if (args.isEmpty()) {
             L.error("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
             L.error()
@@ -36,7 +36,10 @@ open class Cli {
             while (argNo < args.size) {
                 val arg = args[argNo]
                 if (File(arg).exists()) {
-                    input = arg
+                    inputFiles += File(arg)
+                } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar")) {
+                    L.error("Input file \"$arg\" not found!")
+                    exit(-1)
                 } else {
                     when (arg.toLowerCase()) {
                         "help",
@@ -52,7 +55,7 @@ open class Cli {
                         "-cache" -> cacheEverything = true
                         "--export-alexa" -> if (++argNo < args.size) {
                             exportAlexa = true
-                            outputFile = args[argNo]
+                            outputFile = File(args[argNo])
                         } else {
                             L.error("Target is missing")
                             exit(-1)
@@ -93,38 +96,39 @@ open class Cli {
                 argNo++
             }
 
-            val inputFile = File(input.orEmpty())
-            when {
-                inputFile.isFile -> input?.let {
-                    inputFileCount = 1
-                    intentDb.getOrPut("") { mutableListOf() } += parseFile(input)
-                }
-                inputFile.isDirectory -> inputFile.listFiles { dir: File?, name: String? ->
-                    File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
-                }.toList()
-                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList() }
-                    .also {
-                        inputFileCount = it.size
+            inputFiles.forEach { inputFile ->
+                when {
+                    inputFile.isFile -> {
+                        inputFileCount++
+                        intentDb.getOrPut("") { mutableListOf() } += parseFile(inputFile)
                     }
-                    .forEach {
-                        val prefix = it.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
-                        intentDb.getOrPut(prefix) { mutableListOf() } += parseFile(it.path)
+                    inputFile.isDirectory -> inputFile
+                        .listFiles { dir: File?, name: String? ->
+                            File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
+                        }.toList()
+                        .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList() }
+                        .also {
+                            inputFileCount += it.size
+                        }
+                        .forEach {
+                            val prefix = it.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
+                            intentDb.getOrPut(prefix) { mutableListOf() } += parseFile(it)
+                        }
+                    else -> {
+                        L.error("Input file not found!")
+                        exit(-1)
                     }
-                else -> {
-                    L.error("Input file not found!")
-                    exit(-1)
                 }
             }
 
             showStats()
-            exportData(ksonDir?.let(::File) ?: inputFile.absoluteFile.parentFile)
+            exportData(ksonDir?.let(::File) ?: outputFile)
         }
     }
 
-    open fun parseFile(file: String): List<Intent> = Parser(file).intents
+    open fun parseFile(file: File): List<Intent> = Parser(file).intents
 
-    fun showStats() {
-        val intents = intentDb[""]!!
+    private fun showStats() = intentDb[""]?.let { intents ->
         val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
         L.info("Parsing of $inputFileCount file${if (inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if (intentCount != 1) "s" else ""}.")
 
@@ -150,7 +154,6 @@ open class Cli {
         //println("- " + all.sorted().joinToString(separator = "\n- "))
 
         if (dumpOnly) {
-            outputFile = null
             intents.forEach { intent ->
                 if (intent.utterances.isEmpty()) {
                     L.info("Skipping empty intent ${intent.name}...")
@@ -181,7 +184,7 @@ open class Cli {
         //println(intents[1].prompt.create())
     }
 
-    fun exportData(baseDir: File) = intentDb.forEach { (config, intents) ->
+    private fun exportData(baseDir: File) = intentDb.forEach { (config, intents) ->
         val targetDir = File(baseDir.path + File.separator + "konversation".join("-", config))
         ksonDir?.let {
             intents.forEach { intent ->
@@ -201,22 +204,21 @@ open class Cli {
         }
 
         if (exportAlexa) {
-            outputFile?.let {
-                invocationName?.let { skillName ->
-                    val exporter = AlexaExporter(skillName, targetDir, limit ?: Long.MAX_VALUE)
-                    val stream = File(outputFile).outputStream()
-                    val printer: Printer = { line ->
-                        stream.write(line.toByteArray())
-                    }
-                    if (prettyPrint) {
-                        exporter.prettyPrinted(printer, intents)
-                    } else {
-                        exporter.minified(printer, intents)
-                    }
-                } ?: run {
-                    L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
-                    exit(-1)
+            outputFile.absoluteFile.parentFile.mkdirs()
+            invocationName?.let { skillName ->
+                val exporter = AlexaExporter(skillName, targetDir, limit ?: Long.MAX_VALUE)
+                val stream = outputFile.outputStream()
+                val printer: Printer = { line ->
+                    stream.write(line.toByteArray())
                 }
+                if (prettyPrint) {
+                    exporter.prettyPrinted(printer, intents)
+                } else {
+                    exporter.minified(printer, intents)
+                }
+            } ?: run {
+                L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+                exit(-1)
             }
         }
     }
@@ -247,7 +249,7 @@ open class Cli {
             Cli().parseArgs(args)
         }
 
-        var L : LoggerFacade = DefaultLogger()
+        var L: LoggerFacade = DefaultLogger()
     }
 }
 

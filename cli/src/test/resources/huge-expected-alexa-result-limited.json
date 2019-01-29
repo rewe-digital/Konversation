@@ -1,13 +1,12 @@
 {
-  "interactionModel" : {
-    "languageModel" : {
+  "interactionModel": {
+    "languageModel": {
       "invocationName" : "huge",
-      "intents" : [
+      "intents": [
         {
-          "name" : "Test",
-          "slots" : [
-          ],
-          "samples" : [
+          "name": "Test",
+          "slots": [],
+          "samples": [
             "000",
             "001",
             "002",
@@ -31,15 +30,12 @@
           ]
         },
         {
-          "name" : "Foo",
-          "slots" : [
-          ],
-          "samples" : [
-          ]
+          "name": "Foo",
+          "slots": [],
+          "samples": []
         }
       ],
-      "types" : [
-      ]
+      "types": []
     }
   }
 }

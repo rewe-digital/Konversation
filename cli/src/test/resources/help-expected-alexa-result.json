@@ -1,13 +1,12 @@
 {
-  "interactionModel" : {
-    "languageModel" : {
+  "interactionModel": {
+    "languageModel": {
       "invocationName" : "test",
-      "intents" : [
+      "intents": [
         {
-          "name" : "Help",
-          "slots" : [
-          ],
-          "samples" : [
+          "name": "Help",
+          "slots": [],
+          "samples": [
             "Hilfe",
             "Hilf mir",
             "Hilf uns",
@@ -19,8 +18,7 @@
           ]
         }
       ],
-      "types" : [
-      ]
+      "types": []
     }
   }
 }

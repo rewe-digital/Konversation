@@ -91,8 +91,8 @@ class CliTest {
 
     @Test
     fun `Test non existing file`() {
-        val sut = CliTestHelper.getOutput("404.kvs", "-dump")
-        assertEquals(sut.output, "Unknown argument \"404.kvs\".\nInput file not found!\n")
+        val sut = CliTestHelper.getOutput("404.kvs")
+        assertEquals(sut.output, "Input file \"404.kvs\" not found!\n")
         assertEquals(-1, sut.exitCode)
     }
 
@@ -120,7 +120,7 @@ class CliTest {
             assertNull(sut.exitCode)
             assertTrue(outputFile.exists())
             assertTrue(File(expectedOutputFile).exists())
-            assertEquals(outputFile.readText(), File(expectedOutputFile).readText())
+            assertEquals(File(expectedOutputFile).readText(), outputFile.readText())
         } finally {
             outputFile.apply {
                 if (exists()) deleteOnExit()
@@ -164,6 +164,19 @@ class CliTest {
         assertEquals(-1, sut4.exitCode)
     }
 
+    @Test
+    fun `Use multiple input files`() {
+        val sut = CliTestHelper.getOutput("cli/src/test/resources/konversation/help.kvs",
+                                           "cli/src/test/resources/foo/ExampleIntent.kvs",
+                                           "--export-alexa",
+                                          "cli/build/out/multiple-input.json",
+                                          "-invocation",
+                                          "multi",
+                                          "-prettyprint")
+        assertEquals("Parsing of 2 files finished. Found 2 intents.\n", sut.output)
+        assertNull(sut.exitCode)
+    }
+
     private class CliTestHelper : Cli() {
         private var exitCode: Int? = null
 
@@ -177,8 +190,9 @@ class CliTest {
                 val outputStream = ByteArrayOutputStream(4096)
                 val out = System.out
                 val err = System.err
-                System.setOut(PrintStream(outputStream))
-                System.setErr(PrintStream(outputStream))
+                val log = PrintStream(outputStream)
+                System.setOut(log)
+                System.setErr(log)
                 val helper = CliTestHelper()
                 try {
                     helper.parseArgs(args.toList().toTypedArray())
@@ -201,8 +215,8 @@ class CliTest {
             parseArgs(arrayOf(path, "-dump"))
         }
 
-        override fun parseFile(file: String) : List<Intent> {
-            files.add(file)
+        override fun parseFile(file: File) : List<Intent> {
+            files.add(file.path)
             return emptyList()
         }
     }

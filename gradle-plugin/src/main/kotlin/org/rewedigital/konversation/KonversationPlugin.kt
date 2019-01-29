@@ -65,6 +65,7 @@ open class KonversationPlugin : Plugin<Project> {
 
 open class KonversationExtension(project: Project) {
     var cacheDir = project.buildDir.path + "/konversation-cache"
+    var alexaIntentSchemaFile = project.buildDir.path + "/out/alexa-intent-schema.json"
     var invocationName: String? = null
 }
 
@@ -102,12 +103,12 @@ open class CompileTask : DefaultTask() {
         LOGGER.debug("Hallo")
         op.started()
         inputFiles.forEach { file ->
-            Thread.sleep(5000)
+            //Thread.sleep(5000)
             op.progress("${op.description}: ${file.path}")
             LOGGER.debug("${op.description}: ${file.path}")
             cli.parseArgs(arrayOf("--export-kson", file.parent, file.path)) // TODO the result should be written to /build/resources/... File(project.buildDir, file.path).path))
         }
-        Thread.sleep(3000)
+        //Thread.sleep(3000)
         op.completed()
     }
 }
@@ -125,9 +126,7 @@ open class AlexaExportTask : DefaultTask() {
         if(config.invocationName.isNullOrBlank()) throw IllegalStateException("The alexa export task required the invocation name in the konversation configuration")
 
         Utterance.cacheDir = config.cacheDir
-        inputFiles.forEach { file ->
-            cli.parseArgs(arrayOf("-invocation", config.invocationName!!, "--export-alexa", file.parent, file.path))
-        }
+        cli.parseArgs((listOf("-invocation", config.invocationName!!, "--export-alexa", config.alexaIntentSchemaFile) + inputFiles.map { it.absolutePath }).toTypedArray())
     }
 
 }

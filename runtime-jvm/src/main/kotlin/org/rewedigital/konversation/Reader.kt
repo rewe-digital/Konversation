@@ -16,6 +16,10 @@ actual class Reader {
             .add(AdapterFactory())
             .build()
             .adapter(AnswerImpl::class.java)
-        return adapter.fromJson(javaClass.getResource("/$name.kson").readText())!!
+        return adapter.fromJson(javaClass.getResource("/" + locator.locate(name, environment)).readText())!!
+    }
+
+    companion object {
+        private val locator = ResourceLocator()
     }
 }

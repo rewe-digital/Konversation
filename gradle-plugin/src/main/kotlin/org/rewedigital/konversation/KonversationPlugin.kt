@@ -21,42 +21,20 @@ open class KonversationPlugin : Plugin<Project> {
 
         extensions.create("konversation", KonversationExtension::class.java, project)
 
+        val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
+        val main = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        main.resources.srcDirs += File(buildDir, "konversation/res")
+        val srcDir = File(projectDir, "src/konversation")
+
         tasks.create("compileKonversation", CompileTask::class.java) { task ->
-            val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-            val main = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            val srcDirs = try {
-                main.resources.srcDirs
-            } catch (e: Throwable) {
-                null
-            }
-            val inputFiles = srcDirs?.flatMap { resDir ->
-                resDir.listFiles { dir: File?, name: String? ->
-                    File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
-                }.toList()
-                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") }.toList() }
-            } ?: emptyList()
-            task.inputFiles += inputFiles
+            task.inputFiles += srcDir.listFiles { _, name -> name.endsWith(".kvs") }.toList()
             //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
         }
         tasks.create("exportAlexa", AlexaExportTask::class.java) { task ->
-
-            val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-            val main = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            val srcDirs = try {
-                main.resources.srcDirs
-            } catch (e: Throwable) {
-                null
-            }
-            val inputFiles = srcDirs?.flatMap { resDir ->
-                resDir.listFiles { dir: File?, name: String? ->
-                    (File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)) || (File(dir, name).isFile && name?.endsWith(".grammar") == true)
-                }.toList()
-                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") }.toList() }
-            } ?: emptyList()
-            task.inputFiles += inputFiles
+            task.inputFiles += srcDir.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList()
             //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
         }
-        //println("Tasks sind angelegt, AlteR!")
+        tasks.getByName("build").dependsOn += "compileKonversation"
 
         afterEvaluate {
         }
@@ -64,12 +42,12 @@ open class KonversationPlugin : Plugin<Project> {
 }
 
 open class KonversationExtension(project: Project) {
-    var cacheDir = project.buildDir.path + "/konversation-cache"
-    var alexaIntentSchemaFile = project.buildDir.path + "/out/alexa-intent-schema.json"
+    var cacheDir = project.buildDir.path + "/konversation/cache"
+    var alexaIntentSchemaFile = project.buildDir.path + "/konversation/alexa-intent-schema.json"
     var invocationName: String? = null
 }
 
-fun createLoggingFacade(logger: Logger) = object: LoggerFacade {
+fun createLoggingFacade(logger: Logger) = object : LoggerFacade {
     override fun log(msg: String) = logger.info(msg)
     override fun debug(msg: String) = logger.debug(msg)
     override fun info(msg: String) = logger.info(msg)
@@ -82,6 +60,7 @@ open class CompileTask : DefaultTask() {
 
     private val progressLoggerFactory = SynchronizedLogging(Time.clock(), DefaultBuildOperationIdFactory()).progressLoggerFactory
     private val LOGGER = LoggerFactory.getLogger(CompileTask::class.java)
+
     init {
         Cli.L = createLoggingFacade(LOGGER)
     }
@@ -93,7 +72,7 @@ open class CompileTask : DefaultTask() {
     fun compile() {
         val cli = Cli()
         val config = project.extensions.getByName("konversation") as? KonversationExtension
-        org.rewedigital.konversation.parser.Utterance.cacheDir = config?.cacheDir ?: project.buildDir.path + "/konversation-cache"
+        Utterance.cacheDir = config?.cacheDir ?: project.buildDir.path + "/konversation/cache"
         val op = progressLoggerFactory.newOperation(CompileTask::class.java)
         //op.loggingHeader = "header"
         op.description = "description"
@@ -106,7 +85,7 @@ open class CompileTask : DefaultTask() {
             //Thread.sleep(5000)
             op.progress("${op.description}: ${file.path}")
             LOGGER.debug("${op.description}: ${file.path}")
-            cli.parseArgs(arrayOf("--export-kson", file.parent, file.path)) // TODO the result should be written to /build/resources/... File(project.buildDir, file.path).path))
+            cli.parseArgs(arrayOf("--export-kson", project.buildDir.path + "/konversation/res", file.path)) // TODO the result should be written to /build/resources/... File(project.buildDir, file.path).path))
         }
         //Thread.sleep(3000)
         op.completed()
@@ -115,18 +94,25 @@ open class CompileTask : DefaultTask() {
 
 @CacheableTask
 open class AlexaExportTask : DefaultTask() {
+    private val LOGGER = LoggerFactory.getLogger(AlexaExportTask::class.java)
+
+    init {
+        Cli.L = createLoggingFacade(LOGGER)
+    }
 
     @InputFiles
     val inputFiles = mutableListOf<File>()
 
     @TaskAction
-    fun compile() {
+    fun exportAlexaIntentSchema() {
         val cli = Cli()
         val config = project.extensions.getByName("konversation") as? KonversationExtension ?: throw IllegalStateException("The alexa export task required the konversation configuration to define the invocation name")
-        if(config.invocationName.isNullOrBlank()) throw IllegalStateException("The alexa export task required the invocation name in the konversation configuration")
+        if (config.invocationName.isNullOrBlank()) throw IllegalStateException("The alexa export task required the invocation name in the konversation configuration")
+
+        LOGGER.debug("Processing files: " + inputFiles.map { it.absolutePath }.joinToString())
 
         Utterance.cacheDir = config.cacheDir
-        cli.parseArgs((listOf("-invocation", config.invocationName!!, "--export-alexa", config.alexaIntentSchemaFile) + inputFiles.map { it.absolutePath }).toTypedArray())
+        cli.parseArgs((listOf("-invocation", config.invocationName!!, "--export-alexa", config.alexaIntentSchemaFile, "-prettyprint") + inputFiles.map { it.absolutePath }).toTypedArray())
     }
 
 }

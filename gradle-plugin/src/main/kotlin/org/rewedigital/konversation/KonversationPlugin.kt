@@ -23,10 +23,10 @@ open class KonversationPlugin : Plugin<Project> {
 
         val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
         val main = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        main.resources.srcDirs += File(buildDir, "konversation/res")
+        main.resources.srcDir("build/konversation/res")
         val srcDir = File(projectDir, "src/konversation")
 
-        tasks.create("compileKonversation", CompileTask::class.java) { task ->
+        val compile = tasks.create("compileKonversation", CompileTask::class.java) { task ->
             task.inputFiles += srcDir.listFiles { _, name -> name.endsWith(".kvs") }.toList()
             //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
         }
@@ -34,10 +34,7 @@ open class KonversationPlugin : Plugin<Project> {
             task.inputFiles += srcDir.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList()
             //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
         }
-        tasks.getByName("build").dependsOn += "compileKonversation"
-
-        afterEvaluate {
-        }
+        tasks.getByName("processResources").dependsOn += compile
     }
 }
 
@@ -114,5 +111,4 @@ open class AlexaExportTask : DefaultTask() {
         Utterance.cacheDir = config.cacheDir
         cli.parseArgs((listOf("-invocation", config.invocationName!!, "--export-alexa", config.alexaIntentSchemaFile, "-prettyprint") + inputFiles.map { it.absolutePath }).toTypedArray())
     }
-
 }

@@ -6,7 +6,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.operations.DefaultBuildOperationIdFactory
 import org.gradle.internal.time.Time
@@ -22,21 +21,36 @@ open class KonversationPlugin : Plugin<Project> {
         extensions.create("konversation", KonversationExtension::class.java, project)
 
         val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-        val main = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        main.resources.srcDir("build/konversation/res")
-        val srcDir = File(projectDir, "src/konversation")
+        val inputDirs = mutableListOf<File>()
+        javaConvention.sourceSets.forEach { sourceSet ->
+            sourceSet.resources.srcDirs("build/konversation/res/${sourceSet.name}/")
+            inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
+        }
 
         val compile = tasks.create("compileKonversation", CompileTask::class.java) { task ->
-            task.inputFiles += srcDir.listFiles { _, name -> name.endsWith(".kvs") }.toList()
+            task.inputFiles += inputDirs.listFilesByExtension("kvs")
             //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
         }
         tasks.create("exportAlexa", AlexaExportTask::class.java) { task ->
-            task.inputFiles += srcDir.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList()
+            task.inputFiles += inputDirs.listFilesByExtension("kvs", "grammar")
             //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
         }
         tasks.getByName("processResources").dependsOn += compile
     }
 }
+
+private fun Iterable<File>.listFilesByExtension(vararg extensions: String) =
+    flatMap { dir ->
+        if (dir.exists()) {
+            dir.listFiles { _, name ->
+                extensions.any { extension ->
+                    name.endsWith(".$extension")
+                }
+            }.toList()
+        } else {
+            emptyList()
+        }
+    }
 
 open class KonversationExtension(project: Project) {
     var cacheDir = project.buildDir.path + "/konversation/cache"
@@ -82,7 +96,10 @@ open class CompileTask : DefaultTask() {
             //Thread.sleep(5000)
             op.progress("${op.description}: ${file.path}")
             LOGGER.debug("${op.description}: ${file.path}")
-            cli.parseArgs(arrayOf("--export-kson", project.buildDir.path + "/konversation/res", file.path)) // TODO the result should be written to /build/resources/... File(project.buildDir, file.path).path))
+            val start = file.path.indexOf("src" + File.separator) + 4
+            val end = file.path.indexOf(File.separatorChar, start)
+            val sourceSet = file.path.substring(start, end)
+            cli.parseArgs(arrayOf("--export-kson", project.buildDir.path + "/konversation/res/$sourceSet/", file.path))
         }
         //Thread.sleep(3000)
         op.completed()

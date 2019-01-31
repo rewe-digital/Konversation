@@ -11,7 +11,7 @@ This is an example for `build.gradle` file:
 ```
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.11'
-    id 'org.rewedigital.konversation' version '0.1'
+    id 'org.rewedigital.konversation' version '1.0-rc1'
 }
 
 apply plugin: 'kotlin'
@@ -31,11 +31,24 @@ konversation {
 }
 ```
 
-This will place your kson files into your resource directory, which can be used by the runtime.
+You need to put your kvs or grammar files then in your sourceset in a subdirectory e.g. `src/main/konversation`
+if you use multiple sourcesets that will be respected. The kson files will be placed into `build/konversation/res/main`
+and will be included to your resources path, so that this files will be in your final jar.
 
 ## Tasks
 
-You can use the `compileKonversation` task to TODO
+The `compileKonversation` task is used to create your resource files. By default the system task `prepairResources`
+will make sure that this task is executed. So there is in general no need to execute it directly.
+
+The `exportAlexa` task will create the intent schema file in `build/konversation/alexa-intent-schema.json`,
+you can override the location by using `alexaIntentSchemaFile` as in the example below:
+
+    konversation {
+        invocationName = "test"
+        alexaIntentSchemaFile = "alexa-production.json"
+    }
+    
+Please note that is relative to your project root.
 
 ## License
 

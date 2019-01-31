@@ -216,6 +216,7 @@ open class Cli {
                 } else {
                     exporter.minified(printer, intents)
                 }
+                stream.close()
             } ?: run {
                 L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
                 exit(-1)

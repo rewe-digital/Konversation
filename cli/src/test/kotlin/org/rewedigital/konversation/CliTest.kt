@@ -120,7 +120,7 @@ class CliTest {
             assertNull(sut.exitCode)
             assertTrue(outputFile.exists())
             assertTrue(File(expectedOutputFile).exists())
-            assertEquals(File(expectedOutputFile).readText(), outputFile.readText())
+            assertEqualsIgnoringLineBreaks(File(expectedOutputFile).readText(), outputFile.readText())
         } finally {
             outputFile.apply {
                 if (exists()) deleteOnExit()

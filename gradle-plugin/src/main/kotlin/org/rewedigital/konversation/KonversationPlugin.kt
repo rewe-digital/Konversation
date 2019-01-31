@@ -4,9 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.internal.operations.DefaultBuildOperationIdFactory
 import org.gradle.internal.time.Time
 import org.gradle.tooling.internal.consumer.SynchronizedLogging
@@ -29,11 +27,10 @@ open class KonversationPlugin : Plugin<Project> {
 
         val compile = tasks.create("compileKonversation", CompileTask::class.java) { task ->
             task.inputFiles += inputDirs.listFilesByExtension("kvs")
-            //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
+            task.outputDirectories += javaConvention.sourceSets.map { File(buildDir, "konversation/res/${it.name}") }
         }
         tasks.create("exportAlexa", AlexaExportTask::class.java) { task ->
             task.inputFiles += inputDirs.listFilesByExtension("kvs", "grammar")
-            //task.outputFiles += inputFiles.map { File(it.path.replace("\\.ksv$".toRegex(), ".kson")) }
         }
         tasks.getByName("processResources").dependsOn += compile
     }
@@ -79,6 +76,9 @@ open class CompileTask : DefaultTask() {
     @InputFiles
     val inputFiles = mutableListOf<File>()
 
+    @OutputDirectories
+    val outputDirectories = mutableListOf<File>()
+
     @TaskAction
     fun compile() {
         val cli = Cli()
@@ -90,7 +90,7 @@ open class CompileTask : DefaultTask() {
         //org.gradle.api.logging.Logger().lifecycle("blah")
         //op.setShortDescription("description")
         //val foo = op.start("description", "description")
-        LOGGER.debug("Hallo")
+        LOGGER.info("Processing ${inputFiles.size} files...")
         op.started()
         inputFiles.forEach { file ->
             //Thread.sleep(5000)
@@ -109,18 +109,22 @@ open class CompileTask : DefaultTask() {
 @CacheableTask
 open class AlexaExportTask : DefaultTask() {
     private val LOGGER = LoggerFactory.getLogger(AlexaExportTask::class.java)
+    private val config: KonversationExtension
 
     init {
         Cli.L = createLoggingFacade(LOGGER)
+        config = project.extensions.getByName("konversation") as? KonversationExtension ?: KonversationExtension(project)
     }
 
     @InputFiles
     val inputFiles = mutableListOf<File>()
 
+    @OutputFile
+    val outputFile = File(config.alexaIntentSchemaFile)
+
     @TaskAction
     fun exportAlexaIntentSchema() {
         val cli = Cli()
-        val config = project.extensions.getByName("konversation") as? KonversationExtension ?: throw IllegalStateException("The alexa export task required the konversation configuration to define the invocation name")
         if (config.invocationName.isNullOrBlank()) throw IllegalStateException("The alexa export task required the invocation name in the konversation configuration")
 
         LOGGER.debug("Processing files: " + inputFiles.map { it.absolutePath }.joinToString())

@@ -16,7 +16,7 @@ import kotlin.collections.HashSet
 class SwapingHashedList(prefix: String) : HashSet<String>() {
     private var isSwapping = false
     private val smallList = HashSet<String>()
-    private var bigListSize = 0
+    private val bigListSize
         get() = guessedSize ?: hashList.size
     private var guessedSize: Int? = null
     private val hashList: HashSet<Int> by lazy { loadHashes() }
@@ -76,13 +76,12 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
             val outputStream = FileOutputStream(hashFile)
             val sc = Scanner(inputStream, "UTF-8")
             while (sc.hasNextLine()) {
-                bigListSize++
-                if ((bigListSize % 100000) == 0) {
-                    Cli.L.debug(">> $bigListSize")
-                }
                 val hash = sc.nextLine().hashCode()
                 hashList.add(hash)
                 outputStream.writeInt(hash)
+                if ((bigListSize % 100000) == 0) {
+                    Cli.L.debug(">> $bigListSize")
+                }
             }
             inputStream.close()
             outputStream.close()
@@ -169,8 +168,8 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
         }
     }
 
-    override fun addAll(elements: Collection<String>): Boolean = if (isSwapping) {
-        try {
+    override fun addAll(elements: Collection<String>): Boolean = when {
+        isSwapping -> try {
             elements.map { element ->
                 synchronized(writer) {
                     if (!hashList.contains(element.hashCode())) {
@@ -186,21 +185,20 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
         } catch (e: IOException) {
             false
         }
-    } else if (shouldCache) { // if (smallList.size + elements.size > 50000) {
-        try {
-            swapIt(elements)
-        } catch (e: IOException) {
-            false
-        }
-    } else {
-        smallList.addAll(elements)
+        shouldCache -> // if (smallList.size + elements.size > 50000) {
+            try {
+                swapIt(elements)
+            } catch (e: IOException) {
+                false
+            }
+        else -> smallList.addAll(elements)
     }
 
 
     override fun clear() = if (isSwapping) {
         cacheFile.delete()
         hashFile.delete()
-        bigListSize = 0
+        guessedSize = 0
         isSwapping = false
         smallList.clear()
     } else {

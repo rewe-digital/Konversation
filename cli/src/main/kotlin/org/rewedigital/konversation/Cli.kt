@@ -138,7 +138,7 @@ open class Cli {
             var total = 0L
             intents.forEach { intent: Intent ->
                 var count = 0L
-                intent.utterances.forEach { it -> count += it.permutationCount }
+                intent.utterances.forEach { count += it.permutationCount }
                 if (stats) L.debug("${intent.name} has ${intent.utterances.size} utterances which have in total ${count.formatted()} permutations")
                 total += count
             }
@@ -171,17 +171,6 @@ open class Cli {
                 }
             }
         }
-
-        // FIXME or remove me
-        //if (!input.endsWith(".grammar") && dumpOnly) {
-        //    intents.forEach { intent ->
-        //        println("Response of ${intent.name}")
-        //        //intent.prompt.create().runIfNotNullOrEmpty(::println)
-        //        println("---")
-        //    }
-        //}
-
-        //println(intents[1].prompt.create())
     }
 
     private fun exportData(baseDir: File) = intentDb.forEach { (config, intents) ->

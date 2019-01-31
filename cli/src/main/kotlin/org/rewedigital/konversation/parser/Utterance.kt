@@ -6,7 +6,7 @@ import java.text.ParseException
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class Utterance(val line: String, val name: String) {
+class Utterance(private val line: String, val name: String) {
 
     private var cache: SwapingHashedList? = null
 

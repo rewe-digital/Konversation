@@ -211,7 +211,7 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                     Pair(type, File("$baseDir/$type.values"))
                 }
                 .filter { it.second.exists() }
-                .map { Pair(it.first, it.second.readLines().filter { it.isNotEmpty() }) }
+                .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
                 .forEachIterator { (slotType, values) ->
                     printer("{" +
                             "\"name\":\"$slotType\"," +

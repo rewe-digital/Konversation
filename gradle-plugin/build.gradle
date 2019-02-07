@@ -22,21 +22,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
 }
 
-// xxx
-//publishing {
-//    publications {
-//        maven(MavenPublication) {
-//            groupId 'org.rewedigital.konversation'
-//            //artifactId 'gradle-plugin'
-//            //groupId 'org.rewedigital.konversation'
-//            artifactId 'org.rewedigital.konversation.gradle.plugin'
-//            version '0.1'
-//
-//            from components.java
-//        }
-//    }
-//}
-
 pluginBundle {
     website = 'http://rewe-digital-incubator.github.io/konversation'
     vcsUrl = 'https://github.com/rewe-digital-incubator/konversation'
@@ -44,7 +29,7 @@ pluginBundle {
     plugins {
         konversation {
             displayName = 'Konversation compiler'
-            description = 'Konversation TODO'
+            description = 'Konversation is a tool to generate rich and diversified responses to the user of voice applications. This gradle plugin will compile your ksv files to kson files and add it to your resource for the runtime library.'
             tags = ['konversation', 'voice', 'alexa', 'google assistant']
         }
     }
@@ -54,7 +39,7 @@ gradlePlugin {
     plugins {
         konversation {
             id = 'org.rewedigital.konversation'
-            description = 'Konversation TODO'
+            description = 'Konversation is a tool to generate rich and diversified responses to the user of voice applications. This gradle plugin will compile your ksv files to kson files and add it to your resource for the runtime library.'
             implementationClass = 'org.rewedigital.konversation.KonversationPlugin'
         }
     }

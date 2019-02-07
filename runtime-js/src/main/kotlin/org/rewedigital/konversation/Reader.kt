@@ -13,7 +13,6 @@ actual class Reader {
      */
     actual fun loadReply(name: String, environment: Environment): Reply {
         val json = try {
-            //require("./$name.kson")
             val fs = require("fs")
             val content = fs.readFileSync("./$name.kson", "utf8") as String
             JSON.parse(content) as dynamic

@@ -89,3 +89,18 @@ publishing.publications {
         }
     }
 }
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource.srcDir("../runtime-shared/src/main/kotlin")
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier = 'javadoc'
+    from sourceSets.main.allSource.srcDir("../runtime-shared/src/main/kotlin")
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}

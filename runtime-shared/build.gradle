@@ -18,10 +18,6 @@ dependencies {
     compile project(":shared")
 }
 
-sourceSets {
-    //main.java.srcDirs += [file("$buildDir/../../shared/src/main/kotlin")]
-    //test.resources.srcDirs  += [file("$buildDir/../../cli/src/test/resources")]
-}
 apply from: '../docu.gradle'
 dokka {
     impliedPlatforms = ["COMMON"] // This will force platform tags for all non-common sources e.g. "JVM"

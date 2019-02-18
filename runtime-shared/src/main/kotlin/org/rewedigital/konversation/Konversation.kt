@@ -14,11 +14,13 @@ class Konversation(val name: String, environment: Environment) {
 
     private fun create(data: Map<String, Any>, onlyDisplayText: Boolean): String {
         val sb = StringBuilder()
+        if (!onlyDisplayText) sb.append("<speak>")
         answer.parts
             .filter { it.type == PartType.Text || !onlyDisplayText }
             .forEach { part ->
                 sb.append(part.variants[random.next(part.variants.size)]).append(" ")
             }
+        if (!onlyDisplayText) sb.append("</speak>")
         return applyVariables(sb.toString().trimEnd(), data)
     }
 
@@ -39,11 +41,11 @@ class Konversation(val name: String, environment: Environment) {
      */
     @JsName("createOutput")
     fun createOutput(data: Map<String, Any> = emptyMap()) =
-            Output(displayText = create(data, true),
-                   ssml = create(data, false),
-                   reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)] }.toMap(),
-                   suggestions = answer.suggestions,
-                   extras = emptyMap())
+        Output(displayText = create(data, true),
+               ssml = create(data, false),
+               reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)] }.toMap(),
+               suggestions = answer.suggestions,
+               extras = emptyMap())
 
     companion object {
         /** The randomness implementation which can be modified for testing. */

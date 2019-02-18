@@ -17,11 +17,12 @@ class Konversation(val name: String, environment: Environment) {
         if (!onlyDisplayText) sb.append("<speak>")
         answer.parts
             .filter { it.type == PartType.Text || !onlyDisplayText }
-            .forEach { part ->
-                sb.append(part.variants[random.next(part.variants.size)]).append(" ")
+            .forEachIterator { part ->
+                sb.append(part.variants[random.next(part.variants.size)])
+                if(hasNext()) sb.append(" ")
             }
         if (!onlyDisplayText) sb.append("</speak>")
-        return applyVariables(sb.toString().trimEnd(), data)
+        return applyVariables(sb.toString(), data)
     }
 
     internal fun applyVariables(input: String, data: Map<String, Any>) =

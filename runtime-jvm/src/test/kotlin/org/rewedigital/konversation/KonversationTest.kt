@@ -11,7 +11,7 @@ class KonversationTest {
         Random.forcedValue = 0
         val sut = Konversation("help", environment).createOutput()
         assertEquals("Du kannst mit dieser App Rezepte und Angebote anhören.", sut.displayText)
-        assertEquals("Du kannst mit dieser App Rezepte und Angebote anhören. Cool nicht wahr? Womit sollen wir weiter machen?", sut.ssml)
+        assertEquals("<speak>Du kannst mit dieser App Rezepte und Angebote anhören. Cool nicht wahr? Womit sollen wir weiter machen?</speak>", sut.ssml)
     }
 
     @Test

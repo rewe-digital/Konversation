@@ -243,11 +243,6 @@ open class Cli {
     }
 }
 
-fun <T> Iterable<T>.forEachIterator(block: Iterator<T>.(element: T) -> Unit) {
-    val iterator = iterator()
-    while (iterator.hasNext()) block(iterator, iterator.next())
-}
-
 fun <T> Stream<T>.forEachIterator(block: Iterator<T>.(element: T) -> Unit) {
     val iterator = iterator()
     while (iterator.hasNext()) block(iterator, iterator.next())

@@ -1,7 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.11'
     id 'application'
-    id 'org.rewedigital.konversation' version '1.0-rc1'
+    id 'org.rewedigital.konversation' version '1.0-beta1'
 }
 
 apply plugin: 'application'
@@ -22,7 +22,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
     compile project(':shared')
     testCompile project(':shared')
-    //compile project(':runtime-shared')
     compile project(':runtime-jvm')
     testCompile "junit:junit:4.12"
     testCompile "org.jetbrains.kotlin:kotlin-test"

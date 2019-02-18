@@ -2,6 +2,7 @@ package org.rewedigital.konversation
 
 import org.rewedigital.konversation.generator.Printer
 import org.rewedigital.konversation.generator.alexa.AlexaExporter
+import org.rewedigital.konversation.generator.dialogflow.DialogflowExporter
 import org.rewedigital.konversation.generator.kson.KsonExporter
 import org.rewedigital.konversation.parser.Parser
 import java.io.File
@@ -15,13 +16,13 @@ open class Cli {
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
-    private var outputFile = File("result.json")
+    private var alexaIntentSchema: File? = null
     private var limit: Long? = null
     private var prettyPrint = false
-    private var ksonDir: String? = null
+    private var ksonDir: File? = null
+    private var dialogflowDir: File? = null
     private var dumpOnly = false
     private var invocationName: String? = null
-    private var exportAlexa: Boolean = false
     private var inputFileCount = 0
 
     fun parseArgs(args: Array<String>) {
@@ -54,8 +55,13 @@ open class Cli {
                         "cache",
                         "-cache" -> cacheEverything = true
                         "--export-alexa" -> if (++argNo < args.size) {
-                            exportAlexa = true
-                            outputFile = File(args[argNo])
+                            alexaIntentSchema = File(args[argNo])
+                        } else {
+                            L.error("Target is missing")
+                            exit(-1)
+                        }
+                        "--export-dialogflow" -> if (++argNo < args.size) {
+                            dialogflowDir = File(args[argNo])
                         } else {
                             L.error("Target is missing")
                             exit(-1)
@@ -65,7 +71,7 @@ open class Cli {
                             invocationName = args[argNo]
                         }
                         "--export-kson" -> if (++argNo < args.size) {
-                            ksonDir = args[argNo]
+                            ksonDir = File(args[argNo])
                         } else {
                             L.error("Target directory is missing")
                             exit(-1)
@@ -122,7 +128,10 @@ open class Cli {
             }
 
             showStats()
-            exportData(ksonDir?.let(::File) ?: outputFile)
+
+            ksonDir?.let(::exportKson)
+            alexaIntentSchema?.let(::exportAlexa)
+            dialogflowDir?.let(::exportDialogflow)
         }
     }
 
@@ -173,7 +182,7 @@ open class Cli {
         }
     }
 
-    private fun exportData(baseDir: File) = intentDb.forEach { (config, intents) ->
+    private fun exportKson(baseDir: File) = intentDb.forEach { (config, intents) ->
         val targetDir = File(baseDir.path + File.separator + "konversation".join("-", config))
         ksonDir?.let {
             intents.forEach { intent ->
@@ -191,41 +200,62 @@ open class Cli {
                 stream.close()
             }
         }
+    }
 
-        if (exportAlexa) {
-            outputFile.absoluteFile.parentFile.mkdirs()
-            invocationName?.let { skillName ->
-                val exporter = AlexaExporter(skillName, targetDir, limit ?: Long.MAX_VALUE)
-                val stream = outputFile.outputStream()
-                val printer: Printer = { line ->
-                    stream.write(line.toByteArray())
-                }
-                if (prettyPrint) {
-                    exporter.prettyPrinted(printer, intents)
-                } else {
-                    exporter.minified(printer, intents)
-                }
-                stream.close()
-            } ?: run {
-                L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
-                exit(-1)
+    private fun exportAlexa(alexaIntentSchema: File) = intentDb.forEach { (config, intents) ->
+        val targetDir = File(alexaIntentSchema.path + File.separator + "konversation".join("-", config))
+        alexaIntentSchema.absoluteFile.parentFile.mkdirs()
+        invocationName?.let { skillName ->
+            val exporter = AlexaExporter(skillName, targetDir, limit ?: Long.MAX_VALUE)
+            val stream = alexaIntentSchema.outputStream()
+            val printer: Printer = { line ->
+                stream.write(line.toByteArray())
             }
+            if (prettyPrint) {
+                exporter.prettyPrinted(printer, intents)
+            } else {
+                exporter.minified(printer, intents)
+            }
+            stream.close()
+        } ?: run {
+            L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+            exit(-1)
+        }
+    }
+
+    private fun exportDialogflow(baseDir: File) = intentDb.forEach { (config, intents) ->
+        val exporter = DialogflowExporter()
+        invocationName?.let { skillName ->
+            val stream = File(baseDir, "dialogflow.tmp").outputStream()
+            val printer: Printer = { line ->
+                stream.write(line.toByteArray())
+            }
+            if (prettyPrint) {
+                exporter.prettyPrinted(printer, intents)
+            } else {
+                exporter.minified(printer, intents)
+            }
+            stream.close()
+        } ?: run {
+            L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+            exit(-1)
         }
     }
 
     private fun help() {
         L.log("Arguments for konversation:")
-        L.log("[-help]                     Print this help")
-        L.log("[-count]                    Count the permutations and print this to the console")
-        L.log("[-stats]                    Print out some statistics while generation")
-        L.log("[-cache]                    Cache everything even if an utterance has just a single permutation")
-        L.log("[--export-alexa <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json")
-        L.log("[-invocation <NAME>]        Define the invocation name for the Alexa export")
-        L.log("[-limit <COUNT>]            While pretty printing the json to the output file limit the utterances count per intent")
-        L.log("[--export-kson <OUTDIR>]    Compiles the kvs file to kson resource files which are required for the runtime")
-        L.log("[-dump]                     Dump out all intents to its own txt file")
-        L.log("[-prettyprint]              Generate a well formatted json for easier debugging")
-        L.log("<FILE>                      The grammar or kvs file to parse")
+        L.log("[-help]                          Print this help")
+        L.log("[-count]                         Count the permutations and print this to the console")
+        L.log("[-stats]                         Print out some statistics while generation")
+        L.log("[-cache]                         Cache everything even if an utterance has just a single permutation")
+        L.log("[--export-alexa <OUTFILE>]       Write the resulting json to OUTFILE instead of result.json")
+        L.log("[--export-dialogflow <OUTFILE>]  Write the dialog result out...")
+        L.log("[-invocation <NAME>]             Define the invocation name for the Alexa export")
+        L.log("[-limit <COUNT>]                 While pretty printing the json to the output file limit the utterances count per intent")
+        L.log("[--export-kson <OUTDIR>]         Compiles the kvs file to kson resource files which are required for the runtime")
+        L.log("[-dump]                          Dump out all intents to its own txt file")
+        L.log("[-prettyprint]                   Generate a well formatted json for easier debugging")
+        L.log("<FILE>                           The grammar or kvs file to parse")
         L.log()
     }
 

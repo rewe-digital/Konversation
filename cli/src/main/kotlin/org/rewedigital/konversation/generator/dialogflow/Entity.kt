@@ -21,7 +21,7 @@ data class Entity(
     }
 
     override fun minified(printer: Printer) {
-        printer("{\"value\":\"$value\",\"synonyms\":")
-        printer(synonyms.joinToString(separator = ",", prefix = "[", postfix = "]}") { "\"$it\"" })
+        printer("{\"value\":\"$value\",\"synonyms\":[")
+        printer(synonyms.joinToString(separator = ",", postfix = "]}") { "\"$it\"" })
     }
 }

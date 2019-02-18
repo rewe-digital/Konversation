@@ -16,8 +16,8 @@ Help:                                    // Intent name
 +                                        // Concats two blocks without a linebreak
 -{read|hear}                             // elements in brackets are alterntives
 +
--Recipies and offers.
--Offers and recipies.
+-recipies and offers.
+-offers and recipies.
 +
 ~Cool isn't it?                          // This sentence should not be displayed just said.
 +
@@ -26,7 +26,7 @@ Help:                                    // Intent name
 
 ?1 How can I help you{| now}?            // Reprompts when the user gives no input
 ?2 What should {I|we} do now?            // Second repromt used when no input was given again
-[Offers] [Recipie]                       // Suggestions what the user could try (GUI only)
+[Offers] [Recipes]                       // Suggestions what the user could try (GUI only)
 
 Hello:                                   // Second intent
 -Great to see you                        // First response block of the Hello intent

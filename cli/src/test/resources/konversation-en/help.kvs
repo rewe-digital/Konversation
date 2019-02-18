@@ -6,8 +6,8 @@ Help:
 +
 -{read|hear}
 +
--Recipies and offers.
--Offers and recipies.
+-recipes and offers.
+-offers and recipes.
 +
 ~Cool isn't it?
 +
@@ -15,4 +15,4 @@ Help:
 ~What should {we|I} do now?
 ?1 How can I help you{| now}?
 ?2 What should {I|we} do now?
-[Offers] [Recipie]
+[Offers] [Recipes]

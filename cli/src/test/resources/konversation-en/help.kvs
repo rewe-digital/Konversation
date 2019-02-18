@@ -1,18 +1,18 @@
 Help:
-!Help {|me|us|does this app work}
-!How {do|can} I use this app
--You can use this app
+!Help {|me|us|how does this app work}
+!How {works|do I use} this App
+-You can use this app to
 -With this app you can
 +
--Recipes and Offers
--Offers and Recipes
+-{read|hear}
 +
--{hear|read out}.
+-Recipies and offers.
+-Offers and recipies.
++
 ~Cool isn't it?
 +
-~How should we continue now?
-~What do you want to do?
-
-?1 What can I do for you{| now}?
-?2 What do you want to do?
-[Offers] [Recipes]
+~How should {we|I} continue now?
+~What should {we|I} do now?
+?1 How can I help you{| now}?
+?2 What should {I|we} do now?
+[Offers] [Recipie]

@@ -232,7 +232,7 @@ class CliTest {
         }
 
         override fun parseFile(file: File): List<Intent> {
-            files.add(file.path)
+            files.add(file.absolutePath)
             return emptyList()
         }
     }

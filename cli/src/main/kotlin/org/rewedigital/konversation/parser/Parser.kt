@@ -6,7 +6,7 @@ import java.text.ParseException
 import java.util.*
 
 class Parser(input: File) {
-    constructor(input: String): this(File(input))
+    constructor(input: String): this(File(input).absoluteFile)
 
     val intents = mutableListOf<Intent>()
     private var lastIntent : Intent? = null

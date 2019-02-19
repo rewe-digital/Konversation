@@ -35,8 +35,8 @@ open class Cli {
             var argNo = 0
             while (argNo < args.size) {
                 val arg = args[argNo]
-                if (File(arg).exists()) {
-                    inputFiles += File(arg)
+                if (File(arg).absoluteFile.exists()) {
+                    inputFiles += File(arg).absoluteFile
                 } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar")) {
                     L.error("Input file \"$arg\" not found!")
                     exit(-1)
@@ -55,7 +55,7 @@ open class Cli {
                         "-cache" -> cacheEverything = true
                         "--export-alexa" -> if (++argNo < args.size) {
                             exportAlexa = true
-                            outputFile = File(args[argNo])
+                            outputFile = File(args[argNo]).absoluteFile
                         } else {
                             L.error("Target is missing")
                             exit(-1)
@@ -174,7 +174,7 @@ open class Cli {
     }
 
     private fun exportData(baseDir: File) = intentDb.forEach { (config, intents) ->
-        val targetDir = File(baseDir.path + File.separator + "konversation".join("-", config))
+        val targetDir = File(baseDir.absolutePath + File.separator + "konversation".join("-", config))
         ksonDir?.let {
             intents.forEach { intent ->
                 val exporter = KsonExporter(intent.name)

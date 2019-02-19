@@ -26,7 +26,13 @@ class KsonExporterTest {
     }
 
     companion object {
-        val expectedResult = File("cli/src/test/resources/help-expected-kson-result.json").readText()
-        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-kson-result-minified.json").readText()
+        init {
+            val dir = File("")
+            if (dir.absolutePath.endsWith("cli")) {
+                System.setProperty("user.dir", dir.absoluteFile.parentFile.absolutePath)
+            }
+        }
+        val expectedResult = File("cli/src/test/resources/help-expected-kson-result.json").absoluteFile.readText()
+        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-kson-result-minified.json").absoluteFile.readText()
     }
 }

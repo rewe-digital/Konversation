@@ -1,9 +1,9 @@
 package org.rewedigital.konversation.generator.alexa
 
-import org.rewedigital.konversation.parser.Parser
 import org.junit.Test
+import org.rewedigital.konversation.assertEqualsIgnoringLineBreaks
+import org.rewedigital.konversation.parser.Parser
 import java.io.File
-import kotlin.test.assertEquals
 
 class AlexaExporterTest {
     @Test
@@ -12,7 +12,7 @@ class AlexaExporterTest {
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
-        assertEquals(expectedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
     @Test
@@ -21,7 +21,7 @@ class AlexaExporterTest {
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
-        assertEquals(expectedMinifiedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedMinifiedResult, sb.toString())
     }
 
     @Test
@@ -30,7 +30,7 @@ class AlexaExporterTest {
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
-        assertEquals(expectedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
     @Test
@@ -39,11 +39,17 @@ class AlexaExporterTest {
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
-        assertEquals(expectedMinifiedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedMinifiedResult, sb.toString())
     }
 
     companion object {
-        val expectedResult = File("cli/src/test/resources/help-expected-alexa-result.json").readText().replace("\r", "")
-        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-alexa-result-minified.json").readText().replace("\r", "")
+        init {
+            val dir = File("")
+            if (dir.absolutePath.endsWith("cli")) {
+                System.setProperty("user.dir", dir.absoluteFile.parentFile.absolutePath)
+            }
+        }
+        val expectedResult = File("cli/src/test/resources/help-expected-alexa-result.json").absoluteFile.readText()
+        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-alexa-result-minified.json").absoluteFile.readText()
     }
 }

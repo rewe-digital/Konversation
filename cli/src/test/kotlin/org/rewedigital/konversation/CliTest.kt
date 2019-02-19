@@ -179,8 +179,6 @@ class CliTest {
 
     @Test
     fun `Use multiple input files`() {
-        println(File("").absolutePath)
-        println(System.getProperty("user.dir"))
         val sut = CliTestHelper.getOutput("cli/src/test/konversation/help.kvs",
                                           "cli/src/test/resources/foo/ExampleIntent.kvs",
                                           "--export-alexa",

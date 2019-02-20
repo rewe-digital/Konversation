@@ -125,6 +125,8 @@ class Utterance(private val line: String, val name: String) {
         }
     }
 
+    override fun toString() = "Utterance(line='$line', name='$name', permutations:$permutations, slotTypes=$slotTypes)"
+
     companion object {
         val counter = AtomicInteger(0)
         var cacheDir = "cache"

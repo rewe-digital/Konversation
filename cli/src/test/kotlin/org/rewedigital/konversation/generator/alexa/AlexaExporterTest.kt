@@ -8,7 +8,7 @@ import java.io.File
 class AlexaExporterTest {
     @Test
     fun `Validate pretty printed kvs file result`() {
-        val help = Parser("cli/src/test/resources/help.kvs").intents
+        val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
@@ -17,7 +17,7 @@ class AlexaExporterTest {
 
     @Test
     fun `Validate minified kvs file result`() {
-        val help = Parser("cli/src/test/resources/help.kvs").intents
+        val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
@@ -26,7 +26,7 @@ class AlexaExporterTest {
 
     @Test
     fun `Validate pretty printed grammar file result`() {
-        val help = Parser("cli/src/test/resources/help.grammar").intents
+        val help = Parser("$pathPrefix/help.grammar").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
@@ -35,7 +35,7 @@ class AlexaExporterTest {
 
     @Test
     fun `Validate minified grammar file result`() {
-        val help = Parser("cli/src/test/resources/help.grammar").intents
+        val help = Parser("$pathPrefix/help.grammar").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
@@ -43,13 +43,8 @@ class AlexaExporterTest {
     }
 
     companion object {
-        init {
-            val dir = File("")
-            if (dir.absolutePath.endsWith("cli")) {
-                System.setProperty("user.dir", dir.absoluteFile.parentFile.absolutePath)
-            }
-        }
-        val expectedResult = File("cli/src/test/resources/help-expected-alexa-result.json").absoluteFile.readText()
-        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-alexa-result-minified.json").absoluteFile.readText()
+        val pathPrefix = (if (File("").absolutePath.endsWith("cli")) "" else "cli/") + "src/test/resources"
+        val expectedResult = File("$pathPrefix/help-expected-alexa-result.json").absoluteFile.readText()
+        val expectedMinifiedResult = File("$pathPrefix/help-expected-alexa-result-minified.json").absoluteFile.readText()
     }
 }

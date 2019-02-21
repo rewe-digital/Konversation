@@ -1,5 +1,7 @@
 package org.rewedigital.konversation
 
+import java.util.*
+
 /**
  * Java implementation to format a string. This function just provides a platform specific `sprintf()` implementation.
  */
@@ -11,5 +13,5 @@ actual class Formatter {
      * @param format The string to format
      * @param args The arguments you want to apply.
      */
-    actual fun format(format: String, vararg args: Any?) = String.format(format, *args)
+    actual fun format(locale: String, format: String, vararg args: Any?) = String.format(Locale.forLanguageTag(locale), format, *args)
 }

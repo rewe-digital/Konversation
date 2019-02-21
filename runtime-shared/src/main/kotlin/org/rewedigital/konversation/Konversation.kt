@@ -9,7 +9,7 @@ import kotlin.js.JsName
  * @param environment The environment of the conversation to load.
  * @constructor Creates a new Konversation object with the given options.
  */
-class Konversation(val name: String, environment: Environment) {
+class Konversation(val name: String, private val environment: Environment) {
     private val answer = Reader().loadReply(name, environment)
 
     private fun create(data: Map<String, Any>, onlyDisplayText: Boolean): String {
@@ -30,7 +30,7 @@ class Konversation(val name: String, environment: Environment) {
             val needle = matchResult.groups.first()?.value
             val fieldName = matchResult.groups.filterNotNull().last().value
             if (needle?.startsWith("%") == true) {
-                Formatter().format(needle.substring(0, needle.indexOf('$')), data[fieldName])
+                Formatter().format(environment.locale, needle.substring(0, needle.indexOf('$')), data[fieldName])
             } else {
                 data[fieldName].toString()
             }

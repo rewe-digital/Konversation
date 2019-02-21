@@ -20,7 +20,7 @@ class KonversationTest {
         val sut = Konversation("help", environment)
         val displayTexts = mutableListOf<String>()
         val ssml = mutableListOf<String>()
-        for (i in 0 .. 50) {
+        for (i in 0..50) {
             val output = sut.createOutput()
             displayTexts += output.displayText
             ssml += output.ssml
@@ -48,12 +48,23 @@ class KonversationTest {
 
     @Test
     fun `Check if applying variables work`() {
-        val input = "Hello \$planet \${user.name} %1.2f\$age"
-        val data = mapOf("planet" to "world", "user.name" to "René", "age" to 12.34)
+        val input = "Hallo \$planet \${user.name} %1.2f\$age"
+        val data = mapOf("planet" to "Welt", "user.name" to "René", "age" to 12.34)
 
         val result = Konversation("help", environment).applyVariables(input, data)
 
-        val expected = "Hello world René 12,34"
+        val expected = "Hallo Welt René 12,34"
+        assertEquals(expected, result, "Took the input \"$input\" and injected $data")
+    }
+
+    @Test
+    fun `Check if different locale work`() {
+        val input = "Hallo \$planet \${user.name} %1.2f\$age"
+        val data = mapOf("planet" to "world", "user.name" to "René", "age" to 12.34)
+
+        val result = Konversation("help", Environment("google", "en-US")).applyVariables(input, data)
+
+        val expected = "Hallo world René 12.34"
         assertEquals(expected, result, "Took the input \"$input\" and injected $data")
     }
 

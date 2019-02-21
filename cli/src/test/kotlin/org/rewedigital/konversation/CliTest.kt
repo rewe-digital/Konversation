@@ -144,13 +144,14 @@ class CliTest {
 
     @Test
     fun `Konversation directory processing`() {
-        val sut = CliTestHelper.getOutput("$pathPrefix/", "--export-kson", "build/out/kson")
+        val outDir = "${rootPath}build/out/kson"
+        val sut = CliTestHelper.getOutput("$pathPrefix/", "--export-kson", outDir)
         assertEquals(sut.output, "Parsing of 4 files finished. Found 1 intent.\n")
         assertNull(sut.exitCode)
-        assertTrue(File("build/out/kson/konversation/help.kson").absoluteFile.isFile)
-        assertTrue(File("build/out/kson/konversation-alexa/help.kson").absoluteFile.isFile)
-        assertTrue(File("build/out/kson/konversation-alexa-de/help.kson").absoluteFile.isFile)
-        assertTrue(File("build/out/kson/konversation-en/help.kson").absoluteFile.isFile)
+        assertTrue(File("$outDir/konversation/Help.kson").absoluteFile.isFile)
+        assertTrue(File("$outDir/konversation-alexa/Help.kson").absoluteFile.isFile)
+        assertTrue(File("$outDir/konversation-alexa-de/Help.kson").absoluteFile.isFile)
+        assertTrue(File("$outDir/konversation-en/Help.kson").absoluteFile.isFile)
     }
 
     @Test
@@ -231,7 +232,8 @@ class CliTest {
     }
 
     companion object {
-        val pathPrefix = (if (File("").absolutePath.endsWith("cli")) "" else "cli/") + "src/test/resources"
+        val rootPath = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
+        val pathPrefix = "${rootPath}src/test/resources"
         val helpOutput = """Arguments for konversation:
 [-help]                     Print this help
 [-count]                    Count the permutations and print this to the console

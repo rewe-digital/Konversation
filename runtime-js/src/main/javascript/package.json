@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rewe-digital-incubator/konversation.git"
+    "url": "git+https://github.com/rewe-digital-incubator/Konversation.git"
   },
   "keywords": [
     "konversation",
@@ -23,7 +23,7 @@
     "alexa"
   ],
   "bugs": {
-    "url": "https://github.com/rewe-digital-incubator/konversation/issues"
+    "url": "https://github.com/rewe-digital-incubator/Konversation/issues/?labels=npm"
   },
-  "homepage": "https://github.com/rewe-digital-incubator/konversation#readme"
+  "homepage": "https://github.com/rewe-digital-incubator/Konversation#readme"
 }

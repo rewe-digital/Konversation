@@ -1,6 +1,6 @@
 {
   "name": "konversation",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Konversation is a tool to generate rich and diversified responses to the user of a voice application.",
   "main": "index.js",
   "scripts": {

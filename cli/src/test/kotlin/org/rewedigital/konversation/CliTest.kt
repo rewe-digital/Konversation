@@ -4,6 +4,7 @@ import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
+import java.text.DecimalFormat
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -102,13 +103,15 @@ class CliTest {
     @Test
     fun `Test big grammar file`() {
         val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "-stats", "-count")
-        assertEquals(sut.output, "Parsing of 1 file finished. Found 2 intents.\n" +
-                "Test has 1 utterances which have in total 1.000 permutations\n" +
-                "Foo has 0 utterances which have in total 0 permutations\n" +
-                "That are in total 1.000 permutations!\n" +
-                "Test has now 1000 sample utterances\n" +
-                "Foo has now 0 sample utterances\n" +
-                "Generated in total 1000 Utterances\n")
+        val format = DecimalFormat.getInstance() as DecimalFormat
+        val separator = format.decimalFormatSymbols.groupingSeparator
+        assertEquals("Parsing of 1 file finished. Found 2 intents.\n" +
+                             "Test has 1 utterances which have in total 1${separator}000 permutations\n" +
+                             "Foo has 0 utterances which have in total 0 permutations\n" +
+                             "That are in total 1${separator}000 permutations!\n" +
+                             "Test has now 1${separator}000 sample utterances\n" +
+                             "Foo has now 0 sample utterances\n" +
+                             "Generated in total 1${separator}000 Utterances\n", sut.output)
         assertNull(sut.exitCode)
     }
 
@@ -135,11 +138,20 @@ class CliTest {
     @Test
     fun `Test dir processing`() {
         val sut = ParseTestCli("$pathPrefix/")
+        val expectedFiles = listOf(
+            "$pathPrefix/konversation/help.kvs",
+            "$pathPrefix/konversation-alexa/help.kvs",
+            "$pathPrefix/konversation-alexa-de/help.kvs",
+            "$pathPrefix/konversation-en/help.kvs")
+            .map {
+                File(it).absolutePath
+            }
         assertEquals(4, sut.intentDb.size)
-        assertEquals(File("$pathPrefix/konversation/help.kvs").absolutePath, sut.files[0])
-        assertEquals(File("$pathPrefix/konversation-alexa/help.kvs").absolutePath, sut.files[1])
-        assertEquals(File("$pathPrefix/konversation-alexa-de/help.kvs").absolutePath, sut.files[2])
-        assertEquals(File("$pathPrefix/konversation-en/help.kvs").absolutePath, sut.files[3])
+        assertEquals(4, sut.files.distinct().size)
+        assertTrue(expectedFiles.contains(sut.files[0]))
+        assertTrue(expectedFiles.contains(sut.files[1]))
+        assertTrue(expectedFiles.contains(sut.files[2]))
+        assertTrue(expectedFiles.contains(sut.files[3]))
     }
 
     @Test

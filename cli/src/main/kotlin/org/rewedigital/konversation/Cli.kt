@@ -132,9 +132,9 @@ open class Cli {
         val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
         L.info("Parsing of $inputFileCount file${if (inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if (intentCount != 1) "s" else ""}.")
 
-        if (countPermutations) {
-            fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)
+        fun Number.formatted() = String.format(Locale.getDefault(), "%,d", this)
 
+        if (countPermutations) {
             var total = 0L
             intents.forEach { intent: Intent ->
                 var count = 0L
@@ -147,10 +147,10 @@ open class Cli {
 
         val all = intents.sumBy { intent ->
             val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
-            if (stats) L.debug("${intent.name} has now $permutations sample utterances")
+            if (stats) L.debug("${intent.name} has now ${permutations.formatted()} sample utterances")
             permutations
         }
-        if (stats) L.info("Generated in total $all Utterances")
+        if (stats) L.info("Generated in total ${all.formatted()} Utterances")
         //println("- " + all.sorted().joinToString(separator = "\n- "))
 
         if (dumpOnly) {

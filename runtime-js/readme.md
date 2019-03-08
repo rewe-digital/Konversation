@@ -1,17 +1,17 @@
-# Koversation (JS-Runtime) [![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][downloads-url] [![Code Coverage][codecov-img]][codecov-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
+# Koversation (JS-Runtime) [![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][npm-url] [![Code Coverage][codecov-img]][codecov-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
 
 This is the runtime library of [Konversation][github-url]. Konversation is a tool to generate rich and
 diversified responses to the user of a voice application.
 
 ## Usage
 
-At first install the dependency "konversation" with the command:
+At first install the dependency "@rewe-digital/konversation" with the command:
 
-    npm install konversation
+    npm install @rewe-digital/konversation
 
 Then you can use this example code:
 
-    const Konversation = require("konversation").Konversation;
+    const Konversation = require("@rewe-digital/konversation").Konversation;
     const test = Konversation("test");
     const output = test.createOutput(); // created one randomized response
     const ssml = output.ssml;
@@ -40,17 +40,16 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[travis-image]: https://travis-ci.org/rewe-digital-incubator/konversation.svg?branch=master
-[travis-url]: https://travis-ci.org/rewe-digital-incubator/konversation
-[npm-image]: https://img.shields.io/npm/v/konversation.svg
-[npm-url]: https://npmjs.org/package/konversation
-[downloads-image]: https://img.shields.io/npm/dm/konversation.svg
-[downloads-url]: https://npmjs.org/package/konversation
-[codecov-img]: http://codecov.io/github/rewe-digital-incubator/konversation/coverage.svg?branch=master
-[codecov-url]: http://codecov.io/github/rewe-digital-incubator/konversation?branch=master
+[travis-image]: https://travis-ci.com/rewe-digital-incubator/Konversation.svg?branch=master
+[travis-url]: https://travis-ci.com/rewe-digital-incubator/Konversation
+[npm-image]: https://img.shields.io/npm/v/@rewe-digital/konversation.svg
+[npm-url]: https://npmjs.org/package/@rewe-digital/konversation
+[downloads-image]: https://img.shields.io/npm/dm/@rewe-digital/konversation.svg
+[codecov-img]: http://codecov.io/github/rewe-digital-incubator/Konversation/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/rewe-digital-incubator/Konversation?branch=master
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
-[github-url]: https://github.com/rewe-digital-incubator/konversation
-[cli-readme-url]: https://github.com/rewe-digital-incubator/konversation/cli/readme.md
-[star-img]: https://img.shields.io/github/stars/rewe-digital-incubator/konversation.svg?style=social&label=Star&maxAge=3600
-[star-url]: https://github.com/rewe-digital-incubator/konversation/stargazers
+[github-url]: https://github.com/rewe-digital-incubator/Konversation
+[cli-readme-url]: https://github.com/rewe-digital-incubator/Konversation/blob/master/cli/readme.md
+[star-img]: https://img.shields.io/github/stars/rewe-digital-incubator/Konversation.svg?style=social&label=Star&maxAge=3600
+[star-url]: https://github.com/rewe-digital-incubator/Konversation/stargazers

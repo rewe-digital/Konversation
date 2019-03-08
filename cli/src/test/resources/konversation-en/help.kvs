@@ -1,18 +1,18 @@
 Help:
-!Hilf{e| mir| uns|e wie funktioniert die App}
-!Wie {funktioniert|benutze ich} die{|se} App
--Du kannst mit dieser App
--Mit dieser App kannst du
+!Help {|me|us|how does this app work}
+!How {works|do I use} this App
+-You can use this app to
+-With this app you can
 +
--Rezepte und Angebote
--Angebote und Rezepte
+-{read|hear}
 +
--{anhören|vorlesen lassen}.
-~Cool nicht wahr?
+-recipes and offers.
+-offers and recipes.
 +
-~Womit soll{en wir| ich} weiter machen?
-~Was möchtest du jetzt tun?
-
-?1 Kann ich dir {|jetzt} noch helfen?
-?2 Womit sollen wir weitermachen?
-[Angebote] [Rezepte]
+~Cool isn't it?
++
+~How should {we|I} continue now?
+~What should {we|I} do now?
+?1 How can I help you{| now}?
+?2 What should {I|we} do now?
+[Offers] [Recipes]

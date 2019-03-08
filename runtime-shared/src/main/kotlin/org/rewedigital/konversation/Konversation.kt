@@ -9,17 +9,20 @@ import kotlin.js.JsName
  * @param environment The environment of the conversation to load.
  * @constructor Creates a new Konversation object with the given options.
  */
-class Konversation(val name: String, environment: Environment) {
+class Konversation(val name: String, private val environment: Environment) {
     private val answer = Reader().loadReply(name, environment)
 
     private fun create(data: Map<String, Any>, onlyDisplayText: Boolean): String {
         val sb = StringBuilder()
+        if (!onlyDisplayText) sb.append("<speak>")
         answer.parts
             .filter { it.type == PartType.Text || !onlyDisplayText }
-            .forEach { part ->
-                sb.append(part.variants[random.next(part.variants.size)]).append(" ")
+            .forEachIterator { part ->
+                sb.append(part.variants[random.next(part.variants.size)])
+                if(hasNext()) sb.append(" ")
             }
-        return applyVariables(sb.toString().trimEnd(), data)
+        if (!onlyDisplayText) sb.append("</speak>")
+        return applyVariables(sb.toString(), data)
     }
 
     internal fun applyVariables(input: String, data: Map<String, Any>) =
@@ -27,7 +30,7 @@ class Konversation(val name: String, environment: Environment) {
             val needle = matchResult.groups.first()?.value
             val fieldName = matchResult.groups.filterNotNull().last().value
             if (needle?.startsWith("%") == true) {
-                Formatter().format(needle.substring(0, needle.indexOf('$')), data[fieldName])
+                Formatter().format(environment.locale, needle.substring(0, needle.indexOf('$')), data[fieldName])
             } else {
                 data[fieldName].toString()
             }
@@ -39,16 +42,16 @@ class Konversation(val name: String, environment: Environment) {
      */
     @JsName("createOutput")
     fun createOutput(data: Map<String, Any> = emptyMap()) =
-            Output(displayText = create(data, true),
-                   ssml = create(data, false),
-                   reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)] }.toMap(),
-                   suggestions = answer.suggestions,
-                   extras = emptyMap())
+        Output(displayText = create(data, true),
+               ssml = create(data, false),
+               reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)] }.toMap(),
+               suggestions = answer.suggestions,
+               extras = emptyMap())
 
     companion object {
         /** The randomness implementation which can be modified for testing. */
-        val random = Random()
+        private val random = Random()
         /** A regular expression to apply the actual values. */
-        val regex = "(\\$([a-zA-Z_][_a-zA-Z0-9]*)|\\$\\{([a-zA-Z_][a-zA-Z0-9._]+[a-zA-Z_])}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z_][A-zA-z0-9._]+[a-zA-Z_]|[a-zA-Z_]))".toRegex()
+        internal val regex = "(\\$([a-zA-Z_][_a-zA-Z0-9]*)|\\$\\{([a-zA-Z_][a-zA-Z0-9._]+[a-zA-Z_])}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z_][A-zA-z0-9._]+[a-zA-Z_]|[a-zA-Z_]))".toRegex()
     }
 }

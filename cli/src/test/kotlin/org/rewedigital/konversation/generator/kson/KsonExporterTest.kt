@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 class KsonExporterTest {
     @Test
     fun prettyKvsResult() {
-        val help = Parser("cli/src/test/resources/help.kvs").intents
+        val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = KsonExporter("Help")
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
@@ -18,7 +18,7 @@ class KsonExporterTest {
 
     @Test
     fun minifiedKvsResult() {
-        val help = Parser("cli/src/test/resources/help.kvs").intents
+        val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = KsonExporter("Help")
         exporter.minified({ line -> sb.append(line) }, help)
@@ -26,7 +26,8 @@ class KsonExporterTest {
     }
 
     companion object {
-        val expectedResult = File("cli/src/test/resources/help-expected-kson-result.json").readText()
-        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-kson-result-minified.json").readText()
+        val pathPrefix = (if (File("").absolutePath.endsWith("cli")) "" else "cli/") + "src/test/resources"
+        val expectedResult = File("$pathPrefix/help-expected-kson-result.json").absoluteFile.readText()
+        val expectedMinifiedResult = File("$pathPrefix/help-expected-kson-result-minified.json").absoluteFile.readText()
     }
 }

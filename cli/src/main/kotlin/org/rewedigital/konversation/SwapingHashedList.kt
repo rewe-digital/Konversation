@@ -147,11 +147,12 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
                     offsetBuffer.flip()
                     offsetChannel.write(offsetBuffer)
                     offsetBuffer.flip()
-                    offset += element.toByteArray().size + 2
+                    offset += element.toByteArray().size + 1
                     writer.write(element)
-                    writer.newLine()
+                    writer.write("\n")
                 }
             }
+            writer.flush()
             true
         } catch (e: IOException) {
             false
@@ -175,12 +176,17 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
                     if (!hashList.contains(element.hashCode())) {
                         hashList.add(element.hashCode())
                         hashWriter.writeInt(element.hashCode())
-
+                        offsetBuffer.putLong(offset)
+                        offsetBuffer.flip()
+                        offsetChannel.write(offsetBuffer)
+                        offsetBuffer.flip()
+                        offset += element.toByteArray().size + 1
                         writer.write(element)
-                        writer.newLine()
+                        writer.write("\n")
                     }
                 }
             }
+            writer.flush()
             true
         } catch (e: IOException) {
             false

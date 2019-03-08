@@ -36,8 +36,8 @@ open class Cli {
             var argNo = 0
             while (argNo < args.size) {
                 val arg = args[argNo]
-                if (File(arg).exists()) {
-                    inputFiles += File(arg)
+                if (File(arg).absoluteFile.exists()) {
+                    inputFiles += File(arg).absoluteFile
                 } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar")) {
                     L.error("Input file \"$arg\" not found!")
                     exit(-1)
@@ -61,7 +61,7 @@ open class Cli {
                             exit(-1)
                         }
                         "--export-dialogflow" -> if (++argNo < args.size) {
-                            dialogflowDir = File(args[argNo])
+                            dialogflowDir = File(args[argNo]).absoluteFile
                         } else {
                             L.error("Target is missing")
                             exit(-1)
@@ -141,9 +141,9 @@ open class Cli {
         val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
         L.info("Parsing of $inputFileCount file${if (inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if (intentCount != 1) "s" else ""}.")
 
-        if (countPermutations) {
-            fun Long.formatted() = String.format(Locale.getDefault(), "%,d", this)
+        fun Number.formatted() = String.format(Locale.getDefault(), "%,d", this)
 
+        if (countPermutations) {
             var total = 0L
             intents.forEach { intent: Intent ->
                 var count = 0L
@@ -156,10 +156,10 @@ open class Cli {
 
         val all = intents.sumBy { intent ->
             val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
-            if (stats) L.debug("${intent.name} has now $permutations sample utterances")
+            if (stats) L.debug("${intent.name} has now ${permutations.formatted()} sample utterances")
             permutations
         }
-        if (stats) L.info("Generated in total $all Utterances")
+        if (stats) L.info("Generated in total ${all.formatted()} Utterances")
         //println("- " + all.sorted().joinToString(separator = "\n- "))
 
         if (dumpOnly) {
@@ -183,7 +183,7 @@ open class Cli {
     }
 
     private fun exportKson(baseDir: File) = intentDb.forEach { (config, intents) ->
-        val targetDir = File(baseDir.path + File.separator + "konversation".join("-", config))
+        val targetDir = File(baseDir.absolutePath + File.separator + "konversation".join("-", config))
         ksonDir?.let {
             intents.forEach { intent ->
                 val exporter = KsonExporter(intent.name)
@@ -271,11 +271,6 @@ open class Cli {
 
         var L: LoggerFacade = DefaultLogger()
     }
-}
-
-fun <T> Iterable<T>.forEachIterator(block: Iterator<T>.(element: T) -> Unit) {
-    val iterator = iterator()
-    while (iterator.hasNext()) block(iterator, iterator.next())
 }
 
 fun <T> Stream<T>.forEachIterator(block: Iterator<T>.(element: T) -> Unit) {

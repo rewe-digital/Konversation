@@ -11,7 +11,7 @@ actual class Formatter {
      * @param format The string to format
      * @param args The arguments you want to apply.
      */
-    actual fun format(format: String, vararg args: Any?): String {
+    actual fun format(locale: String, format: String, vararg args: Any?): String {
         val sprintf = require("sprintf-js").sprintf
         return sprintf.format(format, args).toString()
     }

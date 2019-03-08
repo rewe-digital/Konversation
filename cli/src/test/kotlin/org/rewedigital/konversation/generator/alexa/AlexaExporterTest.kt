@@ -1,49 +1,50 @@
 package org.rewedigital.konversation.generator.alexa
 
-import org.rewedigital.konversation.parser.Parser
 import org.junit.Test
+import org.rewedigital.konversation.assertEqualsIgnoringLineBreaks
+import org.rewedigital.konversation.parser.Parser
 import java.io.File
-import kotlin.test.assertEquals
 
 class AlexaExporterTest {
     @Test
     fun `Validate pretty printed kvs file result`() {
-        val help = Parser("cli/src/test/resources/help.kvs").intents
+        val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
-        assertEquals(expectedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
     @Test
     fun `Validate minified kvs file result`() {
-        val help = Parser("cli/src/test/resources/help.kvs").intents
+        val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
-        assertEquals(expectedMinifiedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedMinifiedResult, sb.toString())
     }
 
     @Test
     fun `Validate pretty printed grammar file result`() {
-        val help = Parser("cli/src/test/resources/help.grammar").intents
+        val help = Parser("$pathPrefix/help.grammar").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.prettyPrinted({ line -> sb.append(line) }, help)
-        assertEquals(expectedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
     @Test
     fun `Validate minified grammar file result`() {
-        val help = Parser("cli/src/test/resources/help.grammar").intents
+        val help = Parser("$pathPrefix/help.grammar").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
         exporter.minified({ line -> sb.append(line) }, help)
-        assertEquals(expectedMinifiedResult, sb.toString())
+        assertEqualsIgnoringLineBreaks(expectedMinifiedResult, sb.toString())
     }
 
     companion object {
-        val expectedResult = File("cli/src/test/resources/help-expected-alexa-result.json").readText().replace("\r", "")
-        val expectedMinifiedResult = File("cli/src/test/resources/help-expected-alexa-result-minified.json").readText().replace("\r", "")
+        val pathPrefix = (if (File("").absolutePath.endsWith("cli")) "" else "cli/") + "src/test/resources"
+        val expectedResult = File("$pathPrefix/help-expected-alexa-result.json").absoluteFile.readText()
+        val expectedMinifiedResult = File("$pathPrefix/help-expected-alexa-result-minified.json").absoluteFile.readText()
     }
 }

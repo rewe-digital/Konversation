@@ -11,5 +11,5 @@ expect class Formatter() {
      * @param format The string to format
      * @param args The arguments you want to apply.
      */
-    fun format(format: String, vararg args: Any?): String
+    fun format(locale: String, format: String, vararg args: Any?): String
 }

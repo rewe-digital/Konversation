@@ -1,15 +1,16 @@
 package org.rewedigital.konversation
 
-import com.sun.javaws.exceptions.ExitException
 import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
+import java.text.DecimalFormat
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class CliTest {
+
     @Test
     fun `No args will show help`() {
         val sut = CliTestHelper.getOutput()
@@ -27,15 +28,16 @@ class CliTest {
     @Test
     fun `Check processing of grammar files`() {
         val testOutputFile = "test.out"
-        val expectedOutputFile = "cli/src/test/resources/help-expected-alexa-result-minified.json"
-        val outputFile = File(testOutputFile)
+        val expectedOutputPath = "$pathPrefix/help-expected-alexa-result-minified.json"
+        val expectedOutputFile = File(expectedOutputPath).absoluteFile
+        val outputFile = File(testOutputFile).absoluteFile
         try {
-            val sut = CliTestHelper.getOutput("cli/src/test/resources/help.grammar", "--export-alexa", testOutputFile, "-invocation", "test")
+            val sut = CliTestHelper.getOutput("$pathPrefix/help.grammar", "--export-alexa", testOutputFile, "-invocation", "test")
             assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n")
-            assertNull(sut.exitCode)
-            assertTrue(outputFile.exists())
-            assertTrue(File(expectedOutputFile).exists())
-            assertEquals(outputFile.readText(), File(expectedOutputFile).readText())
+            assertNull(sut.exitCode, message = "Execution should be successful")
+            assertTrue(outputFile.exists(), message = "Output file should be created")
+            assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
+            assertEquals(outputFile.readText(), expectedOutputFile.readText())
         } finally {
             outputFile.apply {
                 if (exists()) deleteOnExit()
@@ -45,24 +47,25 @@ class CliTest {
 
     @Test
     fun `Check handling of missing invocation name`() {
-        val sut = CliTestHelper.getOutput("cli/src/test/resources/help.grammar", "--export-alexa", "test.out")
+        val sut = CliTestHelper.getOutput("$pathPrefix/help.grammar", "--export-alexa", "test.out")
         assertEquals("Parsing of 1 file finished. Found 1 intent.\n" +
-                "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
+                             "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
         assertEquals(-1, sut.exitCode)
     }
 
     @Test
     fun `Check processing of konversation files`() {
         val testOutputFile = "test.out"
-        val expectedOutputFile = "cli/src/test/resources/help-expected-alexa-result-minified.json"
-        val outputFile = File(testOutputFile)
+        val expectedOutputPath = "$pathPrefix/help-expected-alexa-result-minified.json"
+        val expectedOutputFile = File(expectedOutputPath).absoluteFile
+        val outputFile = File(testOutputFile).absoluteFile
         try {
-            val sut = CliTestHelper.getOutput("cli/src/test/resources/help.kvs", "--export-alexa", testOutputFile, "-invocation", "test")
+            val sut = CliTestHelper.getOutput("$pathPrefix/help.kvs", "--export-alexa", testOutputFile, "-invocation", "test")
             assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n")
-            assertNull(sut.exitCode)
-            assertTrue(outputFile.exists())
-            assertTrue(File(expectedOutputFile).exists())
-            assertEquals(outputFile.readText(), File(expectedOutputFile).readText())
+            assertNull(sut.exitCode, message = "Execution should be successful")
+            assertTrue(outputFile.exists(), message = "Output file should be created")
+            assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
+            assertEquals(outputFile.readText(), expectedOutputFile.readText())
         } finally {
             outputFile.apply {
                 if (exists()) deleteOnExit()
@@ -73,15 +76,16 @@ class CliTest {
     @Test
     fun `Test dump option`() {
         val testOutputFile = "test.out"
-        val expectedOutputFile = "cli/src/test/resources/help-expected-alexa-result-minified.json"
-        val outputFile = File(testOutputFile)
+        val expectedOutputPath = "$pathPrefix/help-expected-alexa-result-minified.json"
+        val expectedOutputFile = File(expectedOutputPath).absoluteFile
+        val outputFile = File(testOutputFile).absoluteFile
         try {
-            val sut = CliTestHelper.getOutput("cli/src/test/resources/help.kvs", "-dump")
+            val sut = CliTestHelper.getOutput("$pathPrefix/help.kvs", "-dump")
             assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\nDumping Help...\n")
-            assertNull(sut.exitCode)
-            assertTrue(outputFile.exists())
-            assertTrue(File(expectedOutputFile).exists())
-            assertEquals(outputFile.readText(), File(expectedOutputFile).readText())
+            assertNull(sut.exitCode, message = "Execution should be successful")
+            assertTrue(outputFile.exists(), message = "Output file should be created")
+            assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
+            assertEquals(outputFile.readText(), expectedOutputFile.readText())
         } finally {
             outputFile.apply {
                 if (exists()) deleteOnExit()
@@ -98,54 +102,68 @@ class CliTest {
 
     @Test
     fun `Test big grammar file`() {
-        val sut = CliTestHelper.getOutput("cli/src/test/resources/huge.grammar", "-stats", "-count")
-        assertEquals(sut.output, "Parsing of 1 file finished. Found 2 intents.\n" +
-                "Test has 1 utterances which have in total 1.000 permutations\n" +
-                "Foo has 0 utterances which have in total 0 permutations\n" +
-                "That are in total 1.000 permutations!\n" +
-                "Test has now 1000 sample utterances\n" +
-                "Foo has now 0 sample utterances\n" +
-                "Generated in total 1000 Utterances\n")
+        val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "-stats", "-count")
+        val format = DecimalFormat.getInstance() as DecimalFormat
+        val separator = format.decimalFormatSymbols.groupingSeparator
+        assertEquals("Parsing of 1 file finished. Found 2 intents.\n" +
+                             "Test has 1 utterances which have in total 1${separator}000 permutations\n" +
+                             "Foo has 0 utterances which have in total 0 permutations\n" +
+                             "That are in total 1${separator}000 permutations!\n" +
+                             "Test has now 1${separator}000 sample utterances\n" +
+                             "Foo has now 0 sample utterances\n" +
+                             "Generated in total 1${separator}000 Utterances\n", sut.output)
         assertNull(sut.exitCode)
     }
 
     @Test
     fun `Check the debug options`() {
         val testOutputFile = "test.out"
-        val expectedOutputFile = "cli/src/test/resources/huge-expected-alexa-result-limited.json"
-        val outputFile = File(testOutputFile)
+        val expectedOutputPath = "$pathPrefix/huge-expected-alexa-result-limited.json"
+        val expectedOutputFile = File(expectedOutputPath).absoluteFile
+        val outputFile = File(testOutputFile).absoluteFile
         try {
-            val sut = CliTestHelper.getOutput("cli/src/test/resources/huge.grammar", "--export-alexa", testOutputFile, "-invocation", "huge", "-prettyprint", "-limit", "20")
+            val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "--export-alexa", testOutputFile, "-invocation", "huge", "-prettyprint", "-limit", "20")
             assertEquals(sut.output, "Parsing of 1 file finished. Found 2 intents.\n")
-            assertNull(sut.exitCode)
-            assertTrue(outputFile.exists())
-            assertTrue(File(expectedOutputFile).exists())
-            assertEqualsIgnoringLineBreaks(File(expectedOutputFile).readText(), outputFile.readText())
+            assertNull(sut.exitCode, message = "Execution should be successful")
+            assertTrue(outputFile.exists(), message = "Output file should be created")
+            assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
+            assertEqualsIgnoringLineBreaks(expectedOutputFile.readText(), outputFile.readText())
         } finally {
             outputFile.apply {
                 if (exists()) deleteOnExit()
             }
         }
     }
+
     @Test
     fun `Test dir processing`() {
-        val sut = ParseTestCli("cli/src/test/resources/")
+        val sut = ParseTestCli("$pathPrefix/")
+        val expectedFiles = listOf(
+            "$pathPrefix/konversation/help.kvs",
+            "$pathPrefix/konversation-alexa/help.kvs",
+            "$pathPrefix/konversation-alexa-de/help.kvs",
+            "$pathPrefix/konversation-en/help.kvs")
+            .map {
+                File(it).absolutePath
+            }
         assertEquals(4, sut.intentDb.size)
-        assertEquals("cli/src/test/resources/konversation/help.kvs", sut.files[0].replace('\\', '/'))
-        assertEquals("cli/src/test/resources/konversation-alexa/help.kvs", sut.files[1].replace('\\', '/'))
-        assertEquals("cli/src/test/resources/konversation-alexa-de/help.kvs", sut.files[2].replace('\\', '/'))
-        assertEquals("cli/src/test/resources/konversation-en/help.kvs", sut.files[3].replace('\\', '/'))
+        assertEquals(4, sut.files.distinct().size)
+        assertTrue(expectedFiles.contains(sut.files[0]))
+        assertTrue(expectedFiles.contains(sut.files[1]))
+        assertTrue(expectedFiles.contains(sut.files[2]))
+        assertTrue(expectedFiles.contains(sut.files[3]))
     }
 
     @Test
     fun `Konversation directory processing`() {
-        val sut = CliTestHelper.getOutput("cli/src/test/resources/", "--export-kson", "build/out/kson")
+        val outDir = "${rootPath}build/out/kson"
+        val sut = CliTestHelper.getOutput("$pathPrefix/", "--export-kson", outDir)
         assertEquals(sut.output, "Parsing of 4 files finished. Found 1 intent.\n")
         assertNull(sut.exitCode)
-        assertTrue(File("build/out/kson/konversation/help.kson").isFile)
-        assertTrue(File("build/out/kson/konversation-alexa/help.kson").isFile)
-        assertTrue(File("build/out/kson/konversation-alexa-de/help.kson").isFile)
-        assertTrue(File("build/out/kson/konversation-en/help.kson").isFile)
+        assertTrue(File("$outDir/konversation/Help.kson").absoluteFile.isFile)
+        assertTrue(File("$outDir/konversation-alexa/Help.kson").absoluteFile.isFile)
+        assertTrue(File("$outDir/konversation-alexa-de/Help.kson").absoluteFile.isFile)
+        assertTrue(File("$outDir/konversation-en/Help.kson").absoluteFile.isFile)
     }
 
     @Test
@@ -166,10 +184,11 @@ class CliTest {
 
     @Test
     fun `Use multiple input files`() {
-        val sut = CliTestHelper.getOutput("cli/src/test/resources/konversation/help.kvs",
-                                           "cli/src/test/resources/foo/ExampleIntent.kvs",
-                                           "--export-alexa",
-                                          "cli/build/out/multiple-input.json",
+        val prefix = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
+        val sut = CliTestHelper.getOutput("${prefix}src/test/konversation/help.kvs",
+                                          "$pathPrefix/foo/ExampleIntent.kvs",
+                                          "--export-alexa",
+                                          "${prefix}build/out/multiple-input.json",
                                           "-invocation",
                                           "multi",
                                           "-prettyprint")
@@ -182,8 +201,10 @@ class CliTest {
 
         override fun exit(status: Int) {
             exitCode = status
-            throw ExitException("", Throwable())
+            throw ExitException()
         }
+
+        private class ExitException : RuntimeException()
 
         companion object {
             fun getOutput(vararg args: String): TestResult {
@@ -196,7 +217,8 @@ class CliTest {
                 val helper = CliTestHelper()
                 try {
                     helper.parseArgs(args.toList().toTypedArray())
-                } catch (e: ExitException) {}
+                } catch (e: ExitException) {
+                }
                 System.out.flush()
                 System.err.flush()
                 System.setOut(out)
@@ -215,13 +237,15 @@ class CliTest {
             parseArgs(arrayOf(path, "-dump"))
         }
 
-        override fun parseFile(file: File) : List<Intent> {
-            files.add(file.path)
+        override fun parseFile(file: File): List<Intent> {
+            files.add(file.absolutePath)
             return emptyList()
         }
     }
 
     companion object {
+        val rootPath = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
+        val pathPrefix = "${rootPath}src/test/resources"
         val helpOutput = """Arguments for konversation:
 [-help]                     Print this help
 [-count]                    Count the permutations and print this to the console

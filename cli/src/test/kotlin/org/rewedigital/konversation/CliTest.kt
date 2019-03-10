@@ -1,6 +1,7 @@
 package org.rewedigital.konversation
 
 import org.junit.Test
+import org.rewedigital.konversation.parser.Parser
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
@@ -49,7 +50,7 @@ class CliTest {
     fun `Check handling of missing invocation name`() {
         val sut = CliTestHelper.getOutput("$pathPrefix/help.grammar", "--export-alexa", "test.out")
         assertEquals("Parsing of 1 file finished. Found 1 intent.\n" +
-                             "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
+                "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
         assertEquals(-1, sut.exitCode)
     }
 
@@ -106,12 +107,12 @@ class CliTest {
         val format = DecimalFormat.getInstance() as DecimalFormat
         val separator = format.decimalFormatSymbols.groupingSeparator
         assertEquals("Parsing of 1 file finished. Found 2 intents.\n" +
-                             "Test has 1 utterances which have in total 1${separator}000 permutations\n" +
-                             "Foo has 0 utterances which have in total 0 permutations\n" +
-                             "That are in total 1${separator}000 permutations!\n" +
-                             "Test has now 1${separator}000 sample utterances\n" +
-                             "Foo has now 0 sample utterances\n" +
-                             "Generated in total 1${separator}000 Utterances\n", sut.output)
+                "Test has 1 utterances which have in total 1${separator}000 permutations\n" +
+                "Foo has 0 utterances which have in total 0 permutations\n" +
+                "That are in total 1${separator}000 permutations!\n" +
+                "Test has now 1${separator}000 sample utterances\n" +
+                "Foo has now 0 sample utterances\n" +
+                "Generated in total 1${separator}000 Utterances\n", sut.output)
         assertNull(sut.exitCode)
     }
 
@@ -142,23 +143,25 @@ class CliTest {
             "$pathPrefix/konversation/help.kvs",
             "$pathPrefix/konversation-alexa/help.kvs",
             "$pathPrefix/konversation-alexa-de/help.kvs",
-            "$pathPrefix/konversation-en/help.kvs")
+            "$pathPrefix/konversation-en/help.kvs",
+            "$pathPrefix/konversation/colors.values")
             .map {
                 File(it).absolutePath
             }
         assertEquals(4, sut.intentDb.size)
-        assertEquals(4, sut.files.distinct().size)
-        assertTrue(expectedFiles.contains(sut.files[0]))
-        assertTrue(expectedFiles.contains(sut.files[1]))
-        assertTrue(expectedFiles.contains(sut.files[2]))
-        assertTrue(expectedFiles.contains(sut.files[3]))
+        assertEquals(5, sut.files.distinct().size)
+        assertTrue(expectedFiles.contains(sut.files[0]), "Unexpected file ${sut.files[0]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[1]), "Unexpected file ${sut.files[1]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[2]), "Unexpected file ${sut.files[2]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[3]), "Unexpected file ${sut.files[3]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[4]), "Unexpected file ${sut.files[4]} was processed")
     }
 
     @Test
     fun `Konversation directory processing`() {
         val outDir = "${rootPath}build/out/kson"
         val sut = CliTestHelper.getOutput("$pathPrefix/", "--export-kson", outDir)
-        assertEquals(sut.output, "Parsing of 4 files finished. Found 1 intent.\n")
+        assertEquals(sut.output, "Parsing of 5 files finished. Found 1 intent.\n")
         assertNull(sut.exitCode)
         assertTrue(File("$outDir/konversation/Help.kson").absoluteFile.isFile)
         assertTrue(File("$outDir/konversation-alexa/Help.kson").absoluteFile.isFile)
@@ -186,12 +189,12 @@ class CliTest {
     fun `Use multiple input files`() {
         val prefix = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
         val sut = CliTestHelper.getOutput("${prefix}src/test/konversation/help.kvs",
-                                          "$pathPrefix/foo/ExampleIntent.kvs",
-                                          "--export-alexa",
-                                          "${prefix}build/out/multiple-input.json",
-                                          "-invocation",
-                                          "multi",
-                                          "-prettyprint")
+            "$pathPrefix/foo/ExampleIntent.kvs",
+            "--export-alexa",
+            "${prefix}build/out/multiple-input.json",
+            "-invocation",
+            "multi",
+            "-prettyprint")
         assertEquals("Parsing of 2 files finished. Found 2 intents.\n", sut.output)
         assertNull(sut.exitCode)
     }
@@ -237,9 +240,9 @@ class CliTest {
             parseArgs(arrayOf(path, "-dump"))
         }
 
-        override fun parseFile(file: File): List<Intent> {
+        override fun parseFile(file: File): Parser {
             files.add(file.absolutePath)
-            return emptyList()
+            return Parser(file)
         }
     }
 

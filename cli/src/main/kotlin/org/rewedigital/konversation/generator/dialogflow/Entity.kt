@@ -10,18 +10,13 @@ data class Entity(
     override fun prettyPrinted(printer: Printer) {
         printer("  {\n")
         printer("    \"value\": \"$value\",\n")
-        printer("    \"synonyms\": [")
-        if (synonyms.isNotEmpty()) {
-            printer("\n")
-            printer(synonyms.joinToString(separator = ",\n", postfix = "\n    ]") { "      \"$it\"" })
-        } else {
-            printer("]")
-        }
-        printer("\n  }\n")
+        printer("    \"synonyms\": [\n")
+        printer((listOf(value) + synonyms).joinToString(separator = ",\n", postfix = "\n    ]") { "      \"$it\"" })
+        printer("\n  }")
     }
 
     override fun minified(printer: Printer) {
         printer("{\"value\":\"$value\",\"synonyms\":[")
-        printer(synonyms.joinToString(separator = ",", postfix = "]}") { "\"$it\"" })
+        printer((listOf(value) + synonyms).joinToString(separator = ",", postfix = "]}") { "\"$it\"" })
     }
 }

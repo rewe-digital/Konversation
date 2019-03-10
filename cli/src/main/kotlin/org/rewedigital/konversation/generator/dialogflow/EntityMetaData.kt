@@ -9,7 +9,7 @@ data class EntityMetaData(
     val id: UUID,
     val isEnum: Boolean,
     val isOverridable: Boolean,
-    val name: String): NodeExporter {
+    val name: String) : NodeExporter {
     override fun prettyPrinted(printer: Printer) {
         printer("""{
   "id": "$id",

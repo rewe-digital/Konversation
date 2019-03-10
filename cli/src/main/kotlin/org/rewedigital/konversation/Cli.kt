@@ -13,6 +13,7 @@ import kotlin.system.exitProcess
 
 open class Cli {
     val intentDb = mutableMapOf<String, MutableList<Intent>>()
+    val entityDb = mutableMapOf<String, MutableList<Entities>>()
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
@@ -106,19 +107,23 @@ open class Cli {
                 when {
                     inputFile.isFile -> {
                         inputFileCount++
-                        intentDb.getOrPut("") { mutableListOf() } += parseFile(inputFile)
+                        val parser = parseFile(inputFile)
+                        intentDb.getOrPut("") { mutableListOf() } += parser.intents
+                        parser.entities?.let { entityDb.getOrPut("") { mutableListOf() } += it }
                     }
                     inputFile.isDirectory -> inputFile
                         .listFiles { dir: File?, name: String? ->
                             File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
                         }.toList()
-                        .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList() }
+                        .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") || name.endsWith(".values") }.toList() }
                         .also {
                             inputFileCount += it.size
                         }
-                        .forEach {
-                            val prefix = it.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
-                            intentDb.getOrPut(prefix) { mutableListOf() } += parseFile(it)
+                        .forEach { file ->
+                            val prefix = file.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
+                            val parser = parseFile(file)
+                            intentDb.getOrPut(prefix) { mutableListOf() } += parser.intents
+                            parser.entities?.let { entityDb.getOrPut(prefix) { mutableListOf() } += it }
                         }
                     else -> {
                         L.error("Input file not found!")
@@ -135,7 +140,7 @@ open class Cli {
         }
     }
 
-    open fun parseFile(file: File): List<Intent> = Parser(file).intents
+    open fun parseFile(file: File) = Parser(file)
 
     private fun showStats() = intentDb[""]?.let { intents ->
         val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
@@ -193,9 +198,9 @@ open class Cli {
                     stream.write(line.toByteArray())
                 }
                 if (prettyPrint) {
-                    exporter.prettyPrinted(printer, intents)
+                    exporter.prettyPrinted(printer, intents, entityDb[config])
                 } else {
-                    exporter.minified(printer, intents)
+                    exporter.minified(printer, intents, entityDb[config])
                 }
                 stream.close()
             }
@@ -212,9 +217,9 @@ open class Cli {
                 stream.write(line.toByteArray())
             }
             if (prettyPrint) {
-                exporter.prettyPrinted(printer, intents)
+                exporter.prettyPrinted(printer, intents, entityDb[config])
             } else {
-                exporter.minified(printer, intents)
+                exporter.minified(printer, intents, entityDb[config])
             }
             stream.close()
         } ?: run {
@@ -224,16 +229,16 @@ open class Cli {
     }
 
     private fun exportDialogflow(baseDir: File) = intentDb.forEach { (config, intents) ->
-        val exporter = DialogflowExporter()
         invocationName?.let { skillName ->
+            val exporter = DialogflowExporter(skillName)
             val stream = File(baseDir, "dialogflow.tmp").outputStream()
             val printer: Printer = { line ->
                 stream.write(line.toByteArray())
             }
             if (prettyPrint) {
-                exporter.prettyPrinted(printer, intents)
+                exporter.prettyPrinted(printer, intents, entityDb[config])
             } else {
-                exporter.minified(printer, intents)
+                exporter.minified(printer, intents, entityDb[config])
             }
             stream.close()
         } ?: run {

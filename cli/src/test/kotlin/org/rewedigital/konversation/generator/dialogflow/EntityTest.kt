@@ -40,21 +40,25 @@ class EntityTest {
     data class Result(val minified: String, val prettyPrinted: String)
 
     companion object {
-        val zeroSynonyms = Result("{\"value\":\"master\",\"synonyms\":[]}", """  {
-    "value": "master",
-    "synonyms": []
-  }
-""")
-        val oneSynonym = Result("{\"value\":\"master\",\"synonyms\":[\"synonym1\"]}", """  {
+        val zeroSynonyms = Result("{\"value\":\"master\",\"synonyms\":[\"master\"]}", """  {
     "value": "master",
     "synonyms": [
+      "master"
+    ]
+  }
+""")
+        val oneSynonym = Result("{\"value\":\"master\",\"synonyms\":[\"master\",\"synonym1\"]}", """  {
+    "value": "master",
+    "synonyms": [
+      "master",
       "synonym1"
     ]
   }
 """)
-        val twoSynonyms = Result("{\"value\":\"master\",\"synonyms\":[\"synonym1\",\"synonym2\"]}", """  {
+        val twoSynonyms = Result("{\"value\":\"master\",\"synonyms\":[\"master\",\"synonym1\",\"synonym2\"]}", """  {
     "value": "master",
     "synonyms": [
+      "master",
       "synonym1",
       "synonym2"
     ]

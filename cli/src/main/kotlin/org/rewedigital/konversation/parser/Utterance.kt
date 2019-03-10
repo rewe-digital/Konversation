@@ -1,5 +1,6 @@
 package org.rewedigital.konversation.parser
 
+import kotlinx.coroutines.runBlocking
 import org.rewedigital.konversation.SwapingHashedList
 import java.io.File
 import java.text.ParseException
@@ -8,30 +9,43 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class Utterance(private val line: String, val name: String) {
 
-    private var cache: SwapingHashedList? = null
+    val permutations: SwapingHashedList by lazy {
+        //println("Generating about $permutationCount permutations for ${slotTypes.size} slots")
 
-    val permutations: SwapingHashedList
-        get() = cache ?: generatePermutations()
-
-    val slotTypes = mutableListOf<String>()
-
-    val permutationCount: Long
-        get() {
-            var total: Long = 1
-            val slots: List<String> = validate().flatMap { line ->
-                line.split("|").also { parts ->
-                    total *= parts.size
-                }
-            }
-            slotTypes.addAll(slots.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 1) })
-            return total
+        // we know now all slots, let's fill them up with content
+        File(cacheDir).run {
+            if (!exists()) mkdirs()
         }
+        val cacheFile = "$cacheDir/$name-${String.format("%08x", line.hashCode())}"
+        SwapingHashedList(cacheFile).also { storage ->
+            if (!storage.isCached()) {
+                runBlocking {
+                    insertPermutations(line, variableParts, 0, storage)
+                }
+                storage.flush()
+            }
+        }
+    }
 
-    private fun validate(): MutableList<String> {
+    val slotTypes: List<String> by lazy {
+        variableParts.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 1) }
+    }
+
+    val permutationCount: Long by lazy {
+        var total: Long = 1
+        variableParts.flatMap { line ->
+            line.split("|").also { parts ->
+                total *= parts.size
+            }
+        }
+        total
+    }
+
+    private val variableParts by lazy {
         // Parse the line to make sure that there is no syntax error. Regex would not work for cases like {{Foo}|{Bar}}
         var start = 0
         var counter = 0
-        val slots = mutableListOf<String>()
+        val variableParts = mutableListOf<String>()
         var lastWasMasked = false
         line.forEachIndexed { i, c ->
             when (c) {
@@ -54,7 +68,7 @@ class Utterance(private val line: String, val name: String) {
                         when (counter) {
                             1 -> {
                                 // we found the end of the slot
-                                slots.add(line.substring(start, i))
+                                variableParts.add(line.substring(start, i))
                             }
                             2 -> {
                                 // we found the end of a slot type, that is fine
@@ -74,36 +88,10 @@ class Utterance(private val line: String, val name: String) {
         }
         if (counter != 0) throw ParseException("This line has a syntax error: $line", line.length)
 
-        return slots
+        variableParts
     }
 
-    private fun generatePermutations(): SwapingHashedList {
-        val slots = validate()
-
-        var total: Long = 1
-        slots.map { slot ->
-            slot.split("|").also {
-                total *= it.size
-            }
-        }
-        //println("Generating about $total permutation for ${slots.size} slots")
-
-        // we know now all slots, let's fill them up with content
-        File(cacheDir).run {
-            if (!exists()) mkdirs()
-        }
-        val cacheFile = "$cacheDir/$name-${String.format("%08x", line.hashCode())}"
-        val storage = cache ?: SwapingHashedList(cacheFile).also { cache = it }
-        if (!storage.isCached()) {
-            //runBlocking {
-            insertPermutations(line, slots, 0, storage)
-            //}
-            storage.flush()
-        }
-        return storage
-    }
-
-    private /*suspend*/ fun insertPermutations(line: String, slots: MutableList<String>, offset: Int, storage: SwapingHashedList) {
+    private suspend fun insertPermutations(line: String, slots: MutableList<String>, offset: Int, storage: SwapingHashedList) {
         if (slots.size == offset) {
             val count = counter.incrementAndGet()
             if ((count % 100000) == 0) println(count)
@@ -129,6 +117,6 @@ class Utterance(private val line: String, val name: String) {
 
     companion object {
         val counter = AtomicInteger(0)
-        var cacheDir = "cache"
+        var cacheDir = "cachedPermutations"
     }
 }

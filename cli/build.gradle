@@ -20,6 +20,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-stdlib"
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
     compile project(':shared')
     testCompile project(':shared')
     compile project(':runtime-jvm')

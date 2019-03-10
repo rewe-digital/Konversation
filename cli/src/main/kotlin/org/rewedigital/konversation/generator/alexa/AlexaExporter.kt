@@ -1,16 +1,13 @@
 package org.rewedigital.konversation.generator.alexa
 
-import org.rewedigital.konversation.Cli
-import org.rewedigital.konversation.Intent
-import org.rewedigital.konversation.forEachBreakable
-import org.rewedigital.konversation.forEachIterator
+import org.rewedigital.konversation.*
 import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
 import java.io.File
 
-class AlexaExporter(private val skillName : String, private val baseDir: File, private val limit: Long) : Exporter {
+class AlexaExporter(private val skillName: String, private val baseDir: File, private val limit: Long) : Exporter {
 
-    override fun prettyPrinted(printer: Printer, intents: MutableList<Intent>) {
+    override fun prettyPrinted(printer: Printer, intents: List<Intent>, entities: List<Entities>?) {
         // write prefix
         printer("{\n" +
                 "  \"interactionModel\": {\n" +
@@ -24,7 +21,7 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                     "          \"name\": \"${intent.name}\",\n" +
                     "          \"slots\": [")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
-            if(allSlots.isEmpty()) {
+            if (allSlots.isEmpty()) {
                 printer("],")
             }
             printer("\n")
@@ -42,11 +39,11 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                         "            }" + (if (hasNext()) "," else "") + "\n")
             }
             // write sample utterances
-            if(allSlots.isNotEmpty()) {
+            if (allSlots.isNotEmpty()) {
                 printer("          ],\n")
             }
             printer("          \"samples\": [")
-            if(intent.utterances.isEmpty()) {
+            if (intent.utterances.isEmpty()) {
                 printer("]")
             }
             printer("\n")
@@ -67,7 +64,7 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                     stop()
                 }
             }
-            if(intent.utterances.isNotEmpty()) {
+            if (intent.utterances.isNotEmpty()) {
                 printer("          ]\n")
             }
             printer("        }" + (if (hasNext()) "," else "") + "\n")
@@ -78,71 +75,55 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
 
         val types = intents.flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }.toHashSet()
 
-        if(types.isEmpty()) {
+        if (types.isEmpty()) {
             printer("]")
         }
         printer("\n")
 
-        types.map {
-                    val type = it.split(':').last()
-                    Pair(type, File(baseDir, "$type.values"))
+        types
+            .map {
+                val type = it.split(':').last()
+                Pair(type, entities?.firstOrNull { entity -> entity.name == type })
+            }
+            .filter { (slot, entities) ->
+                (entities == null && slot.startsWith("AMAZON.")).runIfTrue {
+                    Cli.L.warn("No definition for slot type \"$slot\" found")
                 }
-                .filter { (slot, file) ->
-                    file.exists().runIfTrue(slot.startsWith("AMAZON.")) {
-                        Cli.L.warn("No definition for slot type \"$slot\" found")
-                    }
-                }
-                .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
-                .distinctBy { it.first }
-                .forEachIterator { (slotType, values) ->
-                    printer("        {\n" +
+            }
+            .forEachIterator { (slotType, entities) ->
+                printer(
+                    "        {\n" +
                             "          \"name\": \"$slotType\",\n" +
-                            "          \"values\": [")
-                    if(values.isEmpty()) {
-                        printer("]")
-                    }
-                    printer("\n")
-                    values.forEachIterator { valueLine ->
-                        if (valueLine.startsWith('{')) {
-                            val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
-                            val (id, value) = aliases.first().split(':', limit = 2).let {
-                                when(it.size) {
-                                    1-> Pair(null, it.first())
-                                    2 -> Pair(it.first(), it.last())
-                                    else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
-                                }
-                            }
-                            printer("            {\n")
-                            id?.let {
-                                printer("              \"id\": \"$id\",\n")
-                            }
-                            printer("              \"name\": {\n"+
-                                    "                \"value\": \"$value\",\n" +
-                                    "                \"synonyms\": [\n")
-                            aliases.toHashSet().apply {
-                                remove(aliases.first()) // remove key
-                            }.forEachIterator { alias ->
-                                printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
-                            }
-                            printer("                ]\n" +
-                                    "              }\n" +
-                                    "            }" + (if (hasNext()) "," else "") + "\n")
-                        } else {
-                            printer("            {\n" +
-                                    "              \"name\": {\n" +
-                                    "                \"value\": \"$valueLine\"\n" +
-                                    "              }\n" +
-                                    "            }" + (if (hasNext()) "," else "") + "\n")
-                        }
-                    }
-                    if(types.isNotEmpty()) {
-                        printer("          ]\n")
-                    }
-                    printer("        }" + (if (hasNext()) "," else "") + "\n")
+                            "          \"values\": ["
+                )
+                if (entities == null) {
+                    printer("]")
                 }
+                printer("\n")
+                entities?.values?.forEachIterator { entity ->
+                    printer("            {\n")
+                    entity.key?.let {
+                        printer("              \"id\": \"${entity.key}\",\n")
+                    }
+                    printer("              \"name\": {\n" +
+                            "                \"value\": \"${entity.master}\",\n" +
+                            "                \"synonyms\": [\n")
+                    entity.synonyms.forEachIterator { alias ->
+                        printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
+                    }
+                    printer("                ]\n" +
+                            "              }\n" +
+                            "            }" + (if (hasNext()) "," else "") + "\n")
+
+                }
+                if (types.isNotEmpty()) {
+                    printer("          ]\n")
+                }
+                printer("        }" + (if (hasNext()) "," else "") + "\n")
+            }
 
         // write suffix
-        if(types.isNotEmpty()) {
+        if (types.isNotEmpty()) {
             printer("      ]\n")
         }
         printer("    }\n" +
@@ -150,7 +131,7 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                 "}")
     }
 
-    override fun minified(printer: Printer, intents: MutableList<Intent>) {
+    override fun minified(printer: Printer, intents: List<Intent>, entities: List<Entities>?) {
         // write prefix
         printer("{" +
                 "\"interactionModel\":{" +
@@ -205,53 +186,55 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                 "\"types\":[")
 
         intents.flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }
-                .toHashSet()
-                .map {
-                    val type = it.split(':').last()
-                    Pair(type, File("$baseDir/$type.values"))
-                }
-                .filter { it.second.exists() }
-                .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
-                .forEachIterator { (slotType, values) ->
-                    printer("{" +
+            .toHashSet()
+            .map {
+                val type = it.split(':').last()
+                Pair(type, File("$baseDir/$type.values"))
+            }
+            .filter { it.second.exists() }
+            .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
+            .forEachIterator { (slotType, values) ->
+                printer(
+                    "{" +
                             "\"name\":\"$slotType\"," +
-                            "\"values\":[")
-                    values.forEachIterator { valueLine ->
-                        if (valueLine.startsWith('{')) {
-                            val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
-                            val (id, value) = aliases.first().split(':', limit = 2).let {
-                                when(it.size) {
-                                    1-> Pair(null, it.first())
-                                    2 -> Pair(it.first(), it.last())
-                                    else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
-                                }
+                            "\"values\":["
+                )
+                values.forEachIterator { valueLine ->
+                    if (valueLine.startsWith('{')) {
+                        val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
+                        val (id, value) = aliases.first().split(':', limit = 2).let {
+                            when (it.size) {
+                                1 -> Pair(null, it.first())
+                                2 -> Pair(it.first(), it.last())
+                                else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
                             }
-                            printer("{")
-                            id?.let {
-                                printer("\"id\":\"$id\",")
-                            }
-                            printer("\"name\":{"+
-                                            "\"value\":\"$value\"," +
-                                            "\"synonyms\":[")
-                            aliases.toHashSet().apply {
-                                remove(aliases.first()) // remove key
-                            }.forEachIterator { alias ->
-                               printer("\"$alias\"" + (if (hasNext()) "," else ""))
-                            }
-                            printer("]" +
-                                    "}" +
-                                    "}" + (if (hasNext()) "," else ""))
-                        } else {
-                            printer("{" +
-                                    "\"name\":{" +
-                                    "\"value\":\"$valueLine\"" +
-                                    "}" +
-                                    "}" + (if (hasNext()) "," else ""))
                         }
+                        printer("{")
+                        id?.let {
+                            printer("\"id\":\"$id\",")
+                        }
+                        printer("\"name\":{" +
+                                "\"value\":\"$value\"," +
+                                "\"synonyms\":[")
+                        aliases.toHashSet().apply {
+                            remove(aliases.first()) // remove key
+                        }.forEachIterator { alias ->
+                            printer("\"$alias\"" + (if (hasNext()) "," else ""))
+                        }
+                        printer("]" +
+                                "}" +
+                                "}" + (if (hasNext()) "," else ""))
+                    } else {
+                        printer("{" +
+                                "\"name\":{" +
+                                "\"value\":\"$valueLine\"" +
+                                "}" +
+                                "}" + (if (hasNext()) "," else ""))
                     }
-                    printer("]" +
-                            "}" + (if (hasNext()) "," else ""))
                 }
+                printer("]" +
+                        "}" + (if (hasNext()) "," else ""))
+            }
 
         // write suffix
         printer("]" +

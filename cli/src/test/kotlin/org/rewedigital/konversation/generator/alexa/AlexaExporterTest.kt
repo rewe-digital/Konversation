@@ -11,7 +11,7 @@ class AlexaExporterTest {
         val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
-        exporter.prettyPrinted({ line -> sb.append(line) }, help)
+        exporter.prettyPrinted({ line -> sb.append(line) }, help, null)
         assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
@@ -20,7 +20,7 @@ class AlexaExporterTest {
         val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
-        exporter.minified({ line -> sb.append(line) }, help)
+        exporter.minified({ line -> sb.append(line) }, help, null)
         assertEqualsIgnoringLineBreaks(expectedMinifiedResult, sb.toString())
     }
 
@@ -29,7 +29,7 @@ class AlexaExporterTest {
         val help = Parser("$pathPrefix/help.grammar").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
-        exporter.prettyPrinted({ line -> sb.append(line) }, help)
+        exporter.prettyPrinted({ line -> sb.append(line) }, help, null)
         assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
@@ -38,7 +38,7 @@ class AlexaExporterTest {
         val help = Parser("$pathPrefix/help.grammar").intents
         val sb = StringBuilder()
         val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Long.MAX_VALUE)
-        exporter.minified({ line -> sb.append(line) }, help)
+        exporter.minified({ line -> sb.append(line) }, help, null)
         assertEqualsIgnoringLineBreaks(expectedMinifiedResult, sb.toString())
     }
 

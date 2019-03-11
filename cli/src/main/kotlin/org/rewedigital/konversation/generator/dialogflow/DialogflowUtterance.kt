@@ -10,7 +10,7 @@ data class DialogflowUtterance(
     val `data`: List<DialogflowUtterance.UtterancePart>,
     val id: UUID,
     val isTemplate: Boolean,
-    val updated: Int) : NodeExporter {
+    val updated: Long) : NodeExporter {
 
     override fun prettyPrinted(printer: Printer) {
         printer("  {\n")
@@ -27,11 +27,11 @@ data class DialogflowUtterance(
             }
             printer("    ")
         }
-        printer("],")
+        printer("],\n")
         printer("    \"id\": \"$id\",\n")
         printer("    \"isTemplate\": $isTemplate,\n")
         printer("    \"updated\": $updated\n")
-        printer("\n  }\n")
+        printer("  }")
     }
 
     override fun minified(printer: Printer) {

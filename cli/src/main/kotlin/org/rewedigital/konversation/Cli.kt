@@ -231,14 +231,11 @@ open class Cli {
     private fun exportDialogflow(baseDir: File) = intentDb.forEach { (config, intents) ->
         invocationName?.let { skillName ->
             val exporter = DialogflowExporter(skillName)
-            val stream = File(baseDir, "dialogflow.tmp").outputStream()
-            val printer: Printer = { line ->
-                stream.write(line.toByteArray())
-            }
+            val stream = File(baseDir, "dialogflow-$config.zip").outputStream()
             if (prettyPrint) {
-                exporter.prettyPrinted(printer, intents, entityDb[config])
+                exporter.prettyPrinted(stream, intents, entityDb[config])
             } else {
-                exporter.minified(printer, intents, entityDb[config])
+                exporter.minified(stream, intents, entityDb[config])
             }
             stream.close()
         } ?: run {

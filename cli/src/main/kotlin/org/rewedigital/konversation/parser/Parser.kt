@@ -35,6 +35,7 @@ class Parser(input: File) {
         var lastIntentName = UUID.randomUUID().toString()
         val intents = mutableListOf<Intent>()
         lines.filter { it.isNotBlank() }.forEachIndexed { index, line ->
+            val trimmed = line.trim()
             when {
                 line.startsWith("//") || line.startsWith("#") || line.isBlank() -> {
                     // ignore comments and blank lines
@@ -77,9 +78,9 @@ class Parser(input: File) {
                     val prompt = reprompt.getOrPut(level) { mutableListOf(PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())) }
                     prompt.first().variants.addAll(Permutator.generate(text))
                 }
-                line.startsWith("[") && line.endsWith("]") -> addTo {
+                trimmed.startsWith("[") && trimmed.endsWith("]") -> addTo {
                     // suggestions
-                    suggestions.addAll(line.substring(1, line.length - 2).split("]\\W*\\[".toRegex()))
+                    suggestions.addAll(trimmed.substring(1, trimmed.length - 1).split("]\\W*\\[".toRegex()))
                 }
                 line.startsWith("@") -> addTo {
                     followUp.add(line.substring(1).trim())

@@ -12,7 +12,7 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
         printer("{\n" +
                 "  \"interactionModel\": {\n" +
                 "    \"languageModel\": {\n" +
-                "      \"invocationName\" : \"$skillName\",\n" +
+                "      \"invocationName\": \"$skillName\",\n" +
                 "      \"intents\": [\n")
 
         // write out intents

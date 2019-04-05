@@ -18,7 +18,7 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
         // write out intents
         intents.forEachIterator { intent ->
             printer("        {\n" +
-                    "          \"name\": \"${intent.name}\",\n" +
+                    "          \"name\": \"${intent.name.replaceAndWarn(".", "_")}\",\n" +
                     "          \"slots\": [")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             if (allSlots.isEmpty()) {
@@ -58,7 +58,7 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                         stop()
                         moreUtterances = false
                     }
-                    printer("            \"$it\"" + (if (hasNext() || moreUtterances) "," else "") + "\n")
+                    printer("            \"${it.removeAndWarn("?").removeAndWarn(",").removeAndWarn(".")}\"" + (if (hasNext() || moreUtterances) "," else "") + "\n")
                 }
                 if (total > limit) {
                     stop()
@@ -86,7 +86,7 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                 Pair(type, entities?.firstOrNull { entity -> entity.name == type })
             }
             .filter { (slot, entities) ->
-                (entities == null && slot.startsWith("AMAZON.")).runIfTrue {
+                (entities != null).runIfFalse(!slot.substringAfter(':').startsWith("AMAZON.")) {
                     Cli.L.warn("No definition for slot type \"$slot\" found")
                 }
             }
@@ -246,4 +246,20 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
     private fun Boolean.runIfTrue(and: Boolean = true, block: () -> Unit) = this.also {
         if (this && and) block.invoke()
     }
+
+    private fun Boolean.runIfFalse(and: Boolean = true, block: () -> Unit) = this.also {
+        if (!this && and) block.invoke()
+    }
+
+    private fun String.removeAndWarn(string: String) =
+        if (contains(string)) {
+            Cli.L.warn("Found \"$string\" in utterance \"$this\", removing it.")
+            replace(string, "")
+        } else this
+
+    private fun String.replaceAndWarn(string: String, replacement: String) =
+        if (contains(string)) {
+            Cli.L.warn("Found \"$string\" in intent name \"$this\", replacing it by \"$replacement\".")
+            replace(string, "")
+        } else this
 }

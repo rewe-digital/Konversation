@@ -23,10 +23,10 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 }
             }.toHashSet()
             .mapNotNull {
-                if (it.startsWith("AMAZON.")) {
+                if (it.substringAfter(':').startsWith("AMAZON.")) {
                     Cli.L.warn("No definition for slot type \"$it\" found")
                 }
-                val type = it.split(':').last()
+                val type = it.substringAfter(':')
                 entities?.firstOrNull { entity -> entity.name == type }
             }.forEach { slotType ->
                 json.clear()

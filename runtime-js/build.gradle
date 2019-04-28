@@ -18,6 +18,7 @@ dependencies {
     expectedBy project(':runtime-shared')
     expectedBy project(':shared')
     testCompile 'org.jetbrains.kotlin:kotlin-test-js'
+    testCompile "junit:junit:4.12"
 }
 
 compileKotlin2Js {

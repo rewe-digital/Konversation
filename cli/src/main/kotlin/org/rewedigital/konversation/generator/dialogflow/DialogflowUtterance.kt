@@ -7,7 +7,7 @@ import java.util.*
 
 data class DialogflowUtterance(
     val count: Int,
-    val `data`: List<DialogflowUtterance.UtterancePart>,
+    val `data`: List<UtterancePart>,
     val id: UUID,
     val isTemplate: Boolean,
     val updated: Long) : NodeExporter {
@@ -71,12 +71,12 @@ data class DialogflowUtterance(
         override fun minified(printer: Printer) {
             printer("{\"text\":\"$text\"")
             alias?.let {
-                printer("\"alias\":\"$alias\",")
+                printer(",\"alias\":\"$alias\"")
             }
             meta?.let {
-                printer("\"meta\":\"$meta\",")
+                printer(",\"meta\":\"$meta\"")
             }
-            printer("\"userDefined\":$userDefined}")
+            printer(",\"userDefined\":$userDefined}")
         }
     }
 }

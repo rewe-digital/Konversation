@@ -55,23 +55,23 @@ open class Cli {
                         "-count" -> countPermutations = true
                         "cache",
                         "-cache" -> cacheEverything = true
-                        "--export-alexa" -> if (++argNo < args.size) {
+                        "--export-alexa" -> if (++argNo <= args.size) {
                             alexaIntentSchema = File(args[argNo])
                         } else {
                             L.error("Target is missing")
                             exit(-1)
                         }
-                        "--export-dialogflow" -> if (++argNo < args.size) {
+                        "--export-dialogflow" -> if (++argNo <= args.size) {
                             dialogflowDir = File(args[argNo]).absoluteFile
                         } else {
                             L.error("Target is missing")
                             exit(-1)
                         }
                         "invocation",
-                        "-invocation" -> if (++argNo < args.size) {
+                        "-invocation" -> if (++argNo <= args.size) {
                             invocationName = args[argNo]
                         }
-                        "--export-kson" -> if (++argNo < args.size) {
+                        "--export-kson" -> if (++argNo <= args.size) {
                             ksonDir = File(args[argNo])
                         } else {
                             L.error("Target directory is missing")
@@ -82,7 +82,7 @@ open class Cli {
                         "limit",
                         "-limit",
                         "top",
-                        "-top" -> if (++argNo < args.size) {
+                        "-top" -> if (++argNo <= args.size) {
                             try {
                                 limit = args[argNo].toLong()
                             } catch (e: Throwable) {

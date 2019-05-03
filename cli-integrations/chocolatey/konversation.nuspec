@@ -8,7 +8,6 @@
     <title>Konversation</title>
     <authors>René Kilczan</authors>
     <projectUrl>https://github.com/rewe-digital-incubator/Konversation/</projectUrl>
-    <iconUrl>TODO</iconUrl>
     <copyright>2019 REWE Digital GmbH</copyright>
     <licenseUrl>https://github.com/rewe-digital-incubator/Konversation#license</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -24,6 +23,5 @@ This library can be used in Kotlin, Java, node.js and in the browser. You can de
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
-    <file src="legal\**" target="legal" />
   </files>
 </package>

@@ -1,9 +1,6 @@
 package org.rewedigital.konversation.generator.dialogflow
 
-import org.rewedigital.konversation.Cli
-import org.rewedigital.konversation.Entities
-import org.rewedigital.konversation.Intent
-import org.rewedigital.konversation.forEachBreakable
+import org.rewedigital.konversation.*
 import org.rewedigital.konversation.generator.StreamExporter
 import java.io.OutputStream
 import java.util.*
@@ -11,48 +8,37 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class DialogflowExporter(private val invocationName: String) : StreamExporter {
-    val lang = "de"
+    private val lang = "de"
+    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
 
     override fun prettyPrinted(outputStream: OutputStream, intents: List<Intent>, entities: List<Entities>?) {
         val zipStream = ZipOutputStream(outputStream)
         val json = StringBuilder()
-        intents
-            .flatMap {
-                it.utterances.flatMap { utterance ->
-                    utterance.slotTypes
-                }
-            }.toHashSet()
-            .mapNotNull {
-                if (it.substringAfter(':').startsWith("AMAZON.")) {
-                    Cli.L.warn("No definition for slot type \"$it\" found")
-                }
-                val type = it.substringAfter(':')
-                entities?.firstOrNull { entity -> entity.name == type }
-            }.forEach { slotType ->
-                json.clear()
-                val meta = EntityMetaData(automatedExpansion = false,
-                    id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
-                    isEnum = false,
-                    isOverridable = false,
-                    name = slotType.name)
+        intents.forEachSlotType(entities) { slotType ->
+            json.clear()
+            val meta = EntityMetaData(automatedExpansion = false,
+                id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
+                isEnum = false,
+                isOverridable = false,
+                name = slotType.name)
 
-                meta.prettyPrinted { s -> json.append(s) }
-                zipStream.add("entities/${slotType.name}.json", json)
-                println("entities/${slotType.name}.json:\n$json")
-                json.clear()
-                val entries = slotType.values.map { entry ->
-                    Entity(value = entry.master, synonyms = entry.synonyms)
-                }
-                println("\nentities/${slotType.name}_entries_<LANG>.json:")
-                json.append("[\n")
-                entries.forEachBreakable {
-                    it.prettyPrinted { s -> json.append(s) }
-                    if (hasNext()) json.append(",\n")
-                }
-                json.append("\n]")
-                zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
-                println(json)
+            meta.prettyPrinted { s -> json.append(s) }
+            zipStream.add("entities/${slotType.name}.json", json)
+            println("entities/${slotType.name}.json:\n$json")
+            json.clear()
+            val entries = slotType.values.map { entry ->
+                Entity(value = entry.master, synonyms = entry.synonyms)
             }
+            println("\nentities/${slotType.name}_entries_<LANG>.json:")
+            json.append("[\n")
+            entries.forEachBreakable {
+                it.prettyPrinted { s -> json.append(s) }
+                if (hasNext()) json.append(",\n")
+            }
+            json.append("\n]")
+            zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
+            println(json)
+        }
         intents.forEachIndexed { i, intent ->
             json.clear()
             val intentData = DialogflowIntent(
@@ -78,7 +64,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                             val type = slots[part]
                             type?.let {
                                 val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
-                                val sample = values?.get(i % values.size) ?: "foo"
+                                val sample = values?.get(i % values.size) ?: defaultValue(type, i)
 
                                 DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
@@ -108,56 +94,44 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
     override fun minified(outputStream: OutputStream, intents: List<Intent>, entities: List<Entities>?) {
         val zipStream = ZipOutputStream(outputStream)
         val json = StringBuilder()
-        intents
-            .flatMap {
-                it.utterances.flatMap { utterance ->
-                    utterance.slotTypes
-                }
-            }.toHashSet()
-            .mapNotNull {
-                if (it.startsWith("AMAZON.")) {
-                    Cli.L.warn("No definition for slot type \"$it\" found")
-                }
-                val type = it.split(':').last()
-                entities?.firstOrNull { entity -> entity.name == type }
-            }.forEach { slotType ->
-                json.clear()
-                val meta = EntityMetaData(automatedExpansion = false,
-                    id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
-                    isEnum = false,
-                    isOverridable = false,
-                    name = slotType.name)
-                meta.minified { s -> json.append(s) }
-                zipStream.add("entities/${slotType.name}.json", json)
-                json.clear()
-                val entries = slotType.values.map { entry ->
-                    Entity(value = entry.master, synonyms = entry.synonyms)
-                }
-                json.append("[")
-                entries.forEachBreakable {
-                    it.minified { s -> json.append(s) }
-                    if (hasNext()) json.append(",\n")
-                }
-                json.append("]")
-                zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
-                println(json)
+        intents.forEachSlotType(entities) { slotType ->
+            json.clear()
+            val meta = EntityMetaData(automatedExpansion = false,
+                id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
+                isEnum = false,
+                isOverridable = false,
+                name = slotType.name)
+            meta.minified { s -> json.append(s) }
+            zipStream.add("entities/${slotType.name}.json", json)
+            json.clear()
+            val entries = slotType.values.map { entry ->
+                Entity(value = entry.master, synonyms = entry.synonyms)
             }
-        intents.forEachIndexed { i, intent ->
+            json.append("[")
+            entries.forEachBreakable {
+                it.minified { s -> json.append(s) }
+                if (hasNext()) json.append(",\n")
+            }
+            json.append("]")
+            zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
+            println(json)
+        }
+        intents.forEach { intent ->
             json.clear()
             json.append("[")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
                 val parts = it.split(":")
-                parts.first() to parts.last()
+                parts.first() to useSystemTypes(parts.last())
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
-                utterance.permutations.forEachBreakable { sentence ->
+                utterance.permutations.forEachIndexedAndBreakable { sentence, i ->
                     val data = if (sentence.contains("{") && sentence.contains("}")) {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
                             val type = slots[part]
                             type?.let {
                                 val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
-                                val sample = values?.get(i % values.size) ?: "foo"
+                                val sample = values?.get(i % values.size) ?: defaultValue(type, i)
 
                                 DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
@@ -190,7 +164,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         zipStream.close()
     }
 
-    fun createResponses(intent: Intent) =
+    private fun createResponses(intent: Intent) =
         if (intent.prompt.sumBy { it.variants.size } == 0) {
             listOf(Response(action = intent.name,
                 messages = listOf(Message(
@@ -213,4 +187,44 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         write(content.toString().toByteArray())
         closeEntry()
     }
+
+    private fun List<Intent>.forEachSlotType(entities: List<Entities>?, action: (Entities) -> Unit) = this
+        .flatMap {
+            it.utterances.flatMap { utterance ->
+                utterance.slotTypes
+            }
+        }
+        .toHashSet()
+        .mapNotNull {
+            val type = it.substringAfter(':')
+            if (!type.startsWith("@sys.") || !supportedGenericTypes.contains(type)) {
+                Cli.L.warn("No definition for slot type \"$it\" found")
+            }
+            // TODO add migration hints
+            entities?.firstOrNull { entity -> entity.name == type }
+        }
+        .forEach(action)
+
+    private fun useSystemTypes(slot: String): String = when (slot) {
+        "any" -> "@sys.any"
+        "number" -> "@sys.number"
+        "ordinal" -> "@sys.ordinal"
+        "color" -> "@sys.color"
+        else -> slot
+    }
+
+    private fun defaultValue(type: String, int: Int) = when (type) {
+        "any" -> "foo bar"
+        "number" -> int.toString()
+        "ordinal" -> "$int."
+        "color" -> "Blau"
+        else -> type
+    }
+
+    private fun <T> Iterable<T>.forEachIndexedAndBreakable(block: BreakableIterator<T>.(element: T, i: Int) -> Unit) {
+        val iterator = BreakableIterator(iterator())
+        var i = 0
+        while (iterator.hasNext()) block(iterator, iterator.next(), i++)
+    }
+
 }

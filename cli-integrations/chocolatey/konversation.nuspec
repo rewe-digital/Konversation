@@ -9,7 +9,7 @@
     <authors>René Kilczan</authors>
     <projectUrl>https://github.com/rewe-digital-incubator/Konversation/</projectUrl>
     <copyright>2019 REWE Digital GmbH</copyright>
-    <licenseUrl>https://github.com/rewe-digital-incubator/Konversation#license</licenseUrl>
+    <licenseUrl>https://github.com/rewe-digital-incubator/Konversation/LICENSE.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/rewe-digital-incubator/Konversation/</projectSourceUrl>
     <docsUrl>https://github.com/rewe-digital-incubator/Konversation/</docsUrl>
@@ -23,5 +23,6 @@ This library can be used in Kotlin, Java, node.js and in the browser. You can de
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
+    <file src="legal\**" target="legal" />
   </files>
 </package>

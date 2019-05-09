@@ -24,12 +24,12 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
 
             meta.prettyPrinted { s -> json.append(s) }
             zipStream.add("entities/${slotType.name}.json", json)
-            println("entities/${slotType.name}.json:\n$json")
+            //println("entities/${slotType.name}.json:\n$json")
             json.clear()
             val entries = slotType.values.map { entry ->
                 Entity(value = entry.master, synonyms = entry.synonyms)
             }
-            println("\nentities/${slotType.name}_entries_<LANG>.json:")
+            //println("\nentities/${slotType.name}_entries_<LANG>.json:")
             json.append("[\n")
             entries.forEachBreakable {
                 it.prettyPrinted { s -> json.append(s) }
@@ -37,7 +37,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }
             json.append("\n]")
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
-            println(json)
+            //println(json)
         }
         intents.forEachIndexed { i, intent ->
             json.clear()
@@ -49,7 +49,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             intentData.prettyPrinted { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
             json.clear()
-            println("intents/${intent.name}_usersays_<LANG>.json:")
+            //println("intents/${intent.name}_usersays_<LANG>.json:")
             json.append("[\n")
             //println("Dumping ${intent.name} (${intent.utterances.sumByLong { it.permutationCount }} utterances):")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
@@ -85,7 +85,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }
             json.append("\n]")
             zipStream.add("intents/${intent.name}_usersays_$lang.json", json)
-            println(json)
+            //println(json)
         }
         zipStream.add("package.json", java.lang.StringBuilder("{\n  \"version\": \"1.0.0\"\n}"))
         zipStream.close()
@@ -114,7 +114,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }
             json.append("]")
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
-            println(json)
+            //println(json)
         }
         intents.forEach { intent ->
             json.clear()
@@ -152,7 +152,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }
             json.append("]")
             zipStream.add("intents/${intent.name}_usersays_$lang.json", json)
-            println(json)
+            //println(json)
             json.clear()
             val intentData = DialogflowIntent(id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
                 lastUpdate = System.currentTimeMillis() / 1000,
@@ -197,12 +197,13 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         .toHashSet()
         .mapNotNull {
             val type = it.substringAfter(':')
-            if (!type.startsWith("@sys.") || !supportedGenericTypes.contains(type)) {
-                Cli.L.warn("No definition for slot type \"$it\" found")
+            if (!type.startsWith("@sys.") && !supportedGenericTypes.contains(type)) {
+                Cli.L.warn("No definition for slot type \"$type\" found")
             }
             // TODO add migration hints
             entities?.firstOrNull { entity -> entity.name == type }
         }
+        .toHashSet()
         .forEach(action)
 
     private fun useSystemTypes(slot: String): String = when (slot) {

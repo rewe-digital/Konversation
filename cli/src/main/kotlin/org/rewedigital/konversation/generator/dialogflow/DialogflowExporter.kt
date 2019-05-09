@@ -54,7 +54,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             //println("Dumping ${intent.name} (${intent.utterances.sumByLong { it.permutationCount }} utterances):")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
                 val parts = it.split(":")
-                parts.first() to parts.last()
+                parts.first() to useSystemTypes(parts.last())
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()

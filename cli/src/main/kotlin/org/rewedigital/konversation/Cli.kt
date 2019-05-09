@@ -18,7 +18,7 @@ open class Cli {
     private var countPermutations = false
     private var stats = false
     private var alexaIntentSchema: File? = null
-    private var limit: Long? = null
+    private var limit: Int? = null
     private var prettyPrint = false
     private var ksonDir: File? = null
     private var dialogflowDir: File? = null
@@ -55,7 +55,7 @@ open class Cli {
                         "-count" -> countPermutations = true
                         "cache",
                         "-cache" -> cacheEverything = true
-                        "--export-alexa" -> if (++argNo <= args.size) {
+                        "--export-alexa" -> if (++argNo < args.size) {
                             alexaIntentSchema = File(args[argNo])
                         } else {
                             L.error("Target is missing")
@@ -84,7 +84,7 @@ open class Cli {
                         "top",
                         "-top" -> if (++argNo <= args.size) {
                             try {
-                                limit = args[argNo].toLong()
+                                limit = args[argNo].toInt()
                             } catch (e: Throwable) {
                                 L.error("\"${args[argNo]}\" is no valid count of utterances.")
                                 exit(-1)
@@ -211,7 +211,7 @@ open class Cli {
         val targetDir = File(alexaIntentSchema.path + File.separator + "konversation".join("-", config))
         alexaIntentSchema.absoluteFile.parentFile.mkdirs()
         invocationName?.let { skillName ->
-            val exporter = AlexaExporter(skillName, targetDir, limit ?: Long.MAX_VALUE)
+            val exporter = AlexaExporter(skillName, targetDir, limit ?: Int.MAX_VALUE)
             val stream = alexaIntentSchema.outputStream()
             val printer: Printer = { line ->
                 stream.write(line.toByteArray())

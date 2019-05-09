@@ -28,7 +28,7 @@ class Utterance(private val line: String, val name: String) {
     }
 
     val slotTypes: List<String> by lazy {
-        variableParts.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 1) }
+        variableParts.flatMap { it.split("|") }.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 1) }
     }
 
     val permutationCount: Long by lazy {

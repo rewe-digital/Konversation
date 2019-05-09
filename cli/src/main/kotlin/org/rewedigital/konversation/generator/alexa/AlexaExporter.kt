@@ -18,9 +18,11 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                 "      \"intents\": [\n")
 
         // write out intents
-        intents.forEachIterator { intent ->
+        intents.filter { intent ->
+            intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.")
+        }.forEachIterator { intent ->
             printer("        {\n" +
-                    "          \"name\": \"${intent.name.replaceAndWarn(".", "_")}\",\n" +
+                    "          \"name\": \"${intent.name.cleanupIntentName()}\",\n" +
                     "          \"slots\": [")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             if (allSlots.isEmpty()) {
@@ -75,7 +77,15 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
         printer("      ],\n" +
                 "      \"types\": [")
 
-        val types = intents.flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }.toHashSet()
+        val types = intents
+            .flatMap {
+                it.utterances.flatMap { utterance ->
+                    utterance.slotTypes
+                }
+            }.map {
+                // remove name of the type
+                it.substringAfter(':', it)
+            }.toHashSet()
 
         if (types.isEmpty()) {
             printer("]")
@@ -96,13 +106,15 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                     printer("              \"id\": \"${entity.key}\",\n")
                 }
                 printer("              \"name\": {\n" +
-                        "                \"value\": \"${entity.master}\",\n" +
-                        "                \"synonyms\": [\n")
-                entity.synonyms.forEachIterator { alias ->
-                    printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
+                        "                \"value\": \"${entity.master}\"")
+                if (entity.synonyms.isNotEmpty()) {
+                    printer(",\n                \"synonyms\": [\n")
+                    entity.synonyms.forEachIterator { alias ->
+                        printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
+                    }
+                    printer("                ]")
                 }
-                printer("                ]\n" +
-                        "              }\n" +
+                printer("\n              }\n" +
                         "            }" + (if (hasNext()) "," else "") + "\n")
 
             }
@@ -167,13 +179,13 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
 
         intents
             .flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }
-            .toHashSet()
             .map {
                 val type = it.split(':').last()
                 Pair(type, File("$baseDir/$type.values"))
             }
             .filter { it.second.exists() }
             .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
+            .toHashSet()
             .forEachIterator { (slotType, values) ->
                 printer(
                     "{" +
@@ -238,10 +250,10 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
             replace(string, "")
         } else this
 
-    private fun String.replaceAndWarn(string: String, replacement: String) =
-        if (contains(string)) {
-            Cli.L.warn("Found \"$string\" in intent name \"$this\", replacing it by \"$replacement\".")
-            replace(string, "")
+    private fun String.cleanupIntentName() =
+        if (contains('.') && !startsWith("AMAZON.")) {
+            Cli.L.warn("Found \".\" in intent name \"$this\", replacing it by \"_\".")
+            replace(".", "_")
         } else this
 
     private fun useSystemTypes(slot: String): String = when (slot) {
@@ -252,12 +264,13 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
         else -> slot
     }
 
-    private fun HashSet<String>.forEachSlotType(entities: List<Entities>?, action: Iterator<Pair<String, Entities?>>.(Pair<String, Entities?>) -> Unit) = this.map {
-        val type = it.split(':').last()
-        Pair(type, entities?.firstOrNull { entity -> entity.name == type })
-    }
+    private fun HashSet<String>.forEachSlotType(entities: List<Entities>?, action: Iterator<Pair<String, Entities?>>.(Pair<String, Entities?>) -> Unit) = this
+        .map {
+            val type = it.split(':').last()
+            Pair(type, entities?.firstOrNull { entity -> entity.name == type })
+        }
         .filter { (slot, entities) ->
-            (entities != null).runIfFalse(!slot.substringAfter(':').startsWith("AMAZON.")) {
+            (entities != null).runIfFalse(!slot.substringAfter(':').startsWith("AMAZON.") && !supportedGenericTypes.contains(slot)) {
                 Cli.L.warn("No definition for slot type \"$slot\" found")
             }
         }

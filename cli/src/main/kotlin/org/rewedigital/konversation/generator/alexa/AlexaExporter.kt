@@ -5,7 +5,7 @@ import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
 import java.io.File
 
-class AlexaExporter(private val skillName: String, private val baseDir: File, private val limit: Long) : Exporter {
+class AlexaExporter(private val skillName: String, private val baseDir: File, private val limit: Int) : Exporter {
     private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
 
     // TODO make sure that both branches have equal functionality
@@ -22,7 +22,6 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
             printer("        {\n" +
                     "          \"name\": \"${intent.name.replaceAndWarn(".", "_")}\",\n" +
                     "          \"slots\": [")
-            // TODO use here .take(limit) to limit the output and remove "total" some lines below
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             if (allSlots.isEmpty()) {
                 printer("],")
@@ -152,22 +151,12 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
             // write sample utterances
             printer("]," +
                     "\"samples\":[")
-            var total: Int
             var moreUtterances: Boolean
             intent.utterances.forEachIterator { utterance ->
-                total = 0
                 moreUtterances = hasNext()
                 utterance.permutations.forEachIterator {
-                    total++
-                    //if (total > 20) {
-                    //    stop()
-                    //    moreUtterances = false
-                    //}
                     printer("\"$it\"" + (if (hasNext() || moreUtterances) "," else ""))
                 }
-                //if (total > 20) {
-                //    stop()
-                //}
             }
             printer("]" +
                     "}" + (if (hasNext()) "," else ""))

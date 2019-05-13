@@ -162,6 +162,7 @@ open class Cli {
         val all = intents.sumBy { intent ->
             val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
             if (stats) L.debug("${intent.name} has now ${permutations.formatted()} sample utterances")
+            if (permutations>1000) L.warn("${intent.name} has ${permutations.formatted()} utterances, Dialogflow just support up to ${1000.formatted()}!")
             permutations
         }
         if (stats) L.info("Generated in total ${all.formatted()} Utterances")

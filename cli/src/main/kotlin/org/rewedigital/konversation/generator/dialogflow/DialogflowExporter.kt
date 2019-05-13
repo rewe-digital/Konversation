@@ -201,24 +201,27 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 Cli.L.warn("No definition for slot type \"$type\" found")
             }
             // TODO add migration hints
-            entities?.firstOrNull { entity -> entity.name == type }
+            entities?.firstOrNull { entity -> entity.name == type } //?:
+            //if (!type.startsWith("@sys.") && !supportedGenericTypes.contains(type)) {
+            //    Cli.L.warn("No definition for slot type \"$type\" found")
+            //} else null
         }
         .toHashSet()
         .forEach(action)
 
     private fun useSystemTypes(slot: String): String = when (slot) {
-        "any" -> "@sys.any"
-        "number" -> "@sys.number"
-        "ordinal" -> "@sys.ordinal"
-        "color" -> "@sys.color"
+        "any" -> "sys.any"
+        "number" -> "sys.number"
+        "ordinal" -> "sys.ordinal"
+        "color" -> "sys.color"
         else -> slot
     }
 
     private fun defaultValue(type: String, int: Int) = when (type) {
-        "any" -> "foo bar"
-        "number" -> int.toString()
-        "ordinal" -> "$int."
-        "color" -> "Blau"
+        "sys.any" -> "foo bar"
+        "sys.number" -> int.toString()
+        "sys.ordinal" -> "$int."
+        "sys.color" -> "Blau"
         else -> type
     }
 

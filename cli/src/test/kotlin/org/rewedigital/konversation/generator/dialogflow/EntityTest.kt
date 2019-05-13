@@ -45,16 +45,14 @@ class EntityTest {
     "synonyms": [
       "master"
     ]
-  }
-""")
+  }""")
         val oneSynonym = Result("{\"value\":\"master\",\"synonyms\":[\"master\",\"synonym1\"]}", """  {
     "value": "master",
     "synonyms": [
       "master",
       "synonym1"
     ]
-  }
-""")
+  }""")
         val twoSynonyms = Result("{\"value\":\"master\",\"synonyms\":[\"master\",\"synonym1\",\"synonym2\"]}", """  {
     "value": "master",
     "synonyms": [
@@ -62,7 +60,6 @@ class EntityTest {
       "synonym1",
       "synonym2"
     ]
-  }
-""")
+  }""")
     }
 }

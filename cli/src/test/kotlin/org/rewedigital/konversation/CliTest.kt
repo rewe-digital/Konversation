@@ -250,16 +250,18 @@ class CliTest {
         val rootPath = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
         val pathPrefix = "${rootPath}src/test/resources"
         val helpOutput = """Arguments for konversation:
-[-help]                     Print this help
-[-count]                    Count the permutations and print this to the console
-[-stats]                    Print out some statistics while generation
-[-cache]                    Cache everything even if an utterance has just a single permutation
-[--export-alexa <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json
-[-invocation <NAME>]        Define the invocation name for the Alexa export
-[-limit <COUNT>]            While pretty printing the json to the output file limit the utterances count per intent
-[--export-kson <OUTDIR>]    Compiles the kvs file to kson resource files which are required for the runtime
-[-dump]                     Dump out all intents to its own txt file
-[-prettyprint]              Generate a well formatted json for easier debugging
-<FILE>                      The grammar or kvs file to parse"""
+[-help]                         Print this help
+[-version]                      Print the version of this build
+[-count]                        Count the permutations and print this to the console
+[-stats]                        Print out some statistics while generation
+[-cache]                        Cache everything even if an utterance has just a single permutation
+[--export-alexa <OUTFILE>]      Write the resulting json to OUTFILE instead of result.json
+[--export-dialogflow <OUTDIR>]  Write the dialogflow zip file to the OUTDIR
+[-invocation <NAME>]            Define the invocation name for the Alexa export
+[-limit <COUNT>]                While pretty printing the json to the output file limit the utterances count per intent
+[--export-kson <OUTDIR>]        Compiles the kvs file to kson resource files which are required for the runtime
+[-dump]                         Dump out all intents to its own txt file
+[-prettyprint]                  Generate a well formatted json for easier debugging
+<FILE>                          The grammar, kvs or values files to parse"""
     }
 }

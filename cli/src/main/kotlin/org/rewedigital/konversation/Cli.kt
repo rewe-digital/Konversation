@@ -97,6 +97,8 @@ open class Cli {
                         "-prettyprint" -> prettyPrint = true
                         "dump",
                         "-dump" -> dumpOnly = true
+                        "-v",
+                        "-version" -> L.info("Konversation CLI version 1.0.1")
                         else -> L.error("Unknown argument \"$arg\".")
                     }
                 }
@@ -247,18 +249,19 @@ open class Cli {
 
     private fun help() {
         L.log("Arguments for konversation:")
-        L.log("[-help]                          Print this help")
-        L.log("[-count]                         Count the permutations and print this to the console")
-        L.log("[-stats]                         Print out some statistics while generation")
-        L.log("[-cache]                         Cache everything even if an utterance has just a single permutation")
-        L.log("[--export-alexa <OUTFILE>]       Write the resulting json to OUTFILE instead of result.json")
-        L.log("[--export-dialogflow <OUTFILE>]  Write the dialog result out...")
-        L.log("[-invocation <NAME>]             Define the invocation name for the Alexa export")
-        L.log("[-limit <COUNT>]                 While pretty printing the json to the output file limit the utterances count per intent")
-        L.log("[--export-kson <OUTDIR>]         Compiles the kvs file to kson resource files which are required for the runtime")
-        L.log("[-dump]                          Dump out all intents to its own txt file")
-        L.log("[-prettyprint]                   Generate a well formatted json for easier debugging")
-        L.log("<FILE>                           The grammar or kvs file to parse")
+        L.log("[-help]                         Print this help")
+        L.log("[-version]                      Print the version of this build")
+        L.log("[-count]                        Count the permutations and print this to the console")
+        L.log("[-stats]                        Print out some statistics while generation")
+        L.log("[-cache]                        Cache everything even if an utterance has just a single permutation")
+        L.log("[--export-alexa <OUTFILE>]      Write the resulting json to OUTFILE instead of result.json")
+        L.log("[--export-dialogflow <OUTDIR>]  Write the dialogflow zip file to the OUTDIR")
+        L.log("[-invocation <NAME>]            Define the invocation name for the Alexa export")
+        L.log("[-limit <COUNT>]                While pretty printing the json to the output file limit the utterances count per intent")
+        L.log("[--export-kson <OUTDIR>]        Compiles the kvs file to kson resource files which are required for the runtime")
+        L.log("[-dump]                         Dump out all intents to its own txt file")
+        L.log("[-prettyprint]                  Generate a well formatted json for easier debugging")
+        L.log("<FILE>                          The grammar, kvs or values files to parse")
         L.log()
     }
 

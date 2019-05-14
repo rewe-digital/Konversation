@@ -3,13 +3,13 @@
   <metadata>
     <id>konversation</id>
     <version>1.0.0</version>
-    <packageSourceUrl>https://github.com/rewe-digital-incubator/Konversation/tree/master/cli-integration/chocolatey</packageSourceUrl>
+    <packageSourceUrl>https://github.com/rewe-digital-incubator/Konversation/tree/master/cli-integrations/chocolatey</packageSourceUrl>
     <owners>René Kilczan</owners>
     <title>Konversation</title>
     <authors>René Kilczan</authors>
     <projectUrl>https://github.com/rewe-digital-incubator/Konversation/</projectUrl>
     <copyright>2019 REWE Digital GmbH</copyright>
-    <licenseUrl>https://github.com/rewe-digital-incubator/Konversation/LICENSE.txt</licenseUrl>
+    <licenseUrl>https://github.com/rewe-digital-incubator/Konversation/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/rewe-digital-incubator/Konversation/</projectSourceUrl>
     <docsUrl>https://github.com/rewe-digital-incubator/Konversation/</docsUrl>

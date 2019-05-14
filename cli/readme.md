@@ -6,20 +6,36 @@ validate the syntax of the input files or to integrate it into your own build sy
 
 ## Setup
 
-At first you need to download the latest version of the konversation.jar. Then create in Windows a file called `konversation.cmd` e.g. in 
-`c:\Windows\system32` directory (yep dirty hack sorry) and add the content:
+Konversation has some implementations you can use for setting up the command line tool:
+
+### Homebrew (for Linux and MacOS)
+
+When you have installed [Homebrew] just enter in your shell:
+
+    brew install rekire/packages/konversation
+
+### Chocolatey (for Windows)
+
+When you have installed [Chocolatey] just enter in your shell:
+
+    choco install konversation
+
+### Manually
+
+Download the latest cli jar from the [release page][releases] and store it somewhere you like. On **Windows** you need
+to create a file called `konversation.cmd` somewhere in any directory you have in your path variable, the content should be:
 
     java -jar path/to/your/konveration.jar %1 %2 %3 %4 %5 %6 %7 %8 %9
 
-If you use Linux or Mac create a file called `konversation.sh` in `/usr/local/bin` with this content:
+If you use Linux or Mac create a file called `konversation` in `/usr/local/bin` with this content:
 
     #!/bin/sh
-    java -jar path/to/your/konveration.jar $1 $2 $3 $4 $5 $6 $7 $8 $9
+    java -jar path/to/your/konveration.jar $@
 
-Now in your shell/command line/terminal you can use the konversation command e.g.: `konversation -v`. This should output your installed
-konversation cli version number and exit then.
+Remember that you need to make it executable with `chmod +x konversation`.
 
-Please note we know that this is not an ideal way for an installation, better ways are planed for future releases.
+Now in your shell/command line/terminal you can use the konversation command e.g.: `konversation -v`. This should
+output your installed konversation cli version number and exit then.
 
 ## Usage
 
@@ -73,3 +89,6 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 [codecov-url]: http://codecov.io/github/rewe-digital-incubator/Konversation?branch=master
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
+[Homebrew]: https://brew.sh/
+[Chocolatey]: https://chocolatey.org/
+[releases]: https://github.com/rewe-digital-incubator/Konversation/releases

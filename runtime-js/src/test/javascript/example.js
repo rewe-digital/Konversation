@@ -1,5 +1,5 @@
 const assert = require('assert');
-const Konversation = require("konversation").Konversation;
+const Konversation = require("@rewe-digital/konversation").Konversation;
 describe('Konversation', function() {
 //    describe('#indexOf()', function() {
         it('should load data', function() {

@@ -38,6 +38,7 @@ class KonversationJs(name: String, environment: dynamic) : Konversation(name, co
     }
 }
 
+@Suppress("UNUSED_PARAMETER") // env is used by the js() method
 private fun convertToEnvironment(env: dynamic) : Environment {
     val nonNullEnv = js("env || {platform:'', locale:''}")
     return Environment(nonNullEnv["platform"] as String, nonNullEnv["locale"] as String)

@@ -58,7 +58,7 @@ task copyResources(type: Copy) {
 }
 
 task copyTest(type: Copy) {
-    from file("${projectDir}/src/test/")
+    from file("${projectDir}/src/test/javascript/")
     include "**/*.js"
     into file("${buildDir}/out/test")
 }
@@ -84,7 +84,7 @@ task prepairNpmPackage(type: NpmTask, dependsOn: [compileTestKotlin2Js, copyReso
 task buildNpmPackage(type: NpmTask, dependsOn: prepairNpmPackage) {
     group = 'build'
     inputs.file("${buildDir}/out/package.json")
-    outputs.upToDateWhen { file("${buildDir}/out/konversation-${rootProject.ext.versions.runtime_js}.tgz").exists() }
+    outputs.upToDateWhen { file("${buildDir}/out/rewe-digital-konversation-${rootProject.ext.versions.runtime_js}.tgz").exists() }
     npmCommand = ['pack']
 }
 
@@ -95,15 +95,15 @@ task publishNpmPackage(type: NpmTask, dependsOn: prepairNpmPackage) {
 }
 
 task overridePackageForTesting(type: Copy, dependsOn: buildNpmPackage) {
-    from file("${projectDir}/src/test/")
+    from file("${projectDir}/src/test/javascript/")
     include "**/package.json"
     into file("${buildDir}/out")
 }
 
 task installSnapshotForTesting(type: NpmTask, dependsOn: overridePackageForTesting) {
     inputs.file("${buildDir}/out/package.json")
-    outputs.upToDateWhen { file("${buildDir}/out/node_modules/konversation").exists() }
-    npmCommand = ['install', "./konversation-${rootProject.ext.versions.runtime_js}.tgz", 'mocha']
+    outputs.upToDateWhen { file("${buildDir}/out/node_modules/@rewe-digital/konversation").exists() }
+    npmCommand = ['install', "./rewe-digital-konversation-${rootProject.ext.versions.runtime_js}.tgz", 'mocha']
 }
 
 task runNpmTest(type: NpmTask, dependsOn: installSnapshotForTesting) {

@@ -9,7 +9,8 @@ import kotlin.js.JsName
  * @param environment The environment of the conversation to load.
  * @constructor Creates a new Konversation object with the given options.
  */
-class Konversation(val name: String, private val environment: Environment) {
+@JsName("KonversationKt")
+open class Konversation(val name: String, private val environment: Environment) {
     private val answer = Reader().loadReply(name, environment)
 
     private fun create(data: Map<String, Any>, onlyDisplayText: Boolean): String {
@@ -40,7 +41,6 @@ class Konversation(val name: String, private val environment: Environment) {
      * Creates a static randomized output for your voice application.
      * The [data] will be applied to the output so that you can customize the output with your values.
      */
-    @JsName("createOutput")
     fun createOutput(data: Map<String, Any> = emptyMap()) =
         Output(displayText = create(data, true),
                ssml = create(data, false),

@@ -12,7 +12,7 @@ Package can be verified like this:
    - Use powershell function 'Get-FileHash'
    - Use Chocolatey utility 'checksum.exe'
 
-   checksum: 9D3678DB9B0365963434A77484E8540983B07B1EE2C2B56D927CB7B5FA918975
+   checksum: 6123D126278FAAE2419F5DE00411A1B67AE57E0CF2265A5D484ED6F9786BAACA
 
 File 'LICENSE.txt' obtained from:
    https://github.com/rewe-digital-incubator/Konversation/LICENSE.txt

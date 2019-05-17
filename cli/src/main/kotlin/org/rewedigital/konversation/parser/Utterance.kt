@@ -7,7 +7,7 @@ import java.text.ParseException
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class Utterance(private val line: String, val name: String) {
+class Utterance(val source: String, val name: String) {
 
     val permutations: SwapingHashedList by lazy {
         //println("Generating about $permutationCount permutations for ${slotTypes.size} slots")
@@ -16,11 +16,11 @@ class Utterance(private val line: String, val name: String) {
         File(cacheDir).run {
             if (!exists()) mkdirs()
         }
-        val cacheFile = "$cacheDir/$name-${String.format("%08x", line.hashCode())}"
+        val cacheFile = "$cacheDir/$name-${String.format("%08x", source.hashCode())}"
         SwapingHashedList(cacheFile).also { storage ->
             if (!storage.isCached()) {
                 runBlocking {
-                    insertPermutations(line, variableParts, 0, storage)
+                    insertPermutations(source, variableParts, 0, storage)
                 }
                 storage.flush()
             }
@@ -47,7 +47,7 @@ class Utterance(private val line: String, val name: String) {
         var counter = 0
         val variableParts = mutableListOf<String>()
         var lastWasMasked = false
-        line.forEachIndexed { i, c ->
+        source.forEachIndexed { i, c ->
             when (c) {
                 '\\' -> lastWasMasked = true
                 '{' -> {
@@ -57,7 +57,7 @@ class Utterance(private val line: String, val name: String) {
                             1 -> {
                                 // we found a slot type, that is fine
                             }
-                            else -> throw ParseException("This line has a syntax error: $line", i)
+                            else -> throw ParseException("This line has a syntax error: $source", i)
                         }
                         counter++
                     }
@@ -68,12 +68,12 @@ class Utterance(private val line: String, val name: String) {
                         when (counter) {
                             1 -> {
                                 // we found the end of the slot
-                                variableParts.add(line.substring(start, i))
+                                variableParts.add(source.substring(start, i))
                             }
                             2 -> {
                                 // we found the end of a slot type, that is fine
                             }
-                            else -> throw ParseException("This line has a syntax error: $line", i)
+                            else -> throw ParseException("This line has a syntax error: $source", i)
                         }
                         counter--
                     }
@@ -86,7 +86,7 @@ class Utterance(private val line: String, val name: String) {
                 else -> lastWasMasked = false
             }
         }
-        if (counter != 0) throw ParseException("This line has a syntax error: $line", line.length)
+        if (counter != 0) throw ParseException("This line has a syntax error: $source", source.length)
 
         variableParts
     }
@@ -113,7 +113,7 @@ class Utterance(private val line: String, val name: String) {
         }
     }
 
-    override fun toString() = "Utterance(line='$line', name='$name', permutations:$permutations, slotTypes=$slotTypes)"
+    override fun toString() = "Utterance(source='$source', name='$name', permutations:$permutations, slotTypes=$slotTypes)"
 
     companion object {
         val counter = AtomicInteger(0)

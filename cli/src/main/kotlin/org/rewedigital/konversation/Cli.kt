@@ -25,6 +25,7 @@ open class Cli {
     private var dumpOnly = false
     private var invocationName: String? = null
     private var inputFileCount = 0
+    private var inspect = false
 
     fun parseArgs(args: Array<String>) {
         val inputFiles = mutableListOf<File>()
@@ -173,7 +174,23 @@ open class Cli {
         val all = intents.sumBy { intent ->
             val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
             if (stats) L.debug("${intent.name} has now ${permutations.formatted()} sample utterances")
-            if (permutations>1000) L.warn("${intent.name} has ${permutations.formatted()} utterances, Dialogflow just support up to ${1000.formatted()}!")
+            val warn = when (permutations) {
+                in 0..999 -> false
+                in 1000..1999 -> {
+                    L.warn("${intent.name} has ${permutations.formatted()} utterances, Actions on Google just support up to ${1000.formatted()}!")
+                    true
+                }
+                else -> {
+                    L.warn("${intent.name} has ${permutations.formatted()} utterances, Dialogflow just support up to ${2000.formatted()} and Actions on Google just ${1000.formatted()}!")
+                    true
+                }
+            }
+            if (inspect || warn) {
+                L.info("Intent ${intent.name} has in total ${permutations.formatted()} utterances:")
+                intent.utterances.forEach { utterance ->
+                    L.log(String.format(Locale.getDefault(), "%,6d utterances for %s", utterance.permutations.size, utterance.source))
+                }
+            }
             permutations
         }
         if (stats) L.info("Generated in total ${all.formatted()} Utterances")

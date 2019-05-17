@@ -64,7 +64,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                             val type = slots[part]
                             type?.let {
                                 val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
-                                val sample = values?.get(i % values.size) ?: defaultValue(type, i)
+                                val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
 
                                 DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)

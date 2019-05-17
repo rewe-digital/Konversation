@@ -197,7 +197,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         .toHashSet()
         .mapNotNull {
             val type = it.substringAfter(':')
-            if (!type.startsWith("@sys.") && !supportedGenericTypes.contains(type)) {
+            if ((!type.startsWith("@sys.") || !type.startsWith("sys.")) && !supportedGenericTypes.contains(type) && entities?.any { entity -> entity.name == type } != true) {
                 Cli.L.warn("No definition for slot type \"$type\" found")
             }
             // TODO add migration hints

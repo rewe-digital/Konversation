@@ -39,9 +39,18 @@ open class Cli {
                 val arg = args[argNo]
                 if (File(arg).absoluteFile.exists()) {
                     inputFiles += File(arg).absoluteFile
-                } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar")) {
-                    L.error("Input file \"$arg\" not found!")
-                    exit(-1)
+                } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar") || arg.endsWith(".values")) {
+                    if (arg.contains('*')) {
+                        val matcher = arg.substringAfterLast('\\').substringAfterLast('/').replace(".", "\\.").replace("*", ".*?").toRegex()
+                        File(arg).parentFile.listFiles { _, name ->
+                            matcher.matches(name)
+                        }.map { file ->
+                            inputFiles += file.absoluteFile
+                        }
+                    } else {
+                        L.error("Input file \"$arg\" not found!")
+                        exit(-1)
+                    }
                 } else {
                     when (arg.toLowerCase()) {
                         "help",

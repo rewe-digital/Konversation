@@ -38,12 +38,13 @@ open class Cli {
             var argNo = 0
             while (argNo < args.size) {
                 val arg = args[argNo]
-                if (File(arg).absoluteFile.exists()) {
+                val argFile = File(arg)
+                if (argFile.absoluteFile.exists()) {
                     inputFiles += File(arg).absoluteFile
                 } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar") || arg.endsWith(".values")) {
                     if (arg.contains('*')) {
-                        val matcher = arg.substringAfterLast('\\').substringAfterLast('/').replace(".", "\\.").replace("*", ".*?").toRegex()
-                        File(arg).parentFile.listFiles { _, name ->
+                        val matcher = argFile.name.replace(".", "\\.").replace("*", ".*?").toRegex()
+                        argFile.parentFile.listFiles { _, name ->
                             matcher.matches(name)
                         }.map { file ->
                             inputFiles += file.absoluteFile

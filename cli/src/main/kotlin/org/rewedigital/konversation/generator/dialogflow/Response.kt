@@ -9,7 +9,7 @@ data class Response(
     //val affectedContexts: List<Any>,
     //val defaultResponsePlatforms: DefaultResponsePlatforms,
     val messages: List<Message>,
-    //val parameters: List<Any>,
+    val parameters: List<ResponseParameter>,
     val resetContexts: Boolean = false
     //val speech: List<Any> = emptyList()
 ) : NodeExporter {
@@ -18,21 +18,35 @@ data class Response(
       "resetContexts": $resetContexts,
       "action": "$action",
       "affectedContexts": [],
-      "parameters": [],
+      "parameters": [""")
+        if(parameters.isNotEmpty()) {
+            printer("\n")
+            parameters.forEachBreakable {
+                it.prettyPrinted(printer)
+                if (hasNext()) printer(",")
+                printer("\n")
+            }
+            printer("      ")
+        }
+        printer("""],
       "messages": [""")
         messages.forEachBreakable {
             it.prettyPrinted(printer)
             if (hasNext()) printer(",")
             printer("\n")
         }
-      printer("""      ],
+        printer("""      ],
       "defaultResponsePlatforms": {},
       "speech": []
     }""")
     }
 
     override fun minified(printer: Printer) {
-        printer("""{"resetContexts":$resetContexts,"action":"$action","affectedContexts":[],"parameters":[],"messages":[""")
+        printer("""{"resetContexts":$resetContexts,"action":"$action","affectedContexts":[],"parameters":[""")
+        parameters.forEachBreakable {
+            it.minified(printer)
+        }
+        printer("""],"messages":[""")
         messages.forEachBreakable {
             it.minified(printer)
             if (hasNext()) printer(",")

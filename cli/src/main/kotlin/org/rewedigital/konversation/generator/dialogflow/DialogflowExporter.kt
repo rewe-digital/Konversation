@@ -170,15 +170,16 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 messages = listOf(Message(
                     lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
                     speech = emptyList(),
-                    type = 0))))
+                    type = 0)),
+                parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
         } else {
             listOf(Response(action = intent.name,
                 // TODO generate all variants
                 messages = listOf(Message(
                     lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
                     speech = listOf(intent.prompt.joinToString(separator = " ") { it.variants.first() }),
-                    type = 0))
-            ))
+                    type = 0)),
+                parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
         }
 
     fun ZipOutputStream.add(fileName: String, content: StringBuilder) {

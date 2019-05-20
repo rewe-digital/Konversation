@@ -34,14 +34,14 @@ data class ResponseParameter(
 
 private val String.slotName: String
     get() = if (contains(':')) {
-        substringBefore(':')
+        substringAfter(':')
     } else {
         this
     }
 
 private val String.slotType: String
     get() = if (contains(':')) {
-        substringAfter(':')
+        substringBefore(':')
     } else {
         this
     }

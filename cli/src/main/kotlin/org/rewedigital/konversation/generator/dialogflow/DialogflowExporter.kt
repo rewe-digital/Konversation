@@ -165,22 +165,12 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
     }
 
     private fun createResponses(intent: Intent) =
-        if (intent.prompt.sumBy { it.variants.size } == 0) {
-            listOf(Response(action = intent.name,
-                messages = listOf(Message(
-                    lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
-                    speech = emptyList(),
-                    type = 0)),
-                parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
-        } else {
-            listOf(Response(action = intent.name,
-                // TODO generate all variants
-                messages = listOf(Message(
-                    lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
-                    speech = listOf(intent.prompt.joinToString(separator = " ") { it.variants.first() }),
-                    type = 0)),
-                parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
-        }
+        listOf(Response(action = intent.name,
+            messages = listOf(Message(
+                lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
+                speech = intent.prompt.generateSamples(),
+                type = 0)),
+            parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
 
     fun ZipOutputStream.add(fileName: String, content: StringBuilder) {
         val file = ZipEntry(fileName)
@@ -201,11 +191,8 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             if ((!type.startsWith("@sys.") || !type.startsWith("sys.")) && !supportedGenericTypes.contains(type) && entities?.any { entity -> entity.name == type } != true) {
                 Cli.L.warn("No definition for slot type \"$type\" found")
             }
-            // TODO add migration hints
+            // TODO add migration hints or do that silent?
             entities?.firstOrNull { entity -> entity.name == type } //?:
-            //if (!type.startsWith("@sys.") && !supportedGenericTypes.contains(type)) {
-            //    Cli.L.warn("No definition for slot type \"$type\" found")
-            //} else null
         }
         .toHashSet()
         .forEach(action)
@@ -232,4 +219,30 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         while (iterator.hasNext()) block(iterator, iterator.next(), i++)
     }
 
+    // this method is something like a zip operation, but it equalized the list length first
+    private fun Prompt.generateSamples(): List<String> {
+        // syntactic sugar
+        operator fun Part.component1() = variants
+
+        // get maximal part length
+        val sizes = map { it.variants.size }
+        var max = 0
+        sizes.forEach { max = Math.max(max, it) }
+
+        // make all lists same size with rotating the values until all are same sized
+        val equalizedLists = map {(variants) ->
+            val newVariants = variants.toMutableList()
+            for(i in variants.size until max) {
+                newVariants += variants[i % variants.size]
+            }
+            newVariants
+        }
+
+        // zip the elements
+        val samples = mutableListOf<String>()
+        for(i in 0 until max) {
+            samples += equalizedLists.joinToString(separator = " ") { it[i] }.replace("\n ", "\n")
+        }
+        return samples
+    }
 }

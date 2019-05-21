@@ -30,7 +30,7 @@ data class DialogflowIntent(
             it.prettyPrinted(printer)
             if (hasNext()) printer(",")
         }
-        if (responses.isNotEmpty()) printer("\n") else printer("  ")
+        if (responses.isNotEmpty()) printer("\n  ")
         printer("""],
   "priority": $priority,
   "webhookUsed": $webhookUsed,

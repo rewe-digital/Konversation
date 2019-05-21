@@ -14,12 +14,17 @@ data class Message(
           "type": $type,
           "lang": "$lang",
           "speech": [""")
-        printer(speech.joinToString(separator = ",", postfix = "\n") { "\n            \"$it\"" })
+        printer(speech.joinToString(separator = ",", postfix = "\n") { "\n            \"${it.escape()}\"" })
         printer("          ]\n        }")
     }
 
     override fun minified(printer: Printer) {
         printer("""{"type":$type,"lang":"$lang","speech":[""")
-        printer(speech.joinToString(separator = ",", postfix = "]}") { "\"$it\"" })
+        printer(speech.joinToString(separator = ",", postfix = "]}") { "\"${it.escape()}\"" })
     }
+
+    private fun String.escape() =
+        replace("\r", "\\r")
+            .replace("\n", "\\n")
+            .replace("\"", "\\")
 }

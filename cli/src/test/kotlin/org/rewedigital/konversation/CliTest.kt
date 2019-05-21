@@ -104,15 +104,17 @@ class CliTest {
     @Test
     fun `Test big grammar file`() {
         val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "-stats", "-count")
-        val format = DecimalFormat.getInstance() as DecimalFormat
-        val separator = format.decimalFormatSymbols.groupingSeparator
-        assertEquals("Parsing of 1 file finished. Found 2 intents.\n" +
-                "Test has 1 utterances which have in total 1${separator}000 permutations\n" +
-                "Foo has 0 utterances which have in total 0 permutations\n" +
-                "That are in total 1${separator}000 permutations!\n" +
-                "Test has now 1${separator}000 sample utterances\n" +
-                "Foo has now 0 sample utterances\n" +
-                "Generated in total 1${separator}000 Utterances\n", sut.output)
+        assertEquals("""Parsing of 1 file finished. Found 2 intents.
+Test has 1 utterances which have in total 1${separator}000 permutations
+Foo has 0 utterances which have in total 0 permutations
+That are in total 1${separator}000 permutations!
+Test has now 1${separator}000 sample utterances
+WARNING: Test has 1.000 utterances, Actions on Google just support up to 1.000!
+Intent Test has in total 1.000 utterances:
+ 1.000 utterances for {0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}
+Foo has now 0 sample utterances
+Generated in total 1${separator}000 Utterances
+""", sut.output)
         assertNull(sut.exitCode)
     }
 
@@ -124,7 +126,11 @@ class CliTest {
         val outputFile = File(testOutputFile).absoluteFile
         try {
             val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "--export-alexa", testOutputFile, "-invocation", "huge", "-prettyprint", "-limit", "20")
-            assertEquals(sut.output, "Parsing of 1 file finished. Found 2 intents.\n")
+            assertEquals(sut.output, """Parsing of 1 file finished. Found 2 intents.
+WARNING: Test has 1${separator}000 utterances, Actions on Google just support up to 1${separator}000!
+Intent Test has in total 1${separator}000 utterances:
+ 1${separator}000 utterances for {0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}
+""")
             assertNull(sut.exitCode, message = "Execution should be successful")
             assertTrue(outputFile.exists(), message = "Output file should be created")
             assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
@@ -247,6 +253,8 @@ class CliTest {
     }
 
     companion object {
+        private val format = DecimalFormat.getInstance() as DecimalFormat
+        val separator = format.decimalFormatSymbols.groupingSeparator
         val rootPath = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
         val pathPrefix = "${rootPath}src/test/resources"
         val helpOutput = """Arguments for konversation:

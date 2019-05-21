@@ -13,9 +13,9 @@ data class ResponseParameter(
 ) : NodeExporter {
     constructor(slot: String) : this(
         id = UUID.nameUUIDFromBytes(slot.toByteArray()),
-        dataType = "@${slot.slotName}",
-        name = slot.slotType,
-        value = "$${slot.slotType}",
+        dataType = "@${slot.slotType}",
+        name = slot.slotName,
+        value = "$${slot.slotName}",
         isList = false
     )
 
@@ -32,16 +32,25 @@ data class ResponseParameter(
         printer("""{"id":"$id","dataType":"$dataType","name":"$name","value":"$value","isList":$isList}""")
 }
 
-private val String.slotName: String
+private val String.slotType: String
     get() = if (contains(':')) {
         substringAfter(':')
     } else {
         this
-    }
+    }.asSystemType()
 
-private val String.slotType: String
+private val String.slotName: String
     get() = if (contains(':')) {
         substringBefore(':')
     } else {
         this
+    }
+
+private fun String.asSystemType() =
+    when (this) {
+        "any" -> "sys.any"
+        "number" -> "sys.number"
+        "ordinal" -> "sys.ordinal"
+        "color" -> "sys.color"
+        else -> this
     }

@@ -109,9 +109,9 @@ Test has 1 utterances which have in total 1${separator}000 permutations
 Foo has 0 utterances which have in total 0 permutations
 That are in total 1${separator}000 permutations!
 Test has now 1${separator}000 sample utterances
-WARNING: Test has 1.000 utterances, Actions on Google just support up to 1.000!
-Intent Test has in total 1.000 utterances:
- 1.000 utterances for {0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}
+WARNING: Test has 1${separator}000 utterances, Actions on Google just support up to 1${separator}000!
+Intent Test has in total 1${separator}000 utterances:
+ 1${separator}000 utterances for {0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}
 Foo has now 0 sample utterances
 Generated in total 1${separator}000 Utterances
 """, sut.output)

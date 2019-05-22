@@ -3,23 +3,23 @@ package org.rewedigital.konversation.generator.dialogflow
 import org.rewedigital.konversation.generator.NodeExporter
 import org.rewedigital.konversation.generator.Printer
 
-data class Message(
+data class QuickReply(
     val lang: String,
-    val speech: List<String>
+    val replies: List<String>
 ) : NodeExporter {
     override fun prettyPrinted(printer: Printer) {
         printer("""
         {
-          "type": 0,
+          "type": 2,
           "lang": "$lang",
-          "speech": [""")
-        printer(speech.joinToString(separator = ",", postfix = "\n") { "\n            \"${it.escape()}\"" })
+          "replies": [""")
+        printer(replies.joinToString(separator = ",", postfix = "\n") { "\n            \"${it.escape()}\"" })
         printer("          ]\n        }")
     }
 
     override fun minified(printer: Printer) {
-        printer("""{"type":0,"lang":"$lang","speech":[""")
-        printer(speech.joinToString(separator = ",", postfix = "]}") { "\"${it.escape()}\"" })
+        printer("""{"type":2,"lang":"$lang","replies":[""")
+        printer(replies.joinToString(separator = ",", postfix = "]}") { "\"${it.escape()}\"" })
     }
 
     private fun String.escape() =

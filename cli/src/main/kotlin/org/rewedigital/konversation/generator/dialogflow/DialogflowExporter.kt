@@ -1,6 +1,7 @@
 package org.rewedigital.konversation.generator.dialogflow
 
 import org.rewedigital.konversation.*
+import org.rewedigital.konversation.generator.NodeExporter
 import org.rewedigital.konversation.generator.StreamExporter
 import java.io.OutputStream
 import java.util.*
@@ -166,11 +167,14 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
 
     private fun createResponses(intent: Intent) =
         listOf(Response(action = intent.name,
-            messages = listOf(Message(
+            messages = listOfNotNull(Message(
                 lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
-                speech = intent.prompt.generateSamples(),
-                type = 0)),
+                speech = intent.prompt.generateSamples()),
+                createSuggestion(intent.suggestions)),
             parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
+
+    private fun createSuggestion(suggestions: List<String>): NodeExporter? =
+        if (suggestions.isEmpty()) null else QuickReply(lang, suggestions)
 
     fun ZipOutputStream.add(fileName: String, content: StringBuilder) {
         val file = ZipEntry(fileName)
@@ -230,9 +234,9 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         sizes.forEach { max = Math.max(max, it) }
 
         // make all lists same size with rotating the values until all are same sized
-        val equalizedLists = map {(variants) ->
+        val equalizedLists = map { (variants) ->
             val newVariants = variants.toMutableList()
-            for(i in variants.size until max) {
+            for (i in variants.size until max) {
                 newVariants += variants[i % variants.size]
             }
             newVariants
@@ -240,8 +244,8 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
 
         // zip the elements
         val samples = mutableListOf<String>()
-        for(i in 0 until max) {
-            samples += equalizedLists.joinToString(separator = " ") { it[i] }.replace("\n ", "\n")
+        for (i in 0 until max) {
+            samples += equalizedLists.joinToString(separator = " ") { it[i] }.replace(" *\n ".toRegex(), "\n")
         }
         return samples
     }

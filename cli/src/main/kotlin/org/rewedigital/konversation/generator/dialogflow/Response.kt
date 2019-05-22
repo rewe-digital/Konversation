@@ -6,12 +6,9 @@ import org.rewedigital.konversation.generator.Printer
 
 data class Response(
     val action: String,
-    //val affectedContexts: List<Any>,
-    //val defaultResponsePlatforms: DefaultResponsePlatforms,
-    val messages: List<Message>,
+    val messages: List<NodeExporter>,
     val parameters: List<ResponseParameter>,
     val resetContexts: Boolean = false
-    //val speech: List<Any> = emptyList()
 ) : NodeExporter {
     override fun prettyPrinted(printer: Printer) {
         printer("""    {

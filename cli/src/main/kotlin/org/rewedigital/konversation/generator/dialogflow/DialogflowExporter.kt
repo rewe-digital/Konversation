@@ -162,6 +162,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             intentData.minified { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
         }
+        zipStream.add("package.json", java.lang.StringBuilder("{\"version\":\"1.0.0\"}"))
         zipStream.close()
     }
 

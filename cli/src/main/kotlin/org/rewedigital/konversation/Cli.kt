@@ -2,6 +2,7 @@ package org.rewedigital.konversation
 
 import org.rewedigital.konversation.generator.Printer
 import org.rewedigital.konversation.generator.alexa.AlexaExporter
+import org.rewedigital.konversation.generator.alexa.AmazonApi
 import org.rewedigital.konversation.generator.dialogflow.DialogflowExporter
 import org.rewedigital.konversation.generator.kson.KsonExporter
 import org.rewedigital.konversation.parser.Parser
@@ -72,11 +73,20 @@ open class Cli {
                             L.error("Target is missing")
                             exit(-1)
                         }
+                        "--alexa-login" -> {
+                            AmazonApi().login()
+                        }
+                        "--alexa-upload" -> {
+
+                        }
                         "--export-dialogflow" -> if (++argNo < args.size) {
                             dialogflowDir = File(args[argNo]).absoluteFile
                         } else {
                             L.error("Target is missing")
                             exit(-1)
+                        }
+                        "--dialogflow-upload" -> {
+
                         }
                         "invocation",
                         "-invocation" -> if (++argNo < args.size) {
@@ -238,10 +248,9 @@ open class Cli {
     }
 
     private fun exportAlexa(alexaIntentSchema: File) = intentDb.forEach { (config, intents) ->
-        val targetDir = File(alexaIntentSchema.path + File.separator + "konversation".join("-", config))
         alexaIntentSchema.absoluteFile.parentFile.mkdirs()
         invocationName?.let { skillName ->
-            val exporter = AlexaExporter(skillName, targetDir, limit ?: Int.MAX_VALUE)
+            val exporter = AlexaExporter(skillName, limit ?: Int.MAX_VALUE)
             val stream = alexaIntentSchema.outputStream()
             val printer: Printer = { line ->
                 stream.write(line.toByteArray())

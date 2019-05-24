@@ -3,9 +3,8 @@ package org.rewedigital.konversation.generator.alexa
 import org.rewedigital.konversation.*
 import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
-import java.io.File
 
-class AlexaExporter(private val skillName: String, private val baseDir: File, private val limit: Int) : Exporter {
+class AlexaExporter(private val skillName: String, private val limit: Int) : Exporter {
     private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
 
     // TODO make sure that both branches have equal functionality
@@ -177,63 +176,54 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
         printer("]," +
                 "\"types\":[")
 
-        intents
-            .flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }
-            .map {
-                val type = it.split(':').last()
-                Pair(type, File("$baseDir/$type.values"))
-            }
-            .filter { it.second.exists() }
-            .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
-            .toHashSet()
-            .forEachIterator { (slotType, values) ->
-                printer(
-                    "{" +
-                            "\"name\":\"$slotType\"," +
-                            "\"values\":["
-                )
-                values.forEachIterator { valueLine ->
-                    if (valueLine.startsWith('{')) {
-                        val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
-                        val (id, value) = aliases.first().split(':', limit = 2).let {
-                            when (it.size) {
-                                1 -> Pair(null, it.first())
-                                2 -> Pair(it.first(), it.last())
-                                else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
-                            }
-                        }
-                        printer("{")
-                        id?.let {
-                            printer("\"id\":\"$id\",")
-                        }
-                        printer("\"name\":{" +
-                                "\"value\":\"$value\"," +
-                                "\"synonyms\":[")
-                        aliases.toHashSet().apply {
-                            remove(aliases.first()) // remove key
-                        }.forEachIterator { alias ->
-                            printer("\"$alias\"" + (if (hasNext()) "," else ""))
-                        }
-                        printer("]" +
-                                "}" +
-                                "}" + (if (hasNext()) "," else ""))
-                    } else {
-                        printer("{" +
-                                "\"name\":{" +
-                                "\"value\":\"$valueLine\"" +
-                                "}" +
-                                "}" + (if (hasNext()) "," else ""))
-                    }
+        val types = intents
+            .flatMap {
+                it.utterances.flatMap { utterance ->
+                    utterance.slotTypes
                 }
-                printer("]" +
-                        "}" + (if (hasNext()) "," else ""))
+            }.map {
+                // remove name of the type
+                it.substringAfter(':', it)
+            }.toHashSet()
+
+        if (types.isEmpty()) {
+            printer("]")
+        }
+
+        types.forEachSlotType(entities) { (slotType, entities) ->
+            printer("{" +
+                    "\"name\":\"$slotType\"," +
+                    "\"values\":[")
+            if (entities == null) {
+                printer("]")
             }
+            entities?.values?.forEachIterator { entity ->
+                printer("{")
+                entity.key?.let {
+                    printer("\"id\":\"${entity.key}\",")
+                }
+                printer("\"name\":{" +
+                        "\"value\":\"${entity.master}\"")
+                if (entity.synonyms.isNotEmpty()) {
+                    printer(",\"synonyms\":[")
+                    entity.synonyms.forEachIterator { alias ->
+                        printer("\"$alias\"" + (if (hasNext()) "," else ""))
+                    }
+                    printer("]")
+                }
+                printer("}}" + (if (hasNext()) "," else ""))
+            }
+            if (types.isNotEmpty()) {
+                printer("          ]\n")
+            }
+            printer("}" + (if (hasNext()) "," else ""))
+        }
 
         // write suffix
-        printer("]" +
-                "}" +
-                "}" +
-                "}")
+        if (types.isNotEmpty()) {
+            printer("]")
+        }
+        printer("}}}")
     }
 
     private fun Boolean.runIfTrue(and: Boolean = true, block: () -> Unit) = this.also {

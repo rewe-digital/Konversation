@@ -38,7 +38,7 @@ class CliTest {
             assertNull(sut.exitCode, message = "Execution should be successful")
             assertTrue(outputFile.exists(), message = "Output file should be created")
             assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
-            assertEquals(outputFile.readText(), expectedOutputFile.readText())
+            assertEquals(expectedOutputFile.readText(), outputFile.readText())
         } finally {
             outputFile.apply {
                 if (exists()) deleteOnExit()

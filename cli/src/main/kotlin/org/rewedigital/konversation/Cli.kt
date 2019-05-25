@@ -3,6 +3,7 @@ package org.rewedigital.konversation
 import org.rewedigital.konversation.generator.Printer
 import org.rewedigital.konversation.generator.alexa.AlexaExporter
 import org.rewedigital.konversation.generator.alexa.AmazonApi
+import org.rewedigital.konversation.generator.dialogflow.DialogflowApi
 import org.rewedigital.konversation.generator.dialogflow.DialogflowExporter
 import org.rewedigital.konversation.generator.kson.KsonExporter
 import org.rewedigital.konversation.parser.Parser
@@ -29,6 +30,8 @@ open class Cli {
     private var inspect = false
     private val amazonApi by lazy { AmazonApi() }
     private var uploadSkillId: String? = null
+    private var dialogflowProject: String? = null
+    private var dialogflowServiceAccount: String? = null
 
     fun parseArgs(args: Array<String>) {
         val inputFiles = mutableListOf<File>()
@@ -96,8 +99,16 @@ open class Cli {
                             L.error("Target is missing")
                             exit(-1)
                         }
-                        "--dialogflow-upload" -> {
-
+                        "--dialogflow-upload" -> if (argNo + 2 < args.size) {
+                            dialogflowServiceAccount = args[++argNo]
+                            dialogflowProject = args[++argNo]
+                            if(!File(dialogflowServiceAccount).exists()) {
+                                L.error("Service account file not found")
+                                exit(-1)
+                            }
+                        } else {
+                            L.error("Arguments missing: service account file and project name is required.")
+                            exit(-1)
                         }
                         "invocation",
                         "-invocation" -> if (++argNo < args.size) {
@@ -179,6 +190,18 @@ open class Cli {
                 } ?: run {
                     L.error("Invocation name not set!")
                     exit(-1)
+                }
+            }
+            dialogflowServiceAccount?.let {serviceAccount ->
+                dialogflowProject?.let {project ->
+                    invocationName?.let { invocationName ->
+                        intentDb[""]?.let { intents ->
+                            DialogflowApi(serviceAccount).uploadIntents(invocationName, project, intents, entityDb[""])
+                        }
+                    } ?: run {
+                        L.error("Invocation name not set!")
+                        exit(-1)
+                    }
                 }
             }
         }

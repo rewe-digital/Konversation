@@ -27,6 +27,8 @@ open class Cli {
     private var invocationName: String? = null
     private var inputFileCount = 0
     private var inspect = false
+    private val amazonApi by lazy { AmazonApi() }
+    private var uploadSkillId: String? = null
 
     fun parseArgs(args: Array<String>) {
         val inputFiles = mutableListOf<File>()
@@ -74,10 +76,19 @@ open class Cli {
                             exit(-1)
                         }
                         "--alexa-login" -> {
-                            AmazonApi().login()
+                            amazonApi.login()
                         }
-                        "--alexa-upload" -> {
-
+                        "--alexa-token" -> if (++argNo < args.size) {
+                            amazonApi.loadToken(args[argNo])
+                        } else {
+                            L.error("Refresh token is missing")
+                            exit(-1)
+                        }
+                        "--alexa-upload" -> if (++argNo < args.size) {
+                            uploadSkillId = args[argNo]
+                        } else {
+                            L.error("Skill id is missing")
+                            exit(-1)
                         }
                         "--export-dialogflow" -> if (++argNo < args.size) {
                             dialogflowDir = File(args[argNo]).absoluteFile
@@ -160,6 +171,16 @@ open class Cli {
             ksonDir?.let(::exportKson)
             alexaIntentSchema?.let(::exportAlexa)
             dialogflowDir?.let(::exportDialogflow)
+            uploadSkillId?.let { uploadSkillId ->
+                invocationName?.let { invocationName ->
+                    intentDb[""]?.let { intents ->
+                        amazonApi.uploadSchema(invocationName, "de-DE", intents, entityDb[""], uploadSkillId)
+                    }
+                } ?: run {
+                    L.error("Invocation name not set!")
+                    exit(-1)
+                }
+            }
         }
     }
 

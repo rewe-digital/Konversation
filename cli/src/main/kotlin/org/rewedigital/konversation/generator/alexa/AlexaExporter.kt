@@ -4,7 +4,8 @@ import org.rewedigital.konversation.*
 import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
 
-class AlexaExporter(private val skillName: String, private val limit: Int) : Exporter {
+// TODO remove limit
+class AlexaExporter(private val skillName: String, private val limit: Int = Int.MAX_VALUE) : Exporter {
     private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
 
     // TODO make sure that both branches have equal functionality

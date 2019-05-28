@@ -1,11 +1,5 @@
 package org.rewedigital.konversation
 
-import org.rewedigital.konversation.generator.Printer
-import org.rewedigital.konversation.generator.alexa.AlexaExporter
-import org.rewedigital.konversation.generator.alexa.AmazonApi
-import org.rewedigital.konversation.generator.dialogflow.DialogflowApi
-import org.rewedigital.konversation.generator.dialogflow.DialogflowExporter
-import org.rewedigital.konversation.generator.kson.KsonExporter
 import org.rewedigital.konversation.parser.Parser
 import java.io.File
 import java.util.*
@@ -14,27 +8,32 @@ import java.util.stream.Stream
 import kotlin.system.exitProcess
 
 open class Cli {
-    val intentDb = mutableMapOf<String, MutableList<Intent>>()
-    val entityDb = mutableMapOf<String, MutableList<Entities>>()
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
     private var alexaIntentSchema: File? = null
-    private var limit: Int? = null
     private var prettyPrint = false
     private var ksonDir: File? = null
     private var dialogflowDir: File? = null
     private var dumpOnly = false
-    private var invocationName: String? = null
     private var inputFileCount = 0
     private var inspect = false
-    private val amazonApi by lazy { AmazonApi() }
-    private var uploadSkillId: String? = null
+    private var amazonSkillId: String? = null
     private var dialogflowProject: String? = null
-    private var dialogflowServiceAccount: String? = null
+    private var dialogflowServiceAccount: File? = null
+
+    private var invocationName: String = ""
+        get() {
+            if (invocationName.isEmpty()) {
+                throw IllegalArgumentException("Invocation name not set!")
+            }
+            return field
+        }
 
     fun parseArgs(args: Array<String>) {
-        val inputFiles = mutableListOf<File>()
+        val api = KonversationApi(amazonClientId, amazonClientSecret)
+        api.logger = L
+        var amazonRefreshToken: String? = null
         if (args.isEmpty()) {
             L.error("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
             L.error()
@@ -46,18 +45,17 @@ open class Cli {
                 val arg = args[argNo]
                 val argFile = File(arg)
                 if (argFile.absoluteFile.exists()) {
-                    inputFiles += File(arg).absoluteFile
+                    api.inputFiles += File(arg).absoluteFile
                 } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar") || arg.endsWith(".values")) {
                     if (arg.contains('*')) {
                         val matcher = argFile.name.replace(".", "\\.").replace("*", ".*?").toRegex()
                         argFile.parentFile.listFiles { _, name ->
                             matcher.matches(name)
                         }.map { file ->
-                            inputFiles += file.absoluteFile
+                            api.inputFiles += file.absoluteFile
                         }
                     } else {
-                        L.error("Input file \"$arg\" not found!")
-                        exit(-1)
+                        throw IllegalArgumentException("Input file \"$arg\" not found!")
                     }
                 } else {
                     when (arg.toLowerCase()) {
@@ -75,40 +73,34 @@ open class Cli {
                         "--export-alexa" -> if (++argNo < args.size) {
                             alexaIntentSchema = File(args[argNo])
                         } else {
-                            L.error("Target is missing")
-                            exit(-1)
+                            throw IllegalArgumentException("Target is missing")
                         }
                         "--alexa-login" -> {
-                            amazonApi.login()
+                            api.authorizeAmazon(21337)
                         }
                         "--alexa-token" -> if (++argNo < args.size) {
-                            amazonApi.loadToken(args[argNo])
+                            amazonRefreshToken = args[argNo]
                         } else {
-                            L.error("Refresh token is missing")
-                            exit(-1)
+                            throw IllegalArgumentException("Refresh token is missing")
                         }
                         "--alexa-upload" -> if (++argNo < args.size) {
-                            uploadSkillId = args[argNo]
+                            amazonSkillId = args[argNo]
                         } else {
-                            L.error("Skill id is missing")
-                            exit(-1)
+                            throw IllegalArgumentException("Skill id is missing")
                         }
                         "--export-dialogflow" -> if (++argNo < args.size) {
                             dialogflowDir = File(args[argNo]).absoluteFile
                         } else {
-                            L.error("Target is missing")
-                            exit(-1)
+                            throw IllegalArgumentException("Target is missing")
                         }
                         "--dialogflow-upload" -> if (argNo + 2 < args.size) {
-                            dialogflowServiceAccount = args[++argNo]
+                            dialogflowServiceAccount = File(args[++argNo])
                             dialogflowProject = args[++argNo]
-                            if(!File(dialogflowServiceAccount).exists()) {
-                                L.error("Service account file not found")
-                                exit(-1)
+                            if (dialogflowServiceAccount?.exists() != true) {
+                                throw IllegalArgumentException("Service account file not found")
                             }
                         } else {
-                            L.error("Arguments missing: service account file and project name is required.")
-                            exit(-1)
+                            throw IllegalArgumentException("Arguments missing: service account file and project name is required.")
                         }
                         "invocation",
                         "-invocation" -> if (++argNo < args.size) {
@@ -117,100 +109,48 @@ open class Cli {
                         "--export-kson" -> if (++argNo < args.size) {
                             ksonDir = File(args[argNo])
                         } else {
-                            L.error("Target directory is missing")
-                            exit(-1)
+                            throw IllegalArgumentException("Target directory is missing")
                         }
                         "stats",
                         "-stats" -> stats = true
-                        "limit",
-                        "-limit",
-                        "top",
-                        "-top" -> if (++argNo < args.size) {
-                            try {
-                                limit = args[argNo].toInt()
-                            } catch (e: Throwable) {
-                                L.error("\"${args[argNo]}\" is no valid count of utterances.")
-                                exit(-1)
-                            }
-                        } else {
-                            L.error("Count is missing!")
-                            exit(-1)
-                        }
                         "prettyprint",
                         "-prettyprint" -> prettyPrint = true
                         "dump",
                         "-dump" -> dumpOnly = true
                         "-v",
                         "-version" -> L.log("Konversation CLI version 1.1.0-rc1")
-                        else -> L.error("Unknown argument \"$arg\".")
+                        else ->throw IllegalArgumentException("Unknown argument \"$arg\".")
                     }
                 }
                 argNo++
             }
 
-            inputFiles.forEach { inputFile ->
-                when {
-                    inputFile.isFile -> {
-                        inputFileCount++
-                        val parser = parseFile(inputFile)
-                        intentDb.getOrPut("") { mutableListOf() } += parser.intents
-                        parser.entities?.let { entityDb.getOrPut("") { mutableListOf() } += it }
-                    }
-                    inputFile.isDirectory -> inputFile
-                        .listFiles { dir: File?, name: String? ->
-                            File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
-                        }.toList()
-                        .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") || name.endsWith(".values") }.toList() }
-                        .also {
-                            inputFileCount += it.size
-                        }
-                        .forEach { file ->
-                            val prefix = file.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
-                            val parser = parseFile(file)
-                            intentDb.getOrPut(prefix) { mutableListOf() } += parser.intents
-                            parser.entities?.let { entityDb.getOrPut(prefix) { mutableListOf() } += it }
-                        }
-                    else -> {
-                        L.error("Input file not found!")
-                        exit(-1)
-                    }
-                }
-            }
+            showStats(api)
 
-            showStats()
-
-            ksonDir?.let(::exportKson)
-            alexaIntentSchema?.let(::exportAlexa)
-            dialogflowDir?.let(::exportDialogflow)
-            uploadSkillId?.let { uploadSkillId ->
-                invocationName?.let { invocationName ->
-                    intentDb[""]?.let { intents ->
-                        amazonApi.uploadSchema(invocationName, "de-DE", intents, entityDb[""], uploadSkillId)
-                    }
-                } ?: run {
-                    L.error("Invocation name not set!")
-                    exit(-1)
-                }
+            ksonDir?.let { dir ->
+                api.exportKson(dir, prettyPrint)
             }
-            dialogflowServiceAccount?.let {serviceAccount ->
-                dialogflowProject?.let {project ->
-                    invocationName?.let { invocationName ->
-                        intentDb[""]?.let { intents ->
-                            DialogflowApi(serviceAccount).uploadIntents(invocationName, project, intents, entityDb[""])
-                        }
-                    } ?: run {
-                        L.error("Invocation name not set!")
-                        exit(-1)
-                    }
-                }
+            alexaIntentSchema?.let { file ->
+                api.exportAlexaSchema(file, invocationName, prettyPrint)
+            }
+            dialogflowDir?.let { dir ->
+                api.exportDialogflow(dir, invocationName, prettyPrint)
+            }
+            amazonSkillId?.let { skillId ->
+                amazonRefreshToken?.let { refreshToken ->
+                    api.updateAlexaSchema(refreshToken, invocationName, skillId)
+                } ?: throw IllegalArgumentException("Amazon token not set")
+            }
+            dialogflowServiceAccount?.let { serviceAccount ->
+                api.updateDialogflowProject(serviceAccount, dialogflowProject!!, invocationName)
             }
         }
     }
 
     open fun parseFile(file: File) = Parser(file)
 
-    private fun showStats() = intentDb[""]?.let { intents ->
-        val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
+    private fun showStats(api: KonversationApi) = api.intentDb[""]?.let { intents ->
+        val intentCount = api.intentDb.values.flatten().distinctBy { it.name }.size
         L.info("Parsing of $inputFileCount file${if (inputFileCount != 1) "s" else ""} finished. Found $intentCount intent${if (intentCount != 1) "s" else ""}.")
 
         fun Number.formatted() = String.format(Locale.getDefault(), "%,d", this)
@@ -250,81 +190,6 @@ open class Cli {
         }
         if (stats) L.info("Generated in total ${all.formatted()} Utterances")
         //println("- " + all.sorted().joinToString(separator = "\n- "))
-
-        if (dumpOnly) {
-            intents.forEach { intent ->
-                if (intent.utterances.isEmpty()) {
-                    L.info("Skipping empty intent ${intent.name}...")
-                } else {
-                    L.log("Dumping ${intent.name}...")
-                    val stream = File("${intent.name}.txt").outputStream()
-                    intent.utterances.forEach { utterance ->
-                        utterance.permutations.forEach { permutation ->
-                            stream.write(permutation.toByteArray())
-                            stream.write(13)
-                            stream.write(10)
-                        }
-                    }
-                    stream.close()
-                }
-            }
-        }
-    }
-
-    private fun exportKson(baseDir: File) = intentDb.forEach { (config, intents) ->
-        val targetDir = File(baseDir.absolutePath + File.separator + "konversation".join("-", config))
-        ksonDir?.let {
-            intents.forEach { intent ->
-                val exporter = KsonExporter(intent.name)
-                targetDir.mkdirs()
-                val stream = File(targetDir, "${intent.name}.kson").outputStream()
-                val printer: Printer = { line ->
-                    stream.write(line.toByteArray())
-                }
-                if (prettyPrint) {
-                    exporter.prettyPrinted(printer, intents, entityDb[config])
-                } else {
-                    exporter.minified(printer, intents, entityDb[config])
-                }
-                stream.close()
-            }
-        }
-    }
-
-    private fun exportAlexa(alexaIntentSchema: File) = intentDb.forEach { (config, intents) ->
-        alexaIntentSchema.absoluteFile.parentFile.mkdirs()
-        invocationName?.let { skillName ->
-            val exporter = AlexaExporter(skillName, limit ?: Int.MAX_VALUE)
-            val stream = alexaIntentSchema.outputStream()
-            val printer: Printer = { line ->
-                stream.write(line.toByteArray())
-            }
-            if (prettyPrint) {
-                exporter.prettyPrinted(printer, intents, entityDb[config])
-            } else {
-                exporter.minified(printer, intents, entityDb[config])
-            }
-            stream.close()
-        } ?: run {
-            L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
-            exit(-1)
-        }
-    }
-
-    private fun exportDialogflow(baseDir: File) = intentDb.forEach { (config, intents) ->
-        invocationName?.let { skillName ->
-            val exporter = DialogflowExporter(skillName)
-            val stream = File(baseDir, "dialogflow-$config.zip").outputStream()
-            if (prettyPrint) {
-                exporter.prettyPrinted(stream, intents, entityDb[config])
-            } else {
-                exporter.minified(stream, intents, entityDb[config])
-            }
-            stream.close()
-        } ?: run {
-            L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
-            exit(-1)
-        }
     }
 
     private fun help() {
@@ -352,10 +217,17 @@ open class Cli {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            Cli().parseArgs(args)
+            try {
+                Cli().parseArgs(args)
+            } catch (e: java.lang.IllegalArgumentException) {
+                L.error(e.message.orEmpty())
+                exitProcess(-1)
+            }
         }
 
         var L: LoggerFacade = DefaultLogger()
+        const val amazonClientId = "amzn1.application-oa2-client.c57e86e21f464b0d8166b37ef867abd8"
+        const val amazonClientSecret = "88f6586c4ff2519f6c129402a9d732e0a8baa7d375e29f80010796ac82f06a00"
     }
 }
 

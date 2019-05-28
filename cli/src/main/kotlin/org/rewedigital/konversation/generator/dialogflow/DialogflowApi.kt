@@ -4,10 +4,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import org.rewedigital.konversation.Entities
 import org.rewedigital.konversation.Intent
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
-class DialogflowApi(private val credentials : String) {
+class DialogflowApi(private val credentials : File) {
     fun uploadIntents(invocationName: String, project: String, intents: List<Intent>, entities: List<Entities>?): Boolean {
         val credential = GoogleCredential.fromStream(FileInputStream(credentials))
             .createScoped(listOf("https://www.googleapis.com/auth/dialogflow"))

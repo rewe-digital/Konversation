@@ -7,9 +7,7 @@ import java.net.ServerSocket
 import java.net.URI
 import java.util.*
 
-class AmazonApi(private var refreshToken: String? = null) {
-    private val clientId = ""
-    private val clientSecret = ""
+class AmazonApi(private val clientId: String, private val clientSecret: String, private var refreshToken: String? = null) {
     private var accessToken: String? = null
         get() = field ?: refreshToken?.let {
             khttp.post(
@@ -22,7 +20,7 @@ class AmazonApi(private var refreshToken: String? = null) {
                 .getString("access_token")
         }
 
-    fun login() {
+    fun login(serverPort: Int) {
         val random = UUID.randomUUID().toString()
         val loginUrl = "https://www.amazon.com/ap/oa/?client_id=$clientId&scope=alexa::ask:skills:readwrite+alexa::ask:models:readwrite&response_type=code&redirect_uri=http:%2F%2Flocalhost:21337%2F&state=$random"
 
@@ -34,8 +32,8 @@ class AmazonApi(private var refreshToken: String? = null) {
             println("Please open a browser and visit this url: $loginUrl")
         }
 
-        // Open a very minimalistic webserver on port 21337 for the login result
-        val server = ServerSocket(21337)
+        // Open a very minimalistic webserver on port $serverPort for the login result
+        val server = ServerSocket(serverPort)
         val client = server.accept()
         val reader = Scanner(client.getInputStream())
         val writer = client.getOutputStream()
@@ -81,13 +79,16 @@ class AmazonApi(private var refreshToken: String? = null) {
         this.refreshToken = refreshToken
     }
 
-    fun uploadSchema(invocationName: String, locale: String, intents: List<Intent>, entities: List<Entities>?, skillId: String) {
+    fun uploadSchema(invocationName: String, locale: String, intents: List<Intent>, entities: List<Entities>?, skillId: String): Boolean {
         val json = StringBuilder()
-        AlexaExporter(invocationName, Int.MAX_VALUE).minified({ json.append(it)}, intents, entities)
-        val jsonString = json.toString()
-        println(String(khttp.put(
+        AlexaExporter(invocationName, Int.MAX_VALUE).minified({ json.append(it) }, intents, entities)
+        val response = khttp.put(
             url = "https://api.amazonalexa.com/v1/skills/$skillId/stages/development/interactionModel/locales/$locale",
             headers = mapOf("Authorization" to "Bearer $accessToken"),
-            data = jsonString).content))
+            data = json.toString())
+        if (response.statusCode != 200) {
+            println("Error while updating the intent schema: " + String(response.content))
+        }
+        return response.statusCode == 200
     }
 }

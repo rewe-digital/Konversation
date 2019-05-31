@@ -19,7 +19,7 @@ class AlexaExporter(private val skillName: String, private val limit: Int = Int.
 
         // write out intents
         intents.filter { intent ->
-            intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.")
+            (intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.", true) && !intent.name.startsWith("Google", true))
         }.forEachIterator { intent ->
             printer("        {\n" +
                     "          \"name\": \"${intent.name.cleanupIntentName()}\",\n" +
@@ -142,7 +142,9 @@ class AlexaExporter(private val skillName: String, private val limit: Int = Int.
                 "\"intents\":[")
 
         // write out intents
-        intents.forEachIterator { intent ->
+        intents.filter { intent ->
+            (intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.", true) && !intent.name.startsWith("Google", true))
+        }.forEachIterator { intent ->
             printer("{" +
                     "\"name\":\"${intent.name}\"," +
                     "\"slots\":[")

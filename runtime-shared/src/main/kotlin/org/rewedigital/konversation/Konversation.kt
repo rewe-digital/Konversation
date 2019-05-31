@@ -15,7 +15,7 @@ open class Konversation(val name: String, private val environment: Environment) 
 
     private data class OutputHolder(val ssml: String, val text: String)
 
-    private fun create(data: Map<String, Any>): OutputHolder {
+    private fun buildOutput(): OutputHolder {
         val text = StringBuilder()
         val ssml = StringBuilder("<speak>")
         answer.parts
@@ -31,11 +31,11 @@ open class Konversation(val name: String, private val environment: Environment) 
                     ssml.append(" ")
             }
         ssml.append("</speak>")
-        return OutputHolder(applyVariables(ssml.toString(), data), applyVariables(text.toString().trimEnd(), data))
+        return OutputHolder(ssml.toString(), text.toString().trimEnd())
     }
 
-    internal fun applyVariables(input: String, data: Map<String, Any>) =
-        regex.replace(input) { matchResult ->
+    internal fun String.applyVariables(data: Map<String, Any>) =
+        regex.replace(this) { matchResult ->
             val needle = matchResult.groups.first()?.value
             val fieldName = matchResult.groups.filterNotNull().last().value
             if (needle?.startsWith("%") == true) {
@@ -49,11 +49,11 @@ open class Konversation(val name: String, private val environment: Environment) 
      * Creates a static randomized output for your voice application.
      * The [data] will be applied to the output so that you can customize the output with your values.
      */
-    fun createOutput(data: Map<String, Any> = emptyMap()) = create(data).run {
-        Output(displayText = text,
-            ssml = ssml,
-            reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)] }.toMap(),
-            suggestions = answer.suggestions,
+    fun createOutput(data: Map<String, Any> = emptyMap()) = buildOutput().run {
+        Output(displayText = text.applyVariables(data),
+            ssml = ssml.applyVariables(data),
+            reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)].applyVariables(data) }.toMap(),
+            suggestions = answer.suggestions.map { it.applyVariables(data) },
             extras = emptyMap())
     }
 

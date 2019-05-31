@@ -48,24 +48,26 @@ class KonversationTest {
 
     @Test
     fun `Check if applying variables work`() {
-        val input = "Hallo \$planet \${user.name} %1.2f\$age"
         val data = mapOf("planet" to "Welt", "user.name" to "René", "age" to 12.34)
 
-        val result = Konversation("help", environment).applyVariables(input, data)
+        val result = Konversation("ApplyVariableTest", Environment("google", "de-DE")).createOutput(data)
 
-        val expected = "Hallo Welt René 12,34"
-        assertEquals(expected, result, "Took the input \"$input\" and injected $data")
+        val expectedText = "Hallo Welt. You are René!"
+        val expectedSsml = "<speak>Hallo Welt. You are René! And I know this age: 12,34</speak>"
+        assertEquals(expectedText, result.displayText)
+        assertEquals(expectedSsml, result.ssml)
     }
 
     @Test
     fun `Check if different locale work`() {
-        val input = "Hallo \$planet \${user.name} %1.2f\$age"
-        val data = mapOf("planet" to "world", "user.name" to "René", "age" to 12.34)
+        val data = mapOf("planet" to "Welt", "user.name" to "René", "age" to 12.34)
 
-        val result = Konversation("help", Environment("google", "en-US")).applyVariables(input, data)
+        val result = Konversation("ApplyVariableTest", Environment("google", "en-US")).createOutput(data)
 
-        val expected = "Hallo world René 12.34"
-        assertEquals(expected, result, "Took the input \"$input\" and injected $data")
+        val expectedText = "Hallo Welt. You are René!"
+        val expectedSsml = "<speak>Hallo Welt. You are René! And I know this age: 12.34</speak>"
+        assertEquals(expectedText, result.displayText)
+        assertEquals(expectedSsml, result.ssml)
     }
 
     companion object {

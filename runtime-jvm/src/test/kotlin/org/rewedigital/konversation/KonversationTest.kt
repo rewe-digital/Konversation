@@ -54,8 +54,12 @@ class KonversationTest {
 
         val expectedText = "Hallo Welt. You are René!"
         val expectedSsml = "<speak>Hallo Welt. You are René! And I know this age: 12,34</speak>"
+        val expectedSuggestions = listOf("Tell me more about Welt", "Tell me more about René")
         assertEquals(expectedText, result.displayText)
         assertEquals(expectedSsml, result.ssml)
+        assertEquals(2, result.suggestions.size, "Expect two suggestions")
+        assertEquals(expectedSuggestions[0], result.suggestions[0])
+        assertEquals(expectedSuggestions[1], result.suggestions[1])
     }
 
     @Test

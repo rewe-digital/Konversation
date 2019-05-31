@@ -17,6 +17,7 @@ object Permutator {
         var counter = 0
         val slots = mutableListOf<String>()
         var lastWasMasked = false
+        var dontProcess = false
         line.forEachIndexed { i, c ->
             when (c) {
                 '\\' -> lastWasMasked = true
@@ -38,7 +39,9 @@ object Permutator {
                         when (counter) {
                             1 -> {
                                 // we found the end of the slot
-                                slots.add(line.substring(start, i))
+                                if (!dontProcess) {
+                                    slots.add(line.substring(start, i))
+                                }
                             }
                             //2 -> {
                             //    // we found the end of a slot type, that is fine
@@ -48,9 +51,10 @@ object Permutator {
                         counter--
                     }
                     lastWasMasked = false
+                    dontProcess = false
                 }
-                //'%',
-                //'$'-> {
+                '$' -> dontProcess = true
+                //'%'-> {
 
                 //}
                 else -> lastWasMasked = false

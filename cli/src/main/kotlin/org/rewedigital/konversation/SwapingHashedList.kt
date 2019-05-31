@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption
 import java.util.*
 import javax.naming.OperationNotSupportedException
 import kotlin.collections.HashSet
+import kotlin.collections.LinkedHashSet
 
 class SwapingHashedList(prefix: String) : HashSet<String>() {
     private var isSwapping = false
@@ -47,13 +48,13 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
 
     // load the hashes just when required
     private fun loadHashes(): HashSet<Int> {
-        val hashList = HashSet<Int>()
+        val hashList = LinkedHashSet<Int>()
         //Cli.L.debug("FYI using temp file $cacheFile")
         if (hashFile.exists() && cacheFile.exists()) {
-            Cli.L.debug("Reading hash file...")
+            //Cli.L.debug("Reading hash file...")
             val stream = FileInputStream(hashFile)
             val buf = try {
-                ByteArray(Math.min(hashFile.length(), 1073741824).toInt()) // 1GB or less
+                ByteArray(minOf(hashFile.length(), 1073741824).toInt()) // 1GB or less
             } catch (e: OutOfMemoryError) {
                 // Okay we are less greedy
                 Cli.L.warn("Low memory detected.")
@@ -64,7 +65,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
                 for (i in 0 until read step 4) {
                     hashList.add(buf.getIntAt(i))
                 }
-                Cli.L.debug("size: ${hashList.size}")
+                //Cli.L.debug("size: ${hashList.size}")
                 read = stream.read(buf, 0, buf.size)
             } while (read > 0)
         } else if (cacheFile.exists()) {
@@ -116,6 +117,22 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
         hashList.contains(element.hashCode())
     } else {
         smallList.contains(element)
+    }
+
+    fun containsHash(hash: Int): Boolean = if (isSwapping) {
+        hashList.contains(hash)
+    } else {
+        smallList.map { it.hashCode() }.contains(hash)
+    }
+
+    fun intersectionOf(other: SwapingHashedList): List<Int> {
+        val intersection = mutableListOf<Int>()
+        hashList.forEach { hash: Int ->
+            if (other.hashList.contains(hash)) {
+                intersection += other.hashList.indexOf(hash)
+            }
+        }
+        return intersection
     }
 
     override fun containsAll(elements: Collection<String>): Boolean = if (isSwapping) {

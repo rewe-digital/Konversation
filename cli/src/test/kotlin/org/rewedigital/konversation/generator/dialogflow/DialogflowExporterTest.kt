@@ -17,7 +17,7 @@ class DialogflowExporterTest {
         DialogflowExporter("test").minified(output, emptyList(), null)
         assertEquals(1, output.files.size, "Expect only one file")
         assertEquals("package.json", output.files.entries.first().key, "Should contain a package.json")
-        assertEquals("{\"version\":\"1.0.0\"}", output.files.entries.first().value, "package.json has an unexpected content")
+        assertEquals("""{"version":"1.0.0"}""", output.files.entries.first().value, "package.json has an unexpected content")
     }
 
     @Test
@@ -25,10 +25,8 @@ class DialogflowExporterTest {
         val output = ZipHelper()
         DialogflowExporter("test").minified(output, listOf(Intent("Foo")), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
-        assertEquals("{\"version\":\"1.0.0\"}", output.files["package.json"], "package.json has an unexpected content")
-        val intentJson =
-            """{"id":"1356c67d-7ad1-338d-816b-fb822dd2c25d","name":"Foo","auto":true,"contexts":[],"responses":[{"resetContexts":false,"action":"Foo","affectedContexts":[],"parameters":[],"messages":[{"type":0,"lang":"de","speech":[]}],"defaultResponsePlatforms":{},"speech":[]}],"priority":500000,"webhookUsed":true,"webhookForSlotFilling":false,"lastUpdate":0,"fallbackIntent":false,"events":[]}"""
-        assertEquals(output.files["intents/Foo.json"]?.replace("\"lastUpdate\":\\d+".toRegex(), "\"lastUpdate\":0"), intentJson)
+        assertEquals("""{"version":"1.0.0"}""", output.files["package.json"], "package.json has an unexpected content")
+        assertEquals(expectedExtendedMinifiedIntent, output.files["intents/Foo.json"].replaceTimestamp())
         assertEquals(output.files["intents/Foo_usersays_de.json"], "[]")
     }
 
@@ -41,13 +39,9 @@ class DialogflowExporterTest {
                 Utterance("bbb", "bbb")))
         DialogflowExporter("test").minified(output, listOf(intent), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
-        assertEquals("{\"version\":\"1.0.0\"}", output.files["package.json"], "package.json has an unexpected content")
-        val intentJson =
-            """{"id":"1356c67d-7ad1-338d-816b-fb822dd2c25d","name":"Foo","auto":true,"contexts":[],"responses":[{"resetContexts":false,"action":"Foo","affectedContexts":[],"parameters":[],"messages":[{"type":0,"lang":"de","speech":[]}],"defaultResponsePlatforms":{},"speech":[]}],"priority":500000,"webhookUsed":true,"webhookForSlotFilling":false,"lastUpdate":0,"fallbackIntent":false,"events":[]}"""
-        assertEquals(output.files["intents/Foo.json"]?.replace("\"lastUpdate\":\\d+".toRegex(), "\"lastUpdate\":0"), intentJson)
-        val usersays =
-            """[{"id":"398f06a5-2d31-31bd-87fc-f125c035d979","data":[{"text":"aaa","userDefined":false}],"isTemplate":false,"count":0},{"id":"aac098f8-9e9f-311f-ba5d-eafb90377e43","data":[{"text":"bbb","userDefined":false}],"isTemplate":false,"count":0}]"""
-        assertEquals(output.files["intents/Foo_usersays_de.json"]?.replace("\"updated\":\\d+".toRegex(), "\"updated\":0"), usersays)
+        assertEquals("""{"version":"1.0.0"}""", output.files["package.json"], "package.json has an unexpected content")
+        assertEquals(expectedExtendedMinifiedIntent, output.files["intents/Foo.json"].replaceTimestamp())
+        assertEquals(expectedMinifiedUsersays, output.files["intents/Foo_usersays_de.json"])
     }
 
     @Test
@@ -63,13 +57,9 @@ class DialogflowExporterTest {
             suggestions = mutableListOf("Foo", "Bar"))
         DialogflowExporter("test").minified(output, listOf(intent), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
-        assertEquals("{\"version\":\"1.0.0\"}", output.files["package.json"], "package.json has an unexpected content")
-        val intentJson =
-            """{"id":"1356c67d-7ad1-338d-816b-fb822dd2c25d","name":"Foo","auto":true,"contexts":[],"responses":[{"resetContexts":false,"action":"Foo","affectedContexts":[],"parameters":[],"messages":[{"type":0,"lang":"de","speech":["hi"]},{"type":2,"lang":"de","replies":["Foo","Bar"]}],"defaultResponsePlatforms":{},"speech":[]}],"priority":500000,"webhookUsed":true,"webhookForSlotFilling":false,"lastUpdate":0,"fallbackIntent":false,"events":[]}"""
-        assertEquals(output.files["intents/Foo.json"]?.replace("\"lastUpdate\":\\d+".toRegex(), "\"lastUpdate\":0"), intentJson)
-        val usersays =
-            """[{"id":"398f06a5-2d31-31bd-87fc-f125c035d979","data":[{"text":"aaa","userDefined":false}],"isTemplate":false,"count":0},{"id":"aac098f8-9e9f-311f-ba5d-eafb90377e43","data":[{"text":"bbb","userDefined":false}],"isTemplate":false,"count":0}]"""
-        assertEquals(output.files["intents/Foo_usersays_de.json"]?.replace("\"updated\":\\d+".toRegex(), "\"updated\":0"), usersays)
+        assertEquals("""{"version":"1.0.0"}""", output.files["package.json"], "package.json has an unexpected content")
+        assertEquals(expectedMinifiedIntent, output.files["intents/Foo.json"].replaceTimestamp())
+        assertEquals(expectedMinifiedUsersays, output.files["intents/Foo_usersays_de.json"])
     }
 
     @Test
@@ -86,12 +76,8 @@ class DialogflowExporterTest {
         DialogflowExporter("test").prettyPrinted(output, listOf(intent), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
         assertEquals("{\n  \"version\": \"1.0.0\"\n}", output.files["package.json"], "package.json has an unexpected content")
-        val intentJson =
-            """{"id":"1356c67d-7ad1-338d-816b-fb822dd2c25d","name":"Foo","auto":true,"contexts":[],"responses":[{"resetContexts":false,"action":"Foo","affectedContexts":[],"parameters":[],"messages":[{"type":0,"lang":"de","speech":["hi"]},{"type":2,"lang":"de","replies":["Foo","Bar"]}],"defaultResponsePlatforms":{},"speech":[]}],"priority":500000,"webhookUsed":true,"webhookForSlotFilling":false,"lastUpdate":0,"fallbackIntent":false,"events":[]}"""
-        assertEquals(output.files["intents/Foo.json"]?.replace("\": ", "\":")?.replace("\n *".toRegex(), "")?.replace("\"lastUpdate\":\\d+".toRegex(), "\"lastUpdate\":0"), intentJson)
-        val usersays =
-            """[{"id":"398f06a5-2d31-31bd-87fc-f125c035d979","data":[{"text":"aaa","userDefined":false}],"isTemplate":false,"count":0},{"id":"aac098f8-9e9f-311f-ba5d-eafb90377e43","data":[{"text":"bbb","userDefined":false}],"isTemplate":false,"count":0}]"""
-        assertEquals(output.files["intents/Foo_usersays_de.json"]?.replace("\": ", "\":")?.replace("\n *".toRegex(), "")?.replace("\"updated\":\\d+".toRegex(), "\"updated\":0"), usersays)
+        assertEquals(expectedPrettyPrintedIntent, output.files["intents/Foo.json"].replaceTimestamp())
+        assertEquals(expectedPrettyPrintedUsersays, output.files["intents/Foo_usersays_de.json"])
     }
 
     private class ZipHelper : ByteArrayOutputStream() {
@@ -116,5 +102,81 @@ class DialogflowExporterTest {
             zipStream.closeEntry()
             files
         }
+    }
+
+    companion object {
+        private val expectedPrettyPrintedUsersays = """
+            [
+              {
+                "id": "398f06a5-2d31-31bd-87fc-f125c035d979",
+                "data": [
+                  {
+                    "text": "aaa",
+                    "userDefined": false
+                  }
+                ],
+                "isTemplate": false,
+                "count": 0
+              },
+              {
+                "id": "aac098f8-9e9f-311f-ba5d-eafb90377e43",
+                "data": [
+                  {
+                    "text": "bbb",
+                    "userDefined": false
+                  }
+                ],
+                "isTemplate": false,
+                "count": 0
+              }
+            ]""".trimIndent()
+        private val expectedMinifiedUsersays = expectedPrettyPrintedUsersays.replace("\": ", "\":").replace("\n *".toRegex(), "")
+        private const val expectedExtendedMinifiedIntent =
+            """{"id":"1356c67d-7ad1-338d-816b-fb822dd2c25d","name":"Foo","auto":true,"contexts":[],"responses":[{"resetContexts":false,"action":"Foo","affectedContexts":[],"parameters":[],"messages":[{"type":0,"lang":"de","speech":[]}],"defaultResponsePlatforms":{},"speech":[]}],"priority":500000,"webhookUsed":true,"webhookForSlotFilling":false,"lastUpdate":4711,"fallbackIntent":false,"events":[]}"""
+        private val expectedPrettyPrintedIntent = """
+            {
+              "id": "1356c67d-7ad1-338d-816b-fb822dd2c25d",
+              "name": "Foo",
+              "auto": true,
+              "contexts": [],
+              "responses": [
+                {
+                  "resetContexts": false,
+                  "action": "Foo",
+                  "affectedContexts": [],
+                  "parameters": [],
+                  "messages": [
+                    {
+                      "type": 0,
+                      "lang": "de",
+                      "speech": [
+                        "hi"
+                      ]
+                    },
+
+                    {
+                      "type": 2,
+                      "lang": "de",
+                      "replies": [
+                        "Foo",
+                        "Bar"
+                      ]
+                    }
+                  ],
+                  "defaultResponsePlatforms": {},
+                  "speech": []
+                }
+              ],
+              "priority": 500000,
+              "webhookUsed": true,
+              "webhookForSlotFilling": false,
+              "lastUpdate": 4711,
+              "fallbackIntent": false,
+              "events": []
+            }""".trimIndent()
+        private val expectedMinifiedIntent = expectedPrettyPrintedIntent.replace("\": ", "\":").replace("\n *".toRegex(), "")
+
+        private fun String?.replaceAttributeValue(attribute: String, value: String) = this?.replace("\"$attribute\":( )?\\d+".toRegex(), "\"$attribute\":$1$value")
+        private fun String?.replaceTimestamp() = this.replaceAttributeValue("lastUpdate", "4711")
     }
 }

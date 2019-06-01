@@ -35,18 +35,14 @@ data class DialogflowUtterance(
     }
 
     override fun minified(printer: Printer) {
-        printer("{\"count\":$count,\"data\":[")
+        printer("""{"id":"$id","data":[""")
         data.forEachIterator {
             it.minified(printer)
             if (hasNext()) {
                 printer(",")
             }
         }
-        printer("],")
-        printer("\"id\":\"$id\",")
-        printer("\"isTemplate\":$isTemplate,")
-        printer("\"updated\":$updated")
-        printer("}")
+        printer("""],"isTemplate":$isTemplate,"count":$count}""")
     }
 
     data class UtterancePart(

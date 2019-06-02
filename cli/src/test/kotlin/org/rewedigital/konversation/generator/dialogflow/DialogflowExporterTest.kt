@@ -126,13 +126,13 @@ class DialogflowExporterTest {
         assertEquals(9, output.files.size, "Expect expect 9 files")
         assertEquals("""{"version":"1.0.0"}""", output.files["package.json"], "package.json has an unexpected content")
         assertEquals(expectedIntentWithEntities.minified(), output.files["intents/Foo.json"].replaceTimestamp())
-        assertEquals(expectedUsersaysWithEntities.minified(), output.files["intents/Foo_usersays_de.json"]) // FIXME
+        assertEquals(expectedUsersaysWithEntities.minified(), output.files["intents/Foo_usersays_de.json"])
         assertEquals(expectedTypeA.minified(), output.files["entities/TypeA.json"])
         assertEquals(expectedTypeAEntries.minified(), output.files["entities/TypeA_entries_de.json"])
         assertEquals(expectedTypeB.minified(), output.files["entities/TypeB.json"])
         assertEquals(expectedTypeBEntries.minified(), output.files["entities/TypeB_entries_de.json"])
         assertEquals(expectedTypeC.minified(), output.files["entities/TypeC.json"])
-        assertEquals(expectedTypeCEntries.minified(), output.files["entities/TypeC_entries_de.json"]) // FIXME
+        assertEquals(expectedTypeCEntries.minified(), output.files["entities/TypeC_entries_de.json"])
     }
 
     private class ZipHelper : ByteArrayOutputStream() {

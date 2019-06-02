@@ -111,13 +111,21 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             json.append("[")
             entries.forEachBreakable {
                 it.minified { s -> json.append(s) }
-                if (hasNext()) json.append(",\n")
+                if (hasNext()) json.append(",")
             }
             json.append("]")
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.filter { !it.name.startsWith("AMAZON.") }.forEach { intent ->
+        intents.filter { !it.name.startsWith("AMAZON.") }.forEachIndexed { i, intent ->
+            json.clear()
+            val intentData = DialogflowIntent(
+                id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
+                lastUpdate = System.currentTimeMillis() / 1000,
+                name = intent.name,
+                responses = createResponses(intent))
+            intentData.minified { s -> json.append(s) }
+            zipStream.add("intents/${intent.name}.json", json)
             json.clear()
             json.append("[")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
@@ -126,7 +134,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
-                utterance.permutations.forEachIndexedAndBreakable { sentence, i ->
+                utterance.permutations.forEachBreakable { sentence ->
                     val data = if (sentence.contains("{") && sentence.contains("}")) {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
                             val type = slots[part]
@@ -153,14 +161,6 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }
             json.append("]")
             zipStream.add("intents/${intent.name}_usersays_$lang.json", json)
-            //println(json)
-            json.clear()
-            val intentData = DialogflowIntent(id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
-                lastUpdate = System.currentTimeMillis() / 1000,
-                name = intent.name,
-                responses = createResponses(intent))
-            intentData.minified { s -> json.append(s) }
-            zipStream.add("intents/${intent.name}.json", json)
         }
         zipStream.add("package.json", java.lang.StringBuilder("{\"version\":\"1.0.0\"}"))
         zipStream.close()
@@ -216,12 +216,6 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         "sys.ordinal" -> "$int."
         "sys.color" -> "Blau"
         else -> type
-    }
-
-    private fun <T> Iterable<T>.forEachIndexedAndBreakable(block: BreakableIterator<T>.(element: T, i: Int) -> Unit) {
-        val iterator = BreakableIterator(iterator())
-        var i = 0
-        while (iterator.hasNext()) block(iterator, iterator.next(), i++)
     }
 
     // this method is something like a zip operation, but it equalized the list length first

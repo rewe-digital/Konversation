@@ -23,4 +23,4 @@ pluginManagement {
 }
 rootProject.name = 'konversation'
 
-include 'runtime-shared', 'runtime-jvm', 'runtime-js', 'cli', 'shared', 'gradle-plugin', 'plugin-example'
+include 'runtime-shared', 'runtime-jvm', 'runtime-js', 'cli', 'shared', 'gradle-plugin', 'plugin-example', 'editor'

@@ -15,7 +15,8 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.17"
+        classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.9.17'
         classpath 'com.novoda:bintray-release:0.9'
+        classpath 'org.apache.httpcomponents:httpclient:4.5.5'
     }
 }

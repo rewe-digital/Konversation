@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.rewedigital.konversation.editor</id>
     <name>Editor and extensions for Konversation files</name>
-    <vendor email="opensource@rewe-digital.com" url="http://www.rewedigital.org">REWE Digital GmbH</vendor>
+    <vendor email="opensource@rewe-digital.com" url="https://www.rewe-digital.com">REWE Digital GmbH</vendor>
 
     <description><![CDATA[
     TODO
@@ -15,6 +15,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <fileTypeFactory implementation="org.rewedigital.konversation.editor.KonversationFileTypeFactory"/>
+        <lang.parserDefinition language="Konversation" implementationClass="org.rewedigital.konversation.editor.KonversationParserDefinition"/>
     </extensions>
 
     <actions>

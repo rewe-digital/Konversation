@@ -1,0 +1,65 @@
+{
+  parserClass="org.rewedigital.konversation.editor.KonversationParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Konversation"
+  psiImplClassSuffix="Impl"
+  psiPackage="org.rewedigital.konversation.editor.psi"
+  psiImplPackage="org.rewedigital.konversation.editor.impl"
+
+  elementTypeHolderClass="org.rewedigital.konversation.editor.psi.KonversationTypes"
+  elementTypeClass="org.rewedigital.konversation.editor.psi.KonversationElementType"
+  tokenTypeClass="org.rewedigital.konversation.editor.psi.KonversationElementType"
+
+  tokens = [
+      COLON=":"
+      UTTERANCE="!"
+      BLOCK="-"
+      VOICE_ONLY_BLOCK="~"
+      BLOCK_CONCAT="+"
+      LEFT_BRACE="{"
+      RIGHT_BRACE="}"
+      SUGGESTION_START="["
+      SUGGESTION_END="]"
+      VARIABLE_DOLLAR="$"
+      VARIABLE_PERCENT="%"
+
+      //space='regexp:\s+'
+      //id="regexp:\w+"
+      //string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\\"|\\\'|\\)*\")"
+      //number="regexp:\d+"
+      //letters="regexp:[a-zA-Z]+"
+      //input="regexp:[a-zA-Z ]+"
+      charSequence='regexp:[^\r\n:~+!\[\]-]+'
+      //line_comment="regexp:(//|#)[^\r\n]*\r?\n"
+      lineBreak="regexp:[\r\n]+"
+      //intentNamePattern="regexp:([a-zA-Z][a-zA-Z_0-9]*:?[a-zA-Z_0-9]*[a-zA-Z0-9])"
+      //variable_name="regexp:[a-zA-Z_][a-zA-Z0-9._]+[a-zA-Z_]"
+      //anything="regexp:[^\r\n]+"
+      //sprintf_prefix="regexp:(\d+\.?\d*)?[bBhHsScCdoxXeEfgGaAtTn]\$"
+  ]
+}
+
+file ::= (intentBlock commandDelimitter)*
+intentBlock ::= intent utterancesBlock promptBlock? suggestionLine
+intent ::= intentName ":" commandDelimitter
+commandDelimitter ::= comment*
+//intentName ::= intentNamePattern
+intentName ::= charSequence
+output ::= charSequence
+//TextPrompt ::= charSequence
+//VoicePrompt ::= charSequence
+utterence ::= charSequence
+suggestion ::= charSequence
+utterancesBlock ::= utteranceLine+
+utteranceLine ::= "!" " "* utterence commandDelimitter
+blockDelimitter ::= "-" commandDelimitter | "+" commandDelimitter
+textBlock ::= ("-" ' '* output commandDelimitter)+
+voiceBlock ::= (VOICE_ONLY_BLOCK output commandDelimitter)+
+blockPart ::= textBlock | voiceBlock
+promptBlock ::= (blockPart blockDelimitter)* blockPart
+suggestionLine ::= (' '* suggestionBlock)*
+suggestionBlock ::= SUGGESTION_START suggestion SUGGESTION_END
+
+comment ::= ('#' | '//') text// commandDelimitter

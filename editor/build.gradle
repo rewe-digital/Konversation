@@ -14,6 +14,7 @@ repositories {
 
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin/'
+    main.java.srcDirs += 'src/main/gen/'
     test.java.srcDirs += 'src/test/kotlin/'
 }
 

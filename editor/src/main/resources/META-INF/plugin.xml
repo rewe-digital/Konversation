@@ -17,6 +17,7 @@
         <!-- Add your extensions here -->
         <fileTypeFactory implementation="org.rewedigital.konversation.editor.KonversationFileTypeFactory"/>
         <lang.parserDefinition language="Konversation" implementationClass="org.rewedigital.konversation.editor.KonversationParserDefinition"/>
+        <colorSettingsPage implementation="org.rewedigital.konversation.editor.KonversationColorSettingsPage"/>
     </extensions>
 
     <actions>

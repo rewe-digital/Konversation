@@ -1,6 +1,5 @@
 package org.rewedigital.konversation.editor
 
-import com.intellij.lexer.Lexer
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.HighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey
@@ -11,9 +10,7 @@ import org.rewedigital.konversation.editor.psi.KonversationTypes
 
 class KonversationSyntaxHighlighter : SyntaxHighlighterBase() {
 
-    override fun getHighlightingLexer(): Lexer {
-        return KonversationLexerAdapter()
-    }
+    override fun getHighlightingLexer() = KonversationLexerAdapter()
 
     override fun getTokenHighlights(tokenType: IElementType) = listOfNotNull(when (tokenType) {
         KonversationTypes.INTENT_NAME -> INTENT_NAME
@@ -33,6 +30,7 @@ class KonversationSyntaxHighlighter : SyntaxHighlighterBase() {
         KonversationTypes.VARIABLE_DOLLAR,
         KonversationTypes.VARIABLE_PERCENT,
         KonversationTypes.VOICE_ONLY_BLOCK -> OP_TEST
+        KonversationTypes.SUGGESTION -> SUGGESTION
         else -> null
     }).also { println("Highlight: $tokenType -> $it") }.toTypedArray()
 
@@ -44,5 +42,6 @@ class KonversationSyntaxHighlighter : SyntaxHighlighterBase() {
         val BAD_CHARACTER = createTextAttributesKey("KONVERSATION_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER)
         val VAR_TEST = createTextAttributesKey("KONVERSATION_VARIABLE", DefaultLanguageHighlighterColors.CLASS_NAME)
         val OP_TEST = createTextAttributesKey("KONVERSATION_OPERATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+        val SUGGESTION = createTextAttributesKey("KONVERSATION_SUGGESTION", DefaultLanguageHighlighterColors.CLASS_REFERENCE)
     }
 }

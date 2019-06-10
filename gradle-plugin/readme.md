@@ -10,7 +10,7 @@ This is an example for `build.gradle` file:
 
 ```
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.11'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.31'
     id 'org.rewedigital.konversation' version '1.0-rc1'
 }
 

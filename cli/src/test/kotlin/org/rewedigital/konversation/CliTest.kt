@@ -1,6 +1,7 @@
 package org.rewedigital.konversation
 
 import org.junit.Test
+import org.rewedigital.konversation.parser.Parser
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
@@ -49,7 +50,7 @@ class CliTest {
     fun `Check handling of missing invocation name`() {
         val sut = CliTestHelper.getOutput("$pathPrefix/help.grammar", "--export-alexa", "test.out")
         assertEquals("Parsing of 1 file finished. Found 1 intent.\n" +
-                             "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
+                "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
         assertEquals(-1, sut.exitCode)
     }
 
@@ -103,15 +104,17 @@ class CliTest {
     @Test
     fun `Test big grammar file`() {
         val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "-stats", "-count")
-        val format = DecimalFormat.getInstance() as DecimalFormat
-        val separator = format.decimalFormatSymbols.groupingSeparator
-        assertEquals("Parsing of 1 file finished. Found 2 intents.\n" +
-                             "Test has 1 utterances which have in total 1${separator}000 permutations\n" +
-                             "Foo has 0 utterances which have in total 0 permutations\n" +
-                             "That are in total 1${separator}000 permutations!\n" +
-                             "Test has now 1${separator}000 sample utterances\n" +
-                             "Foo has now 0 sample utterances\n" +
-                             "Generated in total 1${separator}000 Utterances\n", sut.output)
+        assertEquals("""Parsing of 1 file finished. Found 2 intents.
+Test has 1 utterances which have in total 1${separator}000 permutations
+Foo has 0 utterances which have in total 0 permutations
+That are in total 1${separator}000 permutations!
+Test has now 1${separator}000 sample utterances
+WARNING: Test has 1${separator}000 utterances, Actions on Google just support up to 1${separator}000!
+Intent Test has in total 1${separator}000 utterances:
+ 1${separator}000 utterances for {0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}
+Foo has now 0 sample utterances
+Generated in total 1${separator}000 Utterances
+""", sut.output)
         assertNull(sut.exitCode)
     }
 
@@ -123,7 +126,11 @@ class CliTest {
         val outputFile = File(testOutputFile).absoluteFile
         try {
             val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "--export-alexa", testOutputFile, "-invocation", "huge", "-prettyprint", "-limit", "20")
-            assertEquals(sut.output, "Parsing of 1 file finished. Found 2 intents.\n")
+            assertEquals(sut.output, """Parsing of 1 file finished. Found 2 intents.
+WARNING: Test has 1${separator}000 utterances, Actions on Google just support up to 1${separator}000!
+Intent Test has in total 1${separator}000 utterances:
+ 1${separator}000 utterances for {0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}
+""")
             assertNull(sut.exitCode, message = "Execution should be successful")
             assertTrue(outputFile.exists(), message = "Output file should be created")
             assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
@@ -142,23 +149,25 @@ class CliTest {
             "$pathPrefix/konversation/help.kvs",
             "$pathPrefix/konversation-alexa/help.kvs",
             "$pathPrefix/konversation-alexa-de/help.kvs",
-            "$pathPrefix/konversation-en/help.kvs")
+            "$pathPrefix/konversation-en/help.kvs",
+            "$pathPrefix/konversation/colors.values")
             .map {
                 File(it).absolutePath
             }
         assertEquals(4, sut.intentDb.size)
-        assertEquals(4, sut.files.distinct().size)
-        assertTrue(expectedFiles.contains(sut.files[0]))
-        assertTrue(expectedFiles.contains(sut.files[1]))
-        assertTrue(expectedFiles.contains(sut.files[2]))
-        assertTrue(expectedFiles.contains(sut.files[3]))
+        assertEquals(5, sut.files.distinct().size)
+        assertTrue(expectedFiles.contains(sut.files[0]), "Unexpected file ${sut.files[0]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[1]), "Unexpected file ${sut.files[1]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[2]), "Unexpected file ${sut.files[2]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[3]), "Unexpected file ${sut.files[3]} was processed")
+        assertTrue(expectedFiles.contains(sut.files[4]), "Unexpected file ${sut.files[4]} was processed")
     }
 
     @Test
     fun `Konversation directory processing`() {
         val outDir = "${rootPath}build/out/kson"
         val sut = CliTestHelper.getOutput("$pathPrefix/", "--export-kson", outDir)
-        assertEquals(sut.output, "Parsing of 4 files finished. Found 1 intent.\n")
+        assertEquals(sut.output, "Parsing of 5 files finished. Found 1 intent.\n")
         assertNull(sut.exitCode)
         assertTrue(File("$outDir/konversation/Help.kson").absoluteFile.isFile)
         assertTrue(File("$outDir/konversation-alexa/Help.kson").absoluteFile.isFile)
@@ -186,12 +195,12 @@ class CliTest {
     fun `Use multiple input files`() {
         val prefix = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
         val sut = CliTestHelper.getOutput("${prefix}src/test/konversation/help.kvs",
-                                          "$pathPrefix/foo/ExampleIntent.kvs",
-                                          "--export-alexa",
-                                          "${prefix}build/out/multiple-input.json",
-                                          "-invocation",
-                                          "multi",
-                                          "-prettyprint")
+            "$pathPrefix/foo/ExampleIntent.kvs",
+            "--export-alexa",
+            "${prefix}build/out/multiple-input.json",
+            "-invocation",
+            "multi",
+            "-prettyprint")
         assertEquals("Parsing of 2 files finished. Found 2 intents.\n", sut.output)
         assertNull(sut.exitCode)
     }
@@ -237,26 +246,30 @@ class CliTest {
             parseArgs(arrayOf(path, "-dump"))
         }
 
-        override fun parseFile(file: File): List<Intent> {
+        override fun parseFile(file: File): Parser {
             files.add(file.absolutePath)
-            return emptyList()
+            return Parser(file)
         }
     }
 
     companion object {
+        private val format = DecimalFormat.getInstance() as DecimalFormat
+        val separator = format.decimalFormatSymbols.groupingSeparator
         val rootPath = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
         val pathPrefix = "${rootPath}src/test/resources"
         val helpOutput = """Arguments for konversation:
-[-help]                     Print this help
-[-count]                    Count the permutations and print this to the console
-[-stats]                    Print out some statistics while generation
-[-cache]                    Cache everything even if an utterance has just a single permutation
-[--export-alexa <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json
-[-invocation <NAME>]        Define the invocation name for the Alexa export
-[-limit <COUNT>]            While pretty printing the json to the output file limit the utterances count per intent
-[--export-kson <OUTDIR>]    Compiles the kvs file to kson resource files which are required for the runtime
-[-dump]                     Dump out all intents to its own txt file
-[-prettyprint]              Generate a well formatted json for easier debugging
-<FILE>                      The grammar or kvs file to parse"""
+[-help]                         Print this help
+[-version]                      Print the version of this build
+[-count]                        Count the permutations and print this to the console
+[-stats]                        Print out some statistics while generation
+[-cache]                        Cache everything even if an utterance has just a single permutation
+[--export-alexa <OUTFILE>]      Write the resulting json to OUTFILE instead of result.json
+[--export-dialogflow <OUTDIR>]  Write the dialogflow zip file to the OUTDIR
+[-invocation <NAME>]            Define the invocation name for the Alexa export
+[-limit <COUNT>]                While pretty printing the json to the output file limit the utterances count per intent
+[--export-kson <OUTDIR>]        Compiles the kvs file to kson resource files which are required for the runtime
+[-dump]                         Dump out all intents to its own txt file
+[-prettyprint]                  Generate a well formatted json for easier debugging
+<FILE>                          The grammar, kvs or values files to parse"""
     }
 }

@@ -1,0 +1,40 @@
+WelcomeIntent:
+!{Hi|Hey|Hello}
+-{Hi|Hey|Hello}
++
+-and welcome to
++
+-my example project
+-{this|a} {demonstration|extended demo}
++
+-how to prototype with Konversation.
+-
+- What's your name (please answer with a full sentence)?
+[My name is John Doe] [Tell me a joke]
+
+NameIntent:
+!My name is {{name:any}}
+!I'm {|called} {{name:any}}
+!You can call me {{name:any}}
+-{Nice|I'm glad} to meet you $name!
+-What a cool name.
+-
+-Do you like to hear a {|funny|fantastic} joke $name?
+-Are you interested in a {|great} joke?
+-
+~Please say yes!
+[yes] [no]
+
+JokeIntent:
+!Yes {|of cause|for sure}
+!{|Yes} tell me a {|funny|fantastic|great} joke {|please}
+!Yet another
+!Eh no But tell me a joke
+-What does a snail say when he finds himself on a turtle’s back? <break/> Wheeee!!!
+-What is the best season to jump on a trampoline? <break/> Spring time.
+-Why did the physics teacher break up with the biology teacher? <break/> There was no chemistry.
+[Yet another] [bye]
+
+ByeIntent:
+!bye
+-See you soon

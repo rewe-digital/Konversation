@@ -6,16 +6,34 @@ import java.text.ParseException
 import java.util.*
 
 class Parser(input: File) {
-    constructor(input: String): this(File(input).absoluteFile)
+    constructor(input: String) : this(File(input).absoluteFile)
 
-    val intents = mutableListOf<Intent>()
-    private var lastIntent : Intent? = null
+    val intents: List<Intent>
+    val entities: Entities?
+    private var lastIntent: Intent? = null
 
     init {
+        when {
+            input.name.endsWith(".values") -> {
+                intents = emptyList()
+                entities = parseValuesFile(input)
+            }
+            input.name.endsWith(".grammar") ||
+                    input.name.endsWith(".kvs") -> {
+                intents = parseInputFile(input)
+                entities = null
+            }
+            else -> throw IllegalArgumentException("Unknown file type. Cannot parse ${input.name}")
+        }
+    }
+
+    private fun parseInputFile(input: File): List<Intent> {
         val isGrammarFile = input.name.endsWith(".grammar")
+
         val lines = input.readLines()
         var lastPart: Part? = null
         var lastIntentName = UUID.randomUUID().toString()
+        val intents = mutableListOf<Intent>()
         lines.filter { it.isNotBlank() }.forEachIndexed { index, line ->
             val trimmed = line.trim()
             when {
@@ -98,7 +116,7 @@ class Parser(input: File) {
                     }
                 }
                 else -> addTo {
-                    if(isGrammarFile) {
+                    if (isGrammarFile) {
                         addUtterance(this, line)
                     } else {
                         throw ParseException("This line has no prefix: $line", index)
@@ -106,7 +124,28 @@ class Parser(input: File) {
                 }
             }
         }
+        return intents
     }
+
+    private fun parseValuesFile(input: File) = input
+        .readLines()
+        .map { valueLine ->
+            if (valueLine.startsWith('{')) {
+                val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
+                val (key, master) = aliases.first().split(':', limit = 2).let {
+                    when (it.size) {
+                        1 -> Pair(null, it.first())
+                        2 -> Pair(it.first(), it.last())
+                        else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
+                    }
+                }
+                Entity(master = master, key = key, synonyms = aliases.drop(1))
+            } else {
+                Entity(master = valueLine, key = null, synonyms = emptyList())
+            }
+        }.let {
+            Entities(input.name.dropLast(7), it)
+        }
 
     private fun addUtterance(intent: Intent, utterance: String) {
         intent.utterances.add(Utterance(utterance, intent.name))

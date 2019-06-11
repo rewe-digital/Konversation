@@ -12,7 +12,6 @@ import java.util.*
 import javax.naming.OperationNotSupportedException
 import kotlin.collections.HashSet
 
-
 class SwapingHashedList(prefix: String) : HashSet<String>() {
     private var isSwapping = false
     private val smallList = HashSet<String>()
@@ -69,7 +68,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
                 read = stream.read(buf, 0, buf.size)
             } while (read > 0)
         } else if (cacheFile.exists()) {
-            if(cacheFile.length() > 0) {
+            if (cacheFile.length() > 0) {
                 Cli.L.debug("Warning: Hash file is missing, rebuilding it.")
             }
             val inputStream = FileInputStream(cacheFile)
@@ -87,7 +86,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
             outputStream.close()
         }
         if (cacheFile.exists() && !offsetFile.exists()) {
-            if(cacheFile.length() > 0) {
+            if (cacheFile.length() > 0) {
                 Cli.L.debug("For a faster usage a offset file will be generated")
             }
             val inputStream = FileInputStream(cacheFile)
@@ -200,7 +199,6 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
         else -> smallList.addAll(elements)
     }
 
-
     override fun clear() = if (isSwapping) {
         cacheFile.delete()
         hashFile.delete()
@@ -272,7 +270,7 @@ class SwapingHashedList(prefix: String) : HashSet<String>() {
     }
 
     private fun ByteArray.getIntAt(offset: Int) =
-            this[offset].toInt().shl(24) + this[offset + 1].toInt().shl(16) + this[offset + 2].toInt().shl(8) + this[offset + 3].toInt()
+        this[offset].toInt().shl(24) + this[offset + 1].toInt().shl(16) + this[offset + 2].toInt().shl(8) + this[offset + 3].toInt()
 
     fun isCached() = cacheFile.exists()
 

@@ -61,8 +61,8 @@ This is an example for `build.gradle` file:
 
 ```
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.11'
-    id 'org.rewedigital.konversation' version '0.1'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.31'
+    id 'org.rewedigital.konversation' version '1.0-beta2'
 }
 
 apply plugin: 'kotlin'
@@ -86,8 +86,10 @@ This will place your kson files into your resource directory, which can be used 
 
 ### CLI
 
-Konversation has its own command line interface, which you can use for generating the kson files for the runtime. You can use it for
-validate the syntax of the input files or to integrate it into your own build system.
+Konversation has its own command line interface, which you can use for generating the kson files for the runtime. You
+can use it for validate the syntax of the input files or to integrate it into your own build system.
+
+Please note that you need to have a working Java VM the JRE should be enough.
 
 #### Setup
 
@@ -214,9 +216,6 @@ The sources of the gradle plugin the preferec way to create the kson files, with
 - Feature toggles to provide a special response if a toggle is set
 - A GUI tool to visualize the inputs and outputs of you voice application (this is hard, pull requests welcome!).
 - A preview for the GUI parts
-- A [Homebrew](https://brew.sh/) [Formula](https://docs.brew.sh/Formula-Cookbook) or at least a
-[tap](https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap) to install the konversation cli via brew
-- A [PowerShell Module](https://docs.microsoft.com/en-us/powershell/developer/module/writing-a-windows-powershell-module)
 - Grammar file inline support
 - Slot value inline format support
 - Extending system slot types

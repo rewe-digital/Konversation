@@ -2,13 +2,13 @@ package org.rewedigital.konversation
 
 interface LoggerFacade {
     fun log(msg: String = "")
-    fun debug(msg:String = "")
-    fun info(msg:String = "")
-    fun error(msg:String = "")
-    fun warn(msg:String = "")
+    fun debug(msg: String = "")
+    fun info(msg: String = "")
+    fun error(msg: String = "")
+    fun warn(msg: String = "")
 }
 
-class DefaultLogger: LoggerFacade {
+class DefaultLogger : LoggerFacade {
     override fun log(msg: String) = println(msg)
 
     override fun debug(msg: String) = println(msg)

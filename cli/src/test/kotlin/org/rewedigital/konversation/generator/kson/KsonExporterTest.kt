@@ -12,7 +12,7 @@ class KsonExporterTest {
         val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = KsonExporter("Help")
-        exporter.prettyPrinted({ line -> sb.append(line) }, help)
+        exporter.prettyPrinted({ line -> sb.append(line) }, help, null)
         assertEqualsIgnoringLineBreaks(expectedResult, sb.toString())
     }
 
@@ -21,7 +21,7 @@ class KsonExporterTest {
         val help = Parser("$pathPrefix/help.kvs").intents
         val sb = StringBuilder()
         val exporter = KsonExporter("Help")
-        exporter.minified({ line -> sb.append(line) }, help)
+        exporter.minified({ line -> sb.append(line) }, help, null)
         assertEquals(expectedMinifiedResult, sb.toString())
     }
 

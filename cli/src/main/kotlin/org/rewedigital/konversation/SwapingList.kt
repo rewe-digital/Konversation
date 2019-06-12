@@ -5,7 +5,6 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.util.*
 
-
 class SwapingList(private val tempFile: File) : HashSet<String>() {
     private var isSwapping = false
     private val smallList = HashSet<String>()
@@ -28,7 +27,7 @@ class SwapingList(private val tempFile: File) : HashSet<String>() {
             val sc = Scanner(inputStream, "UTF-8")
             while (sc.hasNextLine()) {
                 bigListSize++
-                if((bigListSize % 100000) == 0) {
+                if ((bigListSize % 100000) == 0) {
                     println(">> $bigListSize")
                 }
                 sc.nextLine()

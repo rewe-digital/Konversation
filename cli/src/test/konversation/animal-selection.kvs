@@ -1,0 +1,3 @@
+AnimalSelectionIntent:
+!My favorit animal is a {{species:pets}}
+!My favorit animal is a {{species:pets}} and {he|she|it} is called {{name}}

@@ -1,5 +1,6 @@
 package org.rewedigital.konversation.generator.kson
 
+import org.rewedigital.konversation.Entities
 import org.rewedigital.konversation.Intent
 import org.rewedigital.konversation.forEachIterator
 import org.rewedigital.konversation.generator.Exporter
@@ -7,7 +8,7 @@ import org.rewedigital.konversation.generator.Printer
 
 class KsonExporter(private val filter: String) : Exporter {
 
-    override fun prettyPrinted(printer: Printer, intents: MutableList<Intent>) {
+    override fun prettyPrinted(printer: Printer, intents: List<Intent>, entities: List<Entities>?) {
         printer("{\n")
         printer("  \"parts\": [\n")
         val intent = intents.first { it.name == filter }
@@ -49,7 +50,7 @@ class KsonExporter(private val filter: String) : Exporter {
         printer("}")
     }
 
-    override fun minified(printer: Printer, intents: MutableList<Intent>) {
+    override fun minified(printer: Printer, intents: List<Intent>, entities: List<Entities>?) {
         printer("{\"parts\":[")
         val intent = intents.first { it.name == filter }
         intent.prompt.forEachIterator { part ->

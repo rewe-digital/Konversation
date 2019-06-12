@@ -2,6 +2,7 @@ package org.rewedigital.konversation
 
 import org.rewedigital.konversation.generator.Printer
 import org.rewedigital.konversation.generator.alexa.AlexaExporter
+import org.rewedigital.konversation.generator.dialogflow.DialogflowExporter
 import org.rewedigital.konversation.generator.kson.KsonExporter
 import org.rewedigital.konversation.parser.Parser
 import java.io.File
@@ -12,17 +13,19 @@ import kotlin.system.exitProcess
 
 open class Cli {
     val intentDb = mutableMapOf<String, MutableList<Intent>>()
+    val entityDb = mutableMapOf<String, MutableList<Entities>>()
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
-    private var outputFile = File("result.json")
-    private var limit: Long? = null
+    private var alexaIntentSchema: File? = null
+    private var limit: Int? = null
     private var prettyPrint = false
-    private var ksonDir: String? = null
+    private var ksonDir: File? = null
+    private var dialogflowDir: File? = null
     private var dumpOnly = false
     private var invocationName: String? = null
-    private var exportAlexa: Boolean = false
     private var inputFileCount = 0
+    private var inspect = false
 
     fun parseArgs(args: Array<String>) {
         val inputFiles = mutableListOf<File>()
@@ -35,11 +38,21 @@ open class Cli {
             var argNo = 0
             while (argNo < args.size) {
                 val arg = args[argNo]
-                if (File(arg).absoluteFile.exists()) {
+                val argFile = File(arg)
+                if (argFile.absoluteFile.exists()) {
                     inputFiles += File(arg).absoluteFile
-                } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar")) {
-                    L.error("Input file \"$arg\" not found!")
-                    exit(-1)
+                } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar") || arg.endsWith(".values")) {
+                    if (arg.contains('*')) {
+                        val matcher = argFile.name.replace(".", "\\.").replace("*", ".*?").toRegex()
+                        argFile.parentFile.listFiles { _, name ->
+                            matcher.matches(name)
+                        }.map { file ->
+                            inputFiles += file.absoluteFile
+                        }
+                    } else {
+                        L.error("Input file \"$arg\" not found!")
+                        exit(-1)
+                    }
                 } else {
                     when (arg.toLowerCase()) {
                         "help",
@@ -54,8 +67,13 @@ open class Cli {
                         "cache",
                         "-cache" -> cacheEverything = true
                         "--export-alexa" -> if (++argNo < args.size) {
-                            exportAlexa = true
-                            outputFile = File(args[argNo]).absoluteFile
+                            alexaIntentSchema = File(args[argNo])
+                        } else {
+                            L.error("Target is missing")
+                            exit(-1)
+                        }
+                        "--export-dialogflow" -> if (++argNo < args.size) {
+                            dialogflowDir = File(args[argNo]).absoluteFile
                         } else {
                             L.error("Target is missing")
                             exit(-1)
@@ -65,7 +83,7 @@ open class Cli {
                             invocationName = args[argNo]
                         }
                         "--export-kson" -> if (++argNo < args.size) {
-                            ksonDir = args[argNo]
+                            ksonDir = File(args[argNo])
                         } else {
                             L.error("Target directory is missing")
                             exit(-1)
@@ -77,7 +95,7 @@ open class Cli {
                         "top",
                         "-top" -> if (++argNo < args.size) {
                             try {
-                                limit = args[argNo].toLong()
+                                limit = args[argNo].toInt()
                             } catch (e: Throwable) {
                                 L.error("\"${args[argNo]}\" is no valid count of utterances.")
                                 exit(-1)
@@ -90,6 +108,8 @@ open class Cli {
                         "-prettyprint" -> prettyPrint = true
                         "dump",
                         "-dump" -> dumpOnly = true
+                        "-v",
+                        "-version" -> L.log("Konversation CLI version 1.1.0-rc1")
                         else -> L.error("Unknown argument \"$arg\".")
                     }
                 }
@@ -100,19 +120,23 @@ open class Cli {
                 when {
                     inputFile.isFile -> {
                         inputFileCount++
-                        intentDb.getOrPut("") { mutableListOf() } += parseFile(inputFile)
+                        val parser = parseFile(inputFile)
+                        intentDb.getOrPut("") { mutableListOf() } += parser.intents
+                        parser.entities?.let { entityDb.getOrPut("") { mutableListOf() } += it }
                     }
                     inputFile.isDirectory -> inputFile
                         .listFiles { dir: File?, name: String? ->
                             File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
                         }.toList()
-                        .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") }.toList() }
+                        .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") || name.endsWith(".values") }.toList() }
                         .also {
                             inputFileCount += it.size
                         }
-                        .forEach {
-                            val prefix = it.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
-                            intentDb.getOrPut(prefix) { mutableListOf() } += parseFile(it)
+                        .forEach { file ->
+                            val prefix = file.parentFile.absolutePath.substring(inputFile.absolutePath.length + 13).trimStart('-')
+                            val parser = parseFile(file)
+                            intentDb.getOrPut(prefix) { mutableListOf() } += parser.intents
+                            parser.entities?.let { entityDb.getOrPut(prefix) { mutableListOf() } += it }
                         }
                     else -> {
                         L.error("Input file not found!")
@@ -122,11 +146,14 @@ open class Cli {
             }
 
             showStats()
-            exportData(ksonDir?.let(::File) ?: outputFile)
+
+            ksonDir?.let(::exportKson)
+            alexaIntentSchema?.let(::exportAlexa)
+            dialogflowDir?.let(::exportDialogflow)
         }
     }
 
-    open fun parseFile(file: File): List<Intent> = Parser(file).intents
+    open fun parseFile(file: File) = Parser(file)
 
     private fun showStats() = intentDb[""]?.let { intents ->
         val intentCount = intentDb.values.flatten().distinctBy { it.name }.size
@@ -148,6 +175,23 @@ open class Cli {
         val all = intents.sumBy { intent ->
             val permutations = intent.utterances.sumBy { utterance -> utterance.permutations.size }
             if (stats) L.debug("${intent.name} has now ${permutations.formatted()} sample utterances")
+            val warn = when (permutations) {
+                in 0..999 -> false
+                in 1000..1999 -> {
+                    L.warn("${intent.name} has ${permutations.formatted()} utterances, Actions on Google just support up to ${1000.formatted()}!")
+                    true
+                }
+                else -> {
+                    L.warn("${intent.name} has ${permutations.formatted()} utterances, Dialogflow just support up to ${2000.formatted()} and Actions on Google just ${1000.formatted()}!")
+                    true
+                }
+            }
+            if (inspect || warn) {
+                L.info("Intent ${intent.name} has in total ${permutations.formatted()} utterances:")
+                intent.utterances.forEach { utterance ->
+                    L.log(String.format(Locale.getDefault(), "%,6d utterances for %s", utterance.permutations.size, utterance.source))
+                }
+            }
             permutations
         }
         if (stats) L.info("Generated in total ${all.formatted()} Utterances")
@@ -173,7 +217,7 @@ open class Cli {
         }
     }
 
-    private fun exportData(baseDir: File) = intentDb.forEach { (config, intents) ->
+    private fun exportKson(baseDir: File) = intentDb.forEach { (config, intents) ->
         val targetDir = File(baseDir.absolutePath + File.separator + "konversation".join("-", config))
         ksonDir?.let {
             intents.forEach { intent ->
@@ -184,48 +228,67 @@ open class Cli {
                     stream.write(line.toByteArray())
                 }
                 if (prettyPrint) {
-                    exporter.prettyPrinted(printer, intents)
+                    exporter.prettyPrinted(printer, intents, entityDb[config])
                 } else {
-                    exporter.minified(printer, intents)
+                    exporter.minified(printer, intents, entityDb[config])
                 }
                 stream.close()
             }
         }
+    }
 
-        if (exportAlexa) {
-            outputFile.absoluteFile.parentFile.mkdirs()
-            invocationName?.let { skillName ->
-                val exporter = AlexaExporter(skillName, targetDir, limit ?: Long.MAX_VALUE)
-                val stream = outputFile.outputStream()
-                val printer: Printer = { line ->
-                    stream.write(line.toByteArray())
-                }
-                if (prettyPrint) {
-                    exporter.prettyPrinted(printer, intents)
-                } else {
-                    exporter.minified(printer, intents)
-                }
-                stream.close()
-            } ?: run {
-                L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
-                exit(-1)
+    private fun exportAlexa(alexaIntentSchema: File) = intentDb.forEach { (config, intents) ->
+        val targetDir = File(alexaIntentSchema.path + File.separator + "konversation".join("-", config))
+        alexaIntentSchema.absoluteFile.parentFile.mkdirs()
+        invocationName?.let { skillName ->
+            val exporter = AlexaExporter(skillName, targetDir, limit ?: Int.MAX_VALUE)
+            val stream = alexaIntentSchema.outputStream()
+            val printer: Printer = { line ->
+                stream.write(line.toByteArray())
             }
+            if (prettyPrint) {
+                exporter.prettyPrinted(printer, intents, entityDb[config])
+            } else {
+                exporter.minified(printer, intents, entityDb[config])
+            }
+            stream.close()
+        } ?: run {
+            L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+            exit(-1)
+        }
+    }
+
+    private fun exportDialogflow(baseDir: File) = intentDb.forEach { (config, intents) ->
+        invocationName?.let { skillName ->
+            val exporter = DialogflowExporter(skillName)
+            val stream = File(baseDir, "dialogflow-$config.zip").outputStream()
+            if (prettyPrint) {
+                exporter.prettyPrinted(stream, intents, entityDb[config])
+            } else {
+                exporter.minified(stream, intents, entityDb[config])
+            }
+            stream.close()
+        } ?: run {
+            L.error("Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.")
+            exit(-1)
         }
     }
 
     private fun help() {
         L.log("Arguments for konversation:")
-        L.log("[-help]                     Print this help")
-        L.log("[-count]                    Count the permutations and print this to the console")
-        L.log("[-stats]                    Print out some statistics while generation")
-        L.log("[-cache]                    Cache everything even if an utterance has just a single permutation")
-        L.log("[--export-alexa <OUTFILE>]  Write the resulting json to OUTFILE instead of result.json")
-        L.log("[-invocation <NAME>]        Define the invocation name for the Alexa export")
-        L.log("[-limit <COUNT>]            While pretty printing the json to the output file limit the utterances count per intent")
-        L.log("[--export-kson <OUTDIR>]    Compiles the kvs file to kson resource files which are required for the runtime")
-        L.log("[-dump]                     Dump out all intents to its own txt file")
-        L.log("[-prettyprint]              Generate a well formatted json for easier debugging")
-        L.log("<FILE>                      The grammar or kvs file to parse")
+        L.log("[-help]                         Print this help")
+        L.log("[-version]                      Print the version of this build")
+        L.log("[-count]                        Count the permutations and print this to the console")
+        L.log("[-stats]                        Print out some statistics while generation")
+        L.log("[-cache]                        Cache everything even if an utterance has just a single permutation")
+        L.log("[--export-alexa <OUTFILE>]      Write the resulting json to OUTFILE instead of result.json")
+        L.log("[--export-dialogflow <OUTDIR>]  Write the dialogflow zip file to the OUTDIR")
+        L.log("[-invocation <NAME>]            Define the invocation name for the Alexa export")
+        L.log("[-limit <COUNT>]                While pretty printing the json to the output file limit the utterances count per intent")
+        L.log("[--export-kson <OUTDIR>]        Compiles the kvs file to kson resource files which are required for the runtime")
+        L.log("[-dump]                         Dump out all intents to its own txt file")
+        L.log("[-prettyprint]                  Generate a well formatted json for easier debugging")
+        L.log("<FILE>                          The grammar, kvs or values files to parse")
         L.log()
     }
 

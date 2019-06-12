@@ -1,16 +1,15 @@
 package org.rewedigital.konversation.generator.alexa
 
-import org.rewedigital.konversation.Cli
-import org.rewedigital.konversation.Intent
-import org.rewedigital.konversation.forEachBreakable
-import org.rewedigital.konversation.forEachIterator
+import org.rewedigital.konversation.*
 import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
 import java.io.File
 
-class AlexaExporter(private val skillName : String, private val baseDir: File, private val limit: Long) : Exporter {
+class AlexaExporter(private val skillName: String, private val baseDir: File, private val limit: Int) : Exporter {
+    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
 
-    override fun prettyPrinted(printer: Printer, intents: MutableList<Intent>) {
+    // TODO make sure that both branches have equal functionality
+    override fun prettyPrinted(printer: Printer, intents: List<Intent>, entities: List<Entities>?) {
         // write prefix
         printer("{\n" +
                 "  \"interactionModel\": {\n" +
@@ -19,21 +18,23 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                 "      \"intents\": [\n")
 
         // write out intents
-        intents.forEachIterator { intent ->
+        intents.filter { intent ->
+            intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.")
+        }.forEachIterator { intent ->
             printer("        {\n" +
-                    "          \"name\": \"${intent.name}\",\n" +
+                    "          \"name\": \"${intent.name.cleanupIntentName()}\",\n" +
                     "          \"slots\": [")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
-            if(allSlots.isEmpty()) {
+            if (allSlots.isEmpty()) {
                 printer("],")
             }
             printer("\n")
             allSlots.forEachIterator { slot ->
                 val (name, type) = if (slot.contains(':')) {
                     val parts = slot.split(':')
-                    Pair(parts[0], parts[1])
+                    Pair(parts[0], useSystemTypes(parts[1]))
                 } else {
-                    Pair(slot, slot)
+                    Pair(slot, useSystemTypes(slot))
                 }
                 // write slot types
                 printer("            {\n" +
@@ -42,11 +43,11 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                         "            }" + (if (hasNext()) "," else "") + "\n")
             }
             // write sample utterances
-            if(allSlots.isNotEmpty()) {
+            if (allSlots.isNotEmpty()) {
                 printer("          ],\n")
             }
             printer("          \"samples\": [")
-            if(intent.utterances.isEmpty()) {
+            if (intent.utterances.isEmpty()) {
                 printer("]")
             }
             printer("\n")
@@ -61,13 +62,13 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                         stop()
                         moreUtterances = false
                     }
-                    printer("            \"$it\"" + (if (hasNext() || moreUtterances) "," else "") + "\n")
+                    printer("            \"${it.removeAndWarn("?").removeAndWarn(",").removeAndWarn(".")}\"" + (if (hasNext() || moreUtterances) "," else "") + "\n")
                 }
                 if (total > limit) {
                     stop()
                 }
             }
-            if(intent.utterances.isNotEmpty()) {
+            if (intent.utterances.isNotEmpty()) {
                 printer("          ]\n")
             }
             printer("        }" + (if (hasNext()) "," else "") + "\n")
@@ -76,73 +77,55 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
         printer("      ],\n" +
                 "      \"types\": [")
 
-        val types = intents.flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }.toHashSet()
+        val types = intents
+            .flatMap {
+                it.utterances.flatMap { utterance ->
+                    utterance.slotTypes
+                }
+            }.map {
+                // remove name of the type
+                it.substringAfter(':', it)
+            }.toHashSet()
 
-        if(types.isEmpty()) {
+        if (types.isEmpty()) {
             printer("]")
         }
         printer("\n")
 
-        types.map {
-                    val type = it.split(':').last()
-                    Pair(type, File(baseDir, "$type.values"))
+        types.forEachSlotType(entities) { (slotType, entities) ->
+            printer("        {\n" +
+                    "          \"name\": \"$slotType\",\n" +
+                    "          \"values\": [")
+            if (entities == null) {
+                printer("]")
+            }
+            printer("\n")
+            entities?.values?.forEachIterator { entity ->
+                printer("            {\n")
+                entity.key?.let {
+                    printer("              \"id\": \"${entity.key}\",\n")
                 }
-                .filter { (slot, file) ->
-                    file.exists().runIfTrue(slot.startsWith("AMAZON.")) {
-                        Cli.L.warn("No definition for slot type \"$slot\" found")
+                printer("              \"name\": {\n" +
+                        "                \"value\": \"${entity.master}\"")
+                if (entity.synonyms.isNotEmpty()) {
+                    printer(",\n                \"synonyms\": [\n")
+                    entity.synonyms.forEachIterator { alias ->
+                        printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
                     }
+                    printer("                ]")
                 }
-                .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
-                .distinctBy { it.first }
-                .forEachIterator { (slotType, values) ->
-                    printer("        {\n" +
-                            "          \"name\": \"$slotType\",\n" +
-                            "          \"values\": [")
-                    if(values.isEmpty()) {
-                        printer("]")
-                    }
-                    printer("\n")
-                    values.forEachIterator { valueLine ->
-                        if (valueLine.startsWith('{')) {
-                            val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
-                            val (id, value) = aliases.first().split(':', limit = 2).let {
-                                when(it.size) {
-                                    1-> Pair(null, it.first())
-                                    2 -> Pair(it.first(), it.last())
-                                    else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
-                                }
-                            }
-                            printer("            {\n")
-                            id?.let {
-                                printer("              \"id\": \"$id\",\n")
-                            }
-                            printer("              \"name\": {\n"+
-                                    "                \"value\": \"$value\",\n" +
-                                    "                \"synonyms\": [\n")
-                            aliases.toHashSet().apply {
-                                remove(aliases.first()) // remove key
-                            }.forEachIterator { alias ->
-                                printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
-                            }
-                            printer("                ]\n" +
-                                    "              }\n" +
-                                    "            }" + (if (hasNext()) "," else "") + "\n")
-                        } else {
-                            printer("            {\n" +
-                                    "              \"name\": {\n" +
-                                    "                \"value\": \"$valueLine\"\n" +
-                                    "              }\n" +
-                                    "            }" + (if (hasNext()) "," else "") + "\n")
-                        }
-                    }
-                    if(types.isNotEmpty()) {
-                        printer("          ]\n")
-                    }
-                    printer("        }" + (if (hasNext()) "," else "") + "\n")
-                }
+                printer("\n              }\n" +
+                        "            }" + (if (hasNext()) "," else "") + "\n")
+
+            }
+            if (types.isNotEmpty()) {
+                printer("          ]\n")
+            }
+            printer("        }" + (if (hasNext()) "," else "") + "\n")
+        }
 
         // write suffix
-        if(types.isNotEmpty()) {
+        if (types.isNotEmpty()) {
             printer("      ]\n")
         }
         printer("    }\n" +
@@ -150,7 +133,7 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
                 "}")
     }
 
-    override fun minified(printer: Printer, intents: MutableList<Intent>) {
+    override fun minified(printer: Printer, intents: List<Intent>, entities: List<Entities>?) {
         // write prefix
         printer("{" +
                 "\"interactionModel\":{" +
@@ -167,9 +150,9 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
             allSlots.forEachIterator { slot ->
                 val (name, type) = if (slot.contains(':')) {
                     val parts = slot.split(':')
-                    Pair(parts[0], parts[1])
+                    Pair(parts[0], useSystemTypes(parts[1]))
                 } else {
-                    Pair(slot, slot)
+                    Pair(slot, useSystemTypes(slot))
                 }
                 // write slot types
                 printer("{" +
@@ -180,22 +163,12 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
             // write sample utterances
             printer("]," +
                     "\"samples\":[")
-            var total: Int
             var moreUtterances: Boolean
             intent.utterances.forEachIterator { utterance ->
-                total = 0
                 moreUtterances = hasNext()
                 utterance.permutations.forEachIterator {
-                    total++
-                    //if (total > 20) {
-                    //    stop()
-                    //    moreUtterances = false
-                    //}
                     printer("\"$it\"" + (if (hasNext() || moreUtterances) "," else ""))
                 }
-                //if (total > 20) {
-                //    stop()
-                //}
             }
             printer("]" +
                     "}" + (if (hasNext()) "," else ""))
@@ -204,54 +177,57 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
         printer("]," +
                 "\"types\":[")
 
-        intents.flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }
-                .toHashSet()
-                .map {
-                    val type = it.split(':').last()
-                    Pair(type, File("$baseDir/$type.values"))
-                }
-                .filter { it.second.exists() }
-                .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
-                .forEachIterator { (slotType, values) ->
-                    printer("{" +
+        intents
+            .flatMap { it.utterances.flatMap { utterance -> utterance.slotTypes } }
+            .map {
+                val type = it.split(':').last()
+                Pair(type, File("$baseDir/$type.values"))
+            }
+            .filter { it.second.exists() }
+            .map { Pair(it.first, it.second.readLines().filter { line -> line.isNotEmpty() }) }
+            .toHashSet()
+            .forEachIterator { (slotType, values) ->
+                printer(
+                    "{" +
                             "\"name\":\"$slotType\"," +
-                            "\"values\":[")
-                    values.forEachIterator { valueLine ->
-                        if (valueLine.startsWith('{')) {
-                            val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
-                            val (id, value) = aliases.first().split(':', limit = 2).let {
-                                when(it.size) {
-                                    1-> Pair(null, it.first())
-                                    2 -> Pair(it.first(), it.last())
-                                    else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
-                                }
+                            "\"values\":["
+                )
+                values.forEachIterator { valueLine ->
+                    if (valueLine.startsWith('{')) {
+                        val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
+                        val (id, value) = aliases.first().split(':', limit = 2).let {
+                            when (it.size) {
+                                1 -> Pair(null, it.first())
+                                2 -> Pair(it.first(), it.last())
+                                else -> throw IllegalArgumentException("The key must not be empty. In the line: $valueLine")
                             }
-                            printer("{")
-                            id?.let {
-                                printer("\"id\":\"$id\",")
-                            }
-                            printer("\"name\":{"+
-                                            "\"value\":\"$value\"," +
-                                            "\"synonyms\":[")
-                            aliases.toHashSet().apply {
-                                remove(aliases.first()) // remove key
-                            }.forEachIterator { alias ->
-                               printer("\"$alias\"" + (if (hasNext()) "," else ""))
-                            }
-                            printer("]" +
-                                    "}" +
-                                    "}" + (if (hasNext()) "," else ""))
-                        } else {
-                            printer("{" +
-                                    "\"name\":{" +
-                                    "\"value\":\"$valueLine\"" +
-                                    "}" +
-                                    "}" + (if (hasNext()) "," else ""))
                         }
+                        printer("{")
+                        id?.let {
+                            printer("\"id\":\"$id\",")
+                        }
+                        printer("\"name\":{" +
+                                "\"value\":\"$value\"," +
+                                "\"synonyms\":[")
+                        aliases.toHashSet().apply {
+                            remove(aliases.first()) // remove key
+                        }.forEachIterator { alias ->
+                            printer("\"$alias\"" + (if (hasNext()) "," else ""))
+                        }
+                        printer("]" +
+                                "}" +
+                                "}" + (if (hasNext()) "," else ""))
+                    } else {
+                        printer("{" +
+                                "\"name\":{" +
+                                "\"value\":\"$valueLine\"" +
+                                "}" +
+                                "}" + (if (hasNext()) "," else ""))
                     }
-                    printer("]" +
-                            "}" + (if (hasNext()) "," else ""))
                 }
+                printer("]" +
+                        "}" + (if (hasNext()) "," else ""))
+            }
 
         // write suffix
         printer("]" +
@@ -263,4 +239,40 @@ class AlexaExporter(private val skillName : String, private val baseDir: File, p
     private fun Boolean.runIfTrue(and: Boolean = true, block: () -> Unit) = this.also {
         if (this && and) block.invoke()
     }
+
+    private fun Boolean.runIfFalse(and: Boolean = true, block: () -> Unit) = this.also {
+        if (!this && and) block.invoke()
+    }
+
+    private fun String.removeAndWarn(string: String) =
+        if (contains(string)) {
+            Cli.L.warn("Found \"$string\" in utterance \"$this\", removing it.")
+            replace(string, "")
+        } else this
+
+    private fun String.cleanupIntentName() =
+        if (contains('.') && !startsWith("AMAZON.")) {
+            Cli.L.warn("Found \".\" in intent name \"$this\", replacing it by \"_\".")
+            replace(".", "_")
+        } else this
+
+    private fun useSystemTypes(slot: String): String = when (slot) {
+        "any" -> "AMAZON.SearchQuery"
+        "number" -> "AMAZON.NUMBER"
+        "ordinal" -> "AMAZON.Ordinal"
+        "color" -> "AMAZON.Color"
+        else -> slot
+    }
+
+    private fun HashSet<String>.forEachSlotType(entities: List<Entities>?, action: Iterator<Pair<String, Entities?>>.(Pair<String, Entities?>) -> Unit) = this
+        .map {
+            val type = it.split(':').last()
+            Pair(type, entities?.firstOrNull { entity -> entity.name == type })
+        }
+        .filter { (slot, entities) ->
+            (entities != null).runIfFalse(!slot.substringAfter(':').startsWith("AMAZON.") && !supportedGenericTypes.contains(slot)) {
+                Cli.L.warn("No definition for slot type \"$slot\" found")
+            }
+        }
+        .forEachIterator(action)
 }

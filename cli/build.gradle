@@ -1,7 +1,7 @@
 plugins {
     id 'kotlin-platform-jvm'
     id 'application'
-    id 'org.rewedigital.konversation' version '1.0-beta1'
+    id 'org.rewedigital.konversation' version '1.0.0'
     id 'jacoco'
 }
 

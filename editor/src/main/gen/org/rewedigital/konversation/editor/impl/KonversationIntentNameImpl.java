@@ -1,22 +1,18 @@
 // This is a generated file. Not intended for manual editing.
 package org.rewedigital.konversation.editor.impl;
 
-import java.util.List;
-
-import org.jetbrains.annotations.*;
-
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
 
-import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
+import org.jetbrains.annotations.NotNull;
+import org.rewedigital.konversation.editor.psi.KonversationIntentName;
+import org.rewedigital.konversation.editor.psi.KonversationVisitor;
+import org.rewedigital.konversation.editor.psi.impl.KonversationNamedElementImpl;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.CHARSEQUENCE;
 
-import org.rewedigital.konversation.editor.psi.*;
-
-public class KonversationIntentNameImpl extends ASTWrapperPsiElement implements KonversationIntentName {
+public class KonversationIntentNameImpl extends KonversationNamedElementImpl implements KonversationIntentName {
 
     public KonversationIntentNameImpl(@NotNull ASTNode node) {
         super(node);
@@ -38,5 +34,10 @@ public class KonversationIntentNameImpl extends ASTWrapperPsiElement implements 
     @NotNull
     public PsiElement getCharSequence() {
         return findNotNullChildByType(CHARSEQUENCE);
+    }
+
+    @Override
+    public String toString() {
+        return getText();
     }
 }

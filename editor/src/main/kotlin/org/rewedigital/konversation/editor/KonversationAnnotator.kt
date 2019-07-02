@@ -4,26 +4,26 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.rewedigital.konversation.editor.psi.KonversationUtterence
 
 class KonversationAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         (element as? com.intellij.psi.impl.source.tree.java.PsiMethodCallExpressionImpl)?.let { method ->
-            val methodName = method.firstChild.text
+            //val methodName = method.firstChild.text
             if (method.argumentList.children.size > 2) {
                 method.argumentList.children[1]?.let { arg ->
                     validateArgument(arg, holder)
                 }
-                println("java code: $methodName")
+                //println("java code: $methodName")
             }
         }
         if (element.javaClass.name == "org.jetbrains.kotlin.psi.KtCallExpression") {
-            val methodName = (element.firstChild.firstChild as LeafPsiElement).text
+            //val methodName = (element.firstChild.firstChild as LeafPsiElement).text
             element.lastChild.firstChild.nextSibling.firstChild?.let { arg ->
                 validateArgument(arg, holder)
             }
-            println("KtCallExpression. Found: $methodName")
+            //println("KtCallExpression. Found: $methodName")
+            //IElementType.enumerate {println("${it.language}: ${it.toString()}"); true}
         }
         (element as? KonversationUtterence)?.let { utterance ->
             println(utterance.text)
@@ -42,14 +42,12 @@ class KonversationAnnotator : Annotator {
     private fun validateArgument(argument: PsiElement, holder: AnnotationHolder) {
         if (argument.text?.startsWith('"') == true && argument.text?.endsWith('"') == true) {
             val value = argument.text.trim('"')
-            if (value == "bad") {
-                val range = TextRange(argument.textRange.startOffset + 1,
-                    argument.textRange.endOffset - 1)
-                holder.createErrorAnnotation(range, "Bad is bad!")
-            } else if (value == "good") {
-                val range = TextRange(argument.textRange.startOffset + 1,
-                    argument.textRange.endOffset - 1)
-                holder.createInfoAnnotation(range, "Hallo!")
+            if (value == "") {
+                val range = TextRange(argument.textRange.startOffset, argument.textRange.endOffset)
+                holder.createErrorAnnotation(range, "Name is empty")
+            } else if (KonversationUtil.findIntents(argument.project, value).isEmpty()) {
+                val range = TextRange(argument.textRange.startOffset + 1, argument.textRange.endOffset - 1)
+                holder.createErrorAnnotation(range, "$value not found")
             }
         }
     }

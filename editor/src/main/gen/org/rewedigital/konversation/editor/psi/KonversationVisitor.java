@@ -2,7 +2,6 @@
 package org.rewedigital.konversation.editor.psi;
 
 import org.jetbrains.annotations.*;
-
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiElement;
 
@@ -33,7 +32,7 @@ public class KonversationVisitor extends PsiElementVisitor {
     }
 
     public void visitIntentName(@NotNull KonversationIntentName o) {
-        visitPsiElement(o);
+        visitNamedElement(o);
     }
 
     public void visitOutput(@NotNull KonversationOutput o) {
@@ -76,7 +75,12 @@ public class KonversationVisitor extends PsiElementVisitor {
         visitPsiElement(o);
     }
 
+    public void visitNamedElement(@NotNull KonversationNamedElement o) {
+        visitPsiElement(o);
+    }
+
     public void visitPsiElement(@NotNull PsiElement o) {
         visitElement(o);
     }
+
 }

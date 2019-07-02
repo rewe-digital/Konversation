@@ -46,7 +46,8 @@ intentBlock ::= intent utterancesBlock promptBlock? suggestionLine
 intent ::= intentName ":" commandDelimitter
 commandDelimitter ::= comment*
 //intentName ::= intentNamePattern
-intentName ::= charSequence
+intentName ::= charSequence {mixin="org.rewedigital.konversation.editor.psi.impl.KonversationNamedElementImpl"
+                             implements="org.rewedigital.konversation.editor.psi.KonversationNamedElement" methods=[getKey getValue getName setName getNameIdentifier]}
 output ::= charSequence
 //TextPrompt ::= charSequence
 //VoicePrompt ::= charSequence

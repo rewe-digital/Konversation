@@ -3,10 +3,8 @@ package org.rewedigital.konversation.editor;
 
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-
 import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
 import static com.intellij.lang.parser.GeneratedParserUtilBase.*;
-
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.lang.ASTNode;
@@ -563,4 +561,5 @@ public class KonversationParser implements PsiParser, LightPsiParser {
         exit_section_(b, m, null, r);
         return r;
     }
+
 }

@@ -2,18 +2,13 @@
 package org.rewedigital.konversation.editor.impl;
 
 import java.util.List;
-
 import org.jetbrains.annotations.*;
-
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-
 import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
-
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
-
 import org.rewedigital.konversation.editor.psi.*;
 
 public class KonversationCommandDelimitterImpl extends ASTWrapperPsiElement implements KonversationCommandDelimitter {
@@ -39,4 +34,5 @@ public class KonversationCommandDelimitterImpl extends ASTWrapperPsiElement impl
     public List<KonversationComment> getCommentList() {
         return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationComment.class);
     }
+
 }

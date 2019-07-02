@@ -4,7 +4,6 @@ package org.rewedigital.konversation.editor.psi;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
-
 import org.rewedigital.konversation.editor.impl.*;
 
 public interface KonversationTypes {

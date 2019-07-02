@@ -2,18 +2,13 @@
 package org.rewedigital.konversation.editor.impl;
 
 import java.util.List;
-
 import org.jetbrains.annotations.*;
-
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-
 import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
-
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
-
 import org.rewedigital.konversation.editor.psi.*;
 
 public class KonversationSuggestionBlockImpl extends ASTWrapperPsiElement implements KonversationSuggestionBlock {
@@ -39,4 +34,5 @@ public class KonversationSuggestionBlockImpl extends ASTWrapperPsiElement implem
     public KonversationSuggestion getSuggestion() {
         return findNotNullChildByClass(KonversationSuggestion.class);
     }
+
 }

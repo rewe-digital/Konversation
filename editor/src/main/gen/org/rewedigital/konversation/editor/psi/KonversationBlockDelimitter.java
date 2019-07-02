@@ -2,13 +2,12 @@
 package org.rewedigital.konversation.editor.psi;
 
 import java.util.List;
-
 import org.jetbrains.annotations.*;
-
 import com.intellij.psi.PsiElement;
 
 public interface KonversationBlockDelimitter extends PsiElement {
 
     @NotNull
     KonversationCommandDelimitter getCommandDelimitter();
+
 }

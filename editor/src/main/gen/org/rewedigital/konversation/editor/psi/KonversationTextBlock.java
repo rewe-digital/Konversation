@@ -2,9 +2,7 @@
 package org.rewedigital.konversation.editor.psi;
 
 import java.util.List;
-
 import org.jetbrains.annotations.*;
-
 import com.intellij.psi.PsiElement;
 
 public interface KonversationTextBlock extends PsiElement {
@@ -14,4 +12,5 @@ public interface KonversationTextBlock extends PsiElement {
 
     @NotNull
     List<KonversationOutput> getOutputList();
+
 }

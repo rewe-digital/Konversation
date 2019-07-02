@@ -21,6 +21,13 @@
         <annotator language="JAVA" implementationClass="org.rewedigital.konversation.editor.KonversationAnnotator"/>
         <annotator language="kotlin" implementationClass="org.rewedigital.konversation.editor.KonversationAnnotator"/>
         <annotator language="Konversation" implementationClass="org.rewedigital.konversation.editor.KonversationAnnotator"/>
+        <psi.referenceContributor implementation="org.rewedigital.konversation.editor.KonversationReferenceContributor"/>
+        <lang.refactoringSupport language="JAVA" implementationClass="org.rewedigital.konversation.editor.KonversationRefactoringSupportProvider"/>
+        <lang.refactoringSupport language="kotlin" implementationClass="org.rewedigital.konversation.editor.KonversationRefactoringSupportProvider"/>
+        <lang.refactoringSupport language="Konversation" implementationClass="org.rewedigital.konversation.editor.KonversationRefactoringSupportProvider"/>
+        <completion.contributor language="JAVA" implementationClass="org.rewedigital.konversation.editor.KonversationCompletionContributor"/>
+        <completion.contributor language="kotlin" implementationClass="org.rewedigital.konversation.editor.KonversationCompletionContributor"/>
+        <completion.contributor language="Konversation" implementationClass="org.rewedigital.konversation.editor.KonversationCompletionContributor"/>
     </extensions>
 
     <actions>

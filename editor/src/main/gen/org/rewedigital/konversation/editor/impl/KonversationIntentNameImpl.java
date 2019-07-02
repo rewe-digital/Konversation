@@ -2,15 +2,12 @@
 package org.rewedigital.konversation.editor.impl;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
 import org.rewedigital.konversation.editor.psi.KonversationIntentName;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 import org.rewedigital.konversation.editor.psi.impl.KonversationNamedElementImpl;
-
-import static org.rewedigital.konversation.editor.psi.KonversationTypes.CHARSEQUENCE;
 
 public class KonversationIntentNameImpl extends KonversationNamedElementImpl implements KonversationIntentName {
 
@@ -30,14 +27,4 @@ public class KonversationIntentNameImpl extends KonversationNamedElementImpl imp
         }
     }
 
-    @Override
-    @NotNull
-    public PsiElement getCharSequence() {
-        return findNotNullChildByType(CHARSEQUENCE);
-    }
-
-    @Override
-    public String toString() {
-        return getText();
-    }
 }

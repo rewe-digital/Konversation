@@ -1,15 +1,13 @@
 // This is a generated file. Not intended for manual editing.
 package org.rewedigital.konversation.editor.psi;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 
-public interface KonversationIntentName extends KonversationNamedElement {
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-    @NotNull
-    PsiElement getCharSequence();
+public interface KonversationIntentName extends KonversationNamedElement {
 
     //WARNING: getKey(...) is skipped
     //matching getKey(KonversationIntentName, ...)

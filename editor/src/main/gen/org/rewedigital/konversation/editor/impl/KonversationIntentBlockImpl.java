@@ -1,15 +1,18 @@
 // This is a generated file. Not intended for manual editing.
 package org.rewedigital.konversation.editor.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
-import org.rewedigital.konversation.editor.psi.*;
+import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElementVisitor;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.rewedigital.konversation.editor.psi.KonversationIntent;
+import org.rewedigital.konversation.editor.psi.KonversationIntentBlock;
+import org.rewedigital.konversation.editor.psi.KonversationPromptBlock;
+import org.rewedigital.konversation.editor.psi.KonversationSuggestionLine;
+import org.rewedigital.konversation.editor.psi.KonversationUtterancesBlock;
+import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
 public class KonversationIntentBlockImpl extends ASTWrapperPsiElement implements KonversationIntentBlock {
 

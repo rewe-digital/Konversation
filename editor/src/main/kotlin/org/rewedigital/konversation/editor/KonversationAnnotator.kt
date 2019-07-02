@@ -19,7 +19,7 @@ class KonversationAnnotator : Annotator {
         }
         if (element.javaClass.name == "org.jetbrains.kotlin.psi.KtCallExpression") {
             //val methodName = (element.firstChild.firstChild as LeafPsiElement).text
-            element.lastChild.firstChild.nextSibling.firstChild?.let { arg ->
+            element.lastChild?.firstChild?.nextSibling?.firstChild?.let { arg ->
                 validateArgument(arg, holder)
             }
             //println("KtCallExpression. Found: $methodName")

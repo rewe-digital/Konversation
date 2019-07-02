@@ -1,10 +1,27 @@
 // This is a generated file. Not intended for manual editing.
 package org.rewedigital.konversation.editor.psi;
 
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
-import org.rewedigital.konversation.editor.impl.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
+
+import org.rewedigital.konversation.editor.impl.KonversationBlockDelimitterImpl;
+import org.rewedigital.konversation.editor.impl.KonversationBlockPartImpl;
+import org.rewedigital.konversation.editor.impl.KonversationCommandDelimitterImpl;
+import org.rewedigital.konversation.editor.impl.KonversationCommentImpl;
+import org.rewedigital.konversation.editor.impl.KonversationIntentBlockImpl;
+import org.rewedigital.konversation.editor.impl.KonversationIntentImpl;
+import org.rewedigital.konversation.editor.impl.KonversationIntentNameImpl;
+import org.rewedigital.konversation.editor.impl.KonversationOutputImpl;
+import org.rewedigital.konversation.editor.impl.KonversationPromptBlockImpl;
+import org.rewedigital.konversation.editor.impl.KonversationSuggestionBlockImpl;
+import org.rewedigital.konversation.editor.impl.KonversationSuggestionImpl;
+import org.rewedigital.konversation.editor.impl.KonversationSuggestionLineImpl;
+import org.rewedigital.konversation.editor.impl.KonversationTextBlockImpl;
+import org.rewedigital.konversation.editor.impl.KonversationUtteranceLineImpl;
+import org.rewedigital.konversation.editor.impl.KonversationUtterancesBlockImpl;
+import org.rewedigital.konversation.editor.impl.KonversationUtterenceImpl;
+import org.rewedigital.konversation.editor.impl.KonversationVoiceBlockImpl;
 
 public interface KonversationTypes {
 

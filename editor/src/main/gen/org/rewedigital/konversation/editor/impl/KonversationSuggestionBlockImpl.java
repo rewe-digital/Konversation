@@ -1,15 +1,14 @@
 // This is a generated file. Not intended for manual editing.
 package org.rewedigital.konversation.editor.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
-import org.rewedigital.konversation.editor.psi.*;
+import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElementVisitor;
+
+import org.jetbrains.annotations.NotNull;
+import org.rewedigital.konversation.editor.psi.KonversationSuggestion;
+import org.rewedigital.konversation.editor.psi.KonversationSuggestionBlock;
+import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
 public class KonversationSuggestionBlockImpl extends ASTWrapperPsiElement implements KonversationSuggestionBlock {
 

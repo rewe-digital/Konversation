@@ -1,16 +1,51 @@
 // This is a generated file. Not intended for manual editing.
 package org.rewedigital.konversation.editor;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
-import static com.intellij.lang.parser.GeneratedParserUtilBase.*;
+import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
-import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
+
+import static org.rewedigital.konversation.editor.KonversationParserUtil.TRUE_CONDITION;
+import static org.rewedigital.konversation.editor.KonversationParserUtil._COLLAPSE_;
+import static org.rewedigital.konversation.editor.KonversationParserUtil._NONE_;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.adapt_builder_;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.consumeToken;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.current_position_;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.empty_element_parsed_guard_;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.enter_section_;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.exit_section_;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.nextTokenIs;
+import static org.rewedigital.konversation.editor.KonversationParserUtil.recursion_guard_;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.BLOCK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.BLOCK_CONCAT;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.BLOCK_DELIMITTER;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.BLOCK_PART;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.CHARSEQUENCE;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.COLON;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.COMMAND_DELIMITTER;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.COMMENT;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.INTENT;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.INTENT_BLOCK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.INTENT_NAME;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.OUTPUT;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.PROMPT_BLOCK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.SUGGESTION;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.SUGGESTION_BLOCK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.SUGGESTION_END;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.SUGGESTION_LINE;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.SUGGESTION_START;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.TEXT;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.TEXT_BLOCK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.UTTERANCE;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.UTTERANCES_BLOCK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.UTTERANCE_LINE;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.UTTERENCE;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.VOICE_BLOCK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.VOICE_ONLY_BLOCK;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class KonversationParser implements PsiParser, LightPsiParser {
@@ -227,7 +262,7 @@ public class KonversationParser implements PsiParser, LightPsiParser {
     }
 
     /* ********************************************************** */
-    // charSequence
+    // (charSequence "-"?)+
     public static boolean intentName(PsiBuilder b, int l) {
         if (!recursion_guard_(b, l, "intentName")) {
             return false;
@@ -237,9 +272,40 @@ public class KonversationParser implements PsiParser, LightPsiParser {
         }
         boolean r;
         Marker m = enter_section_(b);
-        r = consumeToken(b, CHARSEQUENCE);
+        r = intentName_0(b, l + 1);
+        while (r) {
+            int c = current_position_(b);
+            if (!intentName_0(b, l + 1)) {
+                break;
+            }
+            if (!empty_element_parsed_guard_(b, "intentName", c)) {
+                break;
+            }
+        }
         exit_section_(b, m, INTENT_NAME, r);
         return r;
+    }
+
+    // charSequence "-"?
+    private static boolean intentName_0(PsiBuilder b, int l) {
+        if (!recursion_guard_(b, l, "intentName_0")) {
+            return false;
+        }
+        boolean r;
+        Marker m = enter_section_(b);
+        r = consumeToken(b, CHARSEQUENCE);
+        r = r && intentName_0_1(b, l + 1);
+        exit_section_(b, m, null, r);
+        return r;
+    }
+
+    // "-"?
+    private static boolean intentName_0_1(PsiBuilder b, int l) {
+        if (!recursion_guard_(b, l, "intentName_0_1")) {
+            return false;
+        }
+        consumeToken(b, BLOCK);
+        return true;
     }
 
     /* ********************************************************** */
@@ -483,18 +549,13 @@ public class KonversationParser implements PsiParser, LightPsiParser {
     }
 
     /* ********************************************************** */
-    // utteranceLine+
+    // utteranceLine*
     public static boolean utterancesBlock(PsiBuilder b, int l) {
         if (!recursion_guard_(b, l, "utterancesBlock")) {
             return false;
         }
-        if (!nextTokenIs(b, UTTERANCE)) {
-            return false;
-        }
-        boolean r;
-        Marker m = enter_section_(b);
-        r = utteranceLine(b, l + 1);
-        while (r) {
+        Marker m = enter_section_(b, l, _NONE_, UTTERANCES_BLOCK, "<utterances block>");
+        while (true) {
             int c = current_position_(b);
             if (!utteranceLine(b, l + 1)) {
                 break;
@@ -503,8 +564,8 @@ public class KonversationParser implements PsiParser, LightPsiParser {
                 break;
             }
         }
-        exit_section_(b, m, UTTERANCES_BLOCK, r);
-        return r;
+        exit_section_(b, l, m, true, false, null);
+        return true;
     }
 
     /* ********************************************************** */

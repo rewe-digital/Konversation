@@ -1,5 +1,6 @@
 {
   parserClass="org.rewedigital.konversation.editor.KonversationParser"
+  parserUtilClass="org.rewedigital.konversation.editor.KonversationParserUtil"
 
   extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
@@ -46,14 +47,14 @@ intentBlock ::= intent utterancesBlock promptBlock? suggestionLine
 intent ::= intentName ":" commandDelimitter
 commandDelimitter ::= comment*
 //intentName ::= intentNamePattern
-intentName ::= charSequence {mixin="org.rewedigital.konversation.editor.psi.impl.KonversationNamedElementImpl"
+intentName ::= (charSequence "-"?)+ {mixin="org.rewedigital.konversation.editor.psi.impl.KonversationNamedElementImpl"
                              implements="org.rewedigital.konversation.editor.psi.KonversationNamedElement" methods=[getKey getValue getName setName getNameIdentifier]}
 output ::= charSequence
 //TextPrompt ::= charSequence
 //VoicePrompt ::= charSequence
 utterence ::= charSequence
 suggestion ::= charSequence
-utterancesBlock ::= utteranceLine+
+utterancesBlock ::= utteranceLine*
 utteranceLine ::= "!" " "* utterence commandDelimitter
 blockDelimitter ::= "-" commandDelimitter | "+" commandDelimitter
 textBlock ::= ("-" ' '* output commandDelimitter)+

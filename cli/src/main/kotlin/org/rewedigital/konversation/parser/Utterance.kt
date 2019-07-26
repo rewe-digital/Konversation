@@ -28,7 +28,15 @@ class Utterance(val source: String, val name: String) {
     }
 
     val slotTypes: List<String> by lazy {
-        variableParts.flatMap { it.split("|") }.filter { it.startsWith('{') && it.endsWith('}') }.map { it.substring(1, it.length - 1) }
+        variableParts.flatMap {
+            it.split("|")
+        }.mapNotNull {
+            val start = it.indexOf('{')
+            val end = it.indexOf('}')
+            if (start in 0 until end) {
+                it.substring(start + 1, end)
+            } else null
+        }
     }
 
     val permutationCount: Long by lazy {
@@ -106,8 +114,15 @@ class Utterance(val source: String, val name: String) {
         slots[offset].split("|").map {
             var value = it
             // strip out the type from the slot type name if any
-            if (value.startsWith('{') && value.endsWith('}') && value.contains(':')) {
-                value = value.substring(0, value.indexOf(':')) + "}"
+            val delimiter = value.indexOf(':')
+            // check if there is a type delimiter
+            if (delimiter >= 0) {
+                val open = it.indexOf('{')
+                val close = it.indexOf('}')
+                // check that there is a opening and closing bracket together with the delimiter in the correct order
+                if (open in 0 until close && delimiter in open until close) {
+                    value = value.substring(0, delimiter) + value.substring(close)
+                }
             }
             insertPermutations(replacement.replace("{$placeholder}", value), slots, offset + 1, storage)
         }

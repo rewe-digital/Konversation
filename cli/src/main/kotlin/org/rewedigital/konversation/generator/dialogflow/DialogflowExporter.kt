@@ -15,7 +15,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
     override fun prettyPrinted(outputStream: OutputStream, intents: List<Intent>, entities: List<Entities>?) {
         val zipStream = ZipOutputStream(outputStream)
         val json = StringBuilder()
-        intents.filter { !it.name.startsWith("AMAZON.") }.forEachSlotType(entities) { slotType ->
+        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachSlotType(entities) { slotType ->
             json.clear()
             val meta = EntityMetaData(automatedExpansion = false,
                 id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
@@ -40,7 +40,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.filter { !it.name.startsWith("AMAZON.") }.forEachIndexed { i, intent ->
+        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachIndexed { i, intent ->
             json.clear()
             val intentData = DialogflowIntent(
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),

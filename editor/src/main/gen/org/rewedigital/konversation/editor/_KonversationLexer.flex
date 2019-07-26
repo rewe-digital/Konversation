@@ -25,28 +25,29 @@ import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
 EOL=\R
 WHITE_SPACE=\s+
 
-CHARSEQUENCE=[^\r\n:~+!\[\]-]+
+STRING=[^\r\n:!+~\[\]-]+
+SPECIALCHAR=[:!+~\[\]-]
 LINEBREAK=[\r\n]+
 
 %%
 <YYINITIAL> {
-  {WHITE_SPACE}       { return WHITE_SPACE; }
+  {WHITE_SPACE}      { return WHITE_SPACE; }
 
-  ":"                 { return COLON; }
-  "!"                 { return UTTERANCE; }
-  "-"                 { return BLOCK; }
-  "~"                 { return VOICE_ONLY_BLOCK; }
-  "+"                 { return BLOCK_CONCAT; }
-  "{"                 { return LEFT_BRACE; }
-  "}"                 { return RIGHT_BRACE; }
-  "["                 { return SUGGESTION_START; }
-  "]"                 { return SUGGESTION_END; }
-  "$"                 { return VARIABLE_DOLLAR; }
-  "%"                 { return VARIABLE_PERCENT; }
-  "text"              { return TEXT; }
+  ":"                { return COLON; }
+  "!"                { return UTTERANCE; }
+  "-"                { return BLOCK; }
+  "~"                { return VOICE_ONLY_BLOCK; }
+  "+"                { return BLOCK_CONCAT; }
+  "{"                { return LEFT_BRACE; }
+  "}"                { return RIGHT_BRACE; }
+  "["                { return SUGGESTION_START; }
+  "]"                { return SUGGESTION_END; }
+  "$"                { return VARIABLE_DOLLAR; }
+  "%"                { return VARIABLE_PERCENT; }
 
-  {CHARSEQUENCE}      { return CHARSEQUENCE; }
-  {LINEBREAK}         { return LINEBREAK; }
+  {STRING}           { return STRING; }
+  {SPECIALCHAR}      { return SPECIALCHAR; }
+  {LINEBREAK}        { return LINEBREAK; }
 
 }
 

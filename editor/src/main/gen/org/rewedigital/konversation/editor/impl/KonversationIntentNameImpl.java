@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
 import org.rewedigital.konversation.editor.psi.KonversationIntentName;
+import org.rewedigital.konversation.editor.psi.KonversationIntentNameChars;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 import org.rewedigital.konversation.editor.psi.impl.KonversationNamedElementImpl;
 
@@ -25,6 +26,12 @@ public class KonversationIntentNameImpl extends KonversationNamedElementImpl imp
         } else {
             super.accept(visitor);
         }
+    }
+
+    @Override
+    @NotNull
+    public KonversationIntentNameChars getIntentNameChars() {
+        return findNotNullChildByClass(KonversationIntentNameChars.class);
     }
 
 }

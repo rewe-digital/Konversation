@@ -10,7 +10,7 @@ class KonversationAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         (element as? com.intellij.psi.impl.source.tree.java.PsiMethodCallExpressionImpl)?.let { method ->
             //val methodName = method.firstChild.text
-            if (method.argumentList.children.size > 2) {
+            if (method.argumentList.children.size > 2 && method.firstChild.text == "loadKonversation") {
                 method.argumentList.children[1]?.let { arg ->
                     validateArgument(arg, holder)
                 }
@@ -19,8 +19,10 @@ class KonversationAnnotator : Annotator {
         }
         if (element.javaClass.name == "org.jetbrains.kotlin.psi.KtCallExpression") {
             //val methodName = (element.firstChild.firstChild as LeafPsiElement).text
-            element.lastChild?.firstChild?.nextSibling?.firstChild?.let { arg ->
-                validateArgument(arg, holder)
+            if (element.parent?.parent?.parent?.prevSibling?.text == "loadKonversation") {
+                element.lastChild?.firstChild?.nextSibling?.firstChild?.let { arg ->
+                    validateArgument(arg, holder)
+                }
             }
             //println("KtCallExpression. Found: $methodName")
             //IElementType.enumerate {println("${it.language}: ${it.toString()}"); true}

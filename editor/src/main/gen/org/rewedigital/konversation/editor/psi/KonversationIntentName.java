@@ -9,6 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 public interface KonversationIntentName extends KonversationNamedElement {
 
+    @NotNull
+    KonversationIntentNameChars getIntentNameChars();
+
     //WARNING: getKey(...) is skipped
     //matching getKey(KonversationIntentName, ...)
     //methods are not found in null

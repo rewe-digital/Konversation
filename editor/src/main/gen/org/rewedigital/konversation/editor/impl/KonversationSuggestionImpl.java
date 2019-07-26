@@ -3,14 +3,12 @@ package org.rewedigital.konversation.editor.impl;
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
+import org.rewedigital.konversation.editor.psi.KonversationLine;
 import org.rewedigital.konversation.editor.psi.KonversationSuggestion;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
-
-import static org.rewedigital.konversation.editor.psi.KonversationTypes.CHARSEQUENCE;
 
 public class KonversationSuggestionImpl extends ASTWrapperPsiElement implements KonversationSuggestion {
 
@@ -32,8 +30,8 @@ public class KonversationSuggestionImpl extends ASTWrapperPsiElement implements 
 
     @Override
     @NotNull
-    public PsiElement getCharSequence() {
-        return findNotNullChildByType(CHARSEQUENCE);
+    public KonversationLine getLine() {
+        return findNotNullChildByClass(KonversationLine.class);
     }
 
 }

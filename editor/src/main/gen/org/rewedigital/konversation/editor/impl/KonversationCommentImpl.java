@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
 import org.rewedigital.konversation.editor.psi.KonversationComment;
+import org.rewedigital.konversation.editor.psi.KonversationLine;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
 public class KonversationCommentImpl extends ASTWrapperPsiElement implements KonversationComment {
@@ -25,6 +26,12 @@ public class KonversationCommentImpl extends ASTWrapperPsiElement implements Kon
         } else {
             super.accept(visitor);
         }
+    }
+
+    @Override
+    @NotNull
+    public KonversationLine getLine() {
+        return findNotNullChildByClass(KonversationLine.class);
     }
 
 }

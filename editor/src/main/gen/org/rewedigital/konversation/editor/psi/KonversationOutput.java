@@ -8,6 +8,6 @@ import org.jetbrains.annotations.NotNull;
 public interface KonversationOutput extends PsiElement {
 
     @NotNull
-    PsiElement getCharSequence();
+    KonversationLine getLine();
 
 }

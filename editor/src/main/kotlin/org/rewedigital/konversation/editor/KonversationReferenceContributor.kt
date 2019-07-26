@@ -24,7 +24,7 @@ class KonversationReferenceContributor : PsiReferenceContributor() {
                 object : PsiReferenceProvider() {
                     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext) =
                         element.text?.let { value ->
-                            println("Processing kotlin reference: $value")
+                            //println("Processing kotlin reference: $value")
                             if (element.parent?.parent?.parent?.prevSibling?.text == "loadKonversation") {
                                 arrayOf<PsiReference>(KonversationReference(element, TextRange(0, value.length)))
                             } else null

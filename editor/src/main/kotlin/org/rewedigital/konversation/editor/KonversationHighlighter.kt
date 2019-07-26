@@ -17,7 +17,7 @@ class KonversationSyntaxHighlighter : SyntaxHighlighterBase() {
         KonversationTypes.UTTERENCE -> UTTERANCE
         KonversationTypes.BLOCK -> ALTERNATIVE
         KonversationTypes.COMMENT -> COMMENT
-        KonversationTypes.CHARSEQUENCE -> VAR_TEST
+        //KonversationTypes.CHARSEQUENCE -> VAR_TEST
         TokenType.BAD_CHARACTER -> BAD_CHARACTER
         KonversationTypes.COLON,
         KonversationTypes.LEFT_BRACE,
@@ -25,7 +25,7 @@ class KonversationSyntaxHighlighter : SyntaxHighlighterBase() {
         KonversationTypes.BLOCK_CONCAT,
         KonversationTypes.SUGGESTION_END,
         KonversationTypes.SUGGESTION_START,
-        KonversationTypes.TEXT,
+        KonversationTypes.LINE,
         KonversationTypes.UTTERANCE,
         KonversationTypes.VARIABLE_DOLLAR,
         KonversationTypes.VARIABLE_PERCENT,

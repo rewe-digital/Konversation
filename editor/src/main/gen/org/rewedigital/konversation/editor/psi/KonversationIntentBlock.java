@@ -9,10 +9,13 @@ import org.jetbrains.annotations.Nullable;
 public interface KonversationIntentBlock extends PsiElement {
 
     @NotNull
-    KonversationIntent getIntent();
+    KonversationIntentDeclaration getIntentDeclaration();
 
     @Nullable
     KonversationPromptBlock getPromptBlock();
+
+    @Nullable
+    KonversationRepromptBlock getRepromptBlock();
 
     @NotNull
     KonversationSuggestionLine getSuggestionLine();

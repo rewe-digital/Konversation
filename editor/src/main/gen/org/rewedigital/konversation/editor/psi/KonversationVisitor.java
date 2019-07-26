@@ -24,11 +24,11 @@ public class KonversationVisitor extends PsiElementVisitor {
         visitPsiElement(o);
     }
 
-    public void visitIntent(@NotNull KonversationIntent o) {
+    public void visitIntentBlock(@NotNull KonversationIntentBlock o) {
         visitPsiElement(o);
     }
 
-    public void visitIntentBlock(@NotNull KonversationIntentBlock o) {
+    public void visitIntentDeclaration(@NotNull KonversationIntentDeclaration o) {
         visitPsiElement(o);
     }
 
@@ -36,11 +36,27 @@ public class KonversationVisitor extends PsiElementVisitor {
         visitNamedElement(o);
     }
 
+    public void visitIntentNameChars(@NotNull KonversationIntentNameChars o) {
+        visitPsiElement(o);
+    }
+
+    public void visitLine(@NotNull KonversationLine o) {
+        visitPsiElement(o);
+    }
+
     public void visitOutput(@NotNull KonversationOutput o) {
         visitPsiElement(o);
     }
 
     public void visitPromptBlock(@NotNull KonversationPromptBlock o) {
+        visitPsiElement(o);
+    }
+
+    public void visitReprompt(@NotNull KonversationReprompt o) {
+        visitPsiElement(o);
+    }
+
+    public void visitRepromptBlock(@NotNull KonversationRepromptBlock o) {
         visitPsiElement(o);
     }
 

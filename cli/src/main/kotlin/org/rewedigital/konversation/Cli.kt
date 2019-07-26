@@ -145,6 +145,19 @@ open class Cli {
                 }
             }
 
+            // merge utterances (for the case that they are defined in multiple files)
+            intentDb.forEach { (_, intents) ->
+                intents.groupingBy { it.name }.eachCount().filter { it.value > 1 }.forEach { (intent, _) ->
+                    val all = intents.filter { it.name == intent }
+                    all.first().let { master ->
+                        all.drop(1).forEach {
+                            master.utterances += it.utterances
+                            intents.remove(it)
+                        }
+                    }
+                }
+            }
+
             showStats()
 
             ksonDir?.let(::exportKson)

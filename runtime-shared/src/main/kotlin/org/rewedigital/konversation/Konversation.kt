@@ -51,8 +51,8 @@ open class Konversation(val name: String, private val environment: Environment) 
      */
     fun createOutput(data: Map<String, Any> = emptyMap()) = buildOutput().run {
         Output(displayText = text.applyVariables(data),
-            ssml = ssml.applyVariables(data),
-            reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)].applyVariables(data) }.toMap(),
+            ssml = ssml.applyVariables(data).escapeForXml(),
+            reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)].applyVariables(data).escapeForXml() }.toMap(),
             suggestions = answer.suggestions.map { it.applyVariables(data) },
             extras = emptyMap())
     }
@@ -62,5 +62,7 @@ open class Konversation(val name: String, private val environment: Environment) 
         private val random = Random()
         /** A regular expression to apply the actual values. */
         internal val regex = "(\\$([a-zA-Z_][_a-zA-Z0-9]*)|\\$\\{([a-zA-Z_][a-zA-Z0-9._]+[a-zA-Z_])}|%(\\d+\\.?\\d*)?[bBhHsScCdoxXeEfgGaAtTn]\\$([a-zA-Z_][A-zA-z0-9._]+[a-zA-Z_]|[a-zA-Z_]))".toRegex()
+
+        private fun String.escapeForXml() = this.replace("&(?!\\w+;)".toRegex(), "&amp;").replace("'", "&apos;")
     }
 }

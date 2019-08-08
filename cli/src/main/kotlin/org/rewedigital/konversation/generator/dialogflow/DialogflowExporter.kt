@@ -98,10 +98,10 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         intents.filter { !it.name.startsWith("AMAZON.") }.forEachSlotType(entities) { slotType ->
             json.clear()
             val meta = EntityMetaData(automatedExpansion = false,
-                id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
+                id = UUID.nameUUIDFromBytes("$invocationName:${slotType.name}".toByteArray()),
                 isEnum = false,
                 isOverridable = false,
-                name = slotType.name)
+                name = slotType.name.cleanupSlotName())
             meta.minified { s -> json.append(s) }
             zipStream.add("entities/${slotType.name}.json", json)
             json.clear()
@@ -200,6 +200,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             entities?.firstOrNull { entity -> entity.name == type } //?:
         }
         .toHashSet()
+        .map { it.copy(name = it.name.cleanupSlotName()) }
         .forEach(action)
 
     private fun useSystemTypes(slot: String): String = when (slot) {
@@ -243,5 +244,17 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             samples += equalizedLists.joinToString(separator = " ") { it[i] }.replace(" *\n ".toRegex(), "\n")
         }
         return samples
+    }
+
+    private fun String.cleanupSlotName() = when {
+        startsWith("AMAZON.", ignoreCase = true) ->
+            drop(7).also {
+                Cli.L.warn("Found Amazon prefix in slot type \"$this\", removing it and use \"$it\" now.")
+            }
+        contains('.') -> {
+            Cli.L.warn("Found \".\" in slot type \"$this\", replacing it by \"_\".")
+            replace(".", "_")
+        }
+        else -> this
     }
 }

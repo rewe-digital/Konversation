@@ -19,8 +19,22 @@ At first make sure that every thing still works, by running all the tests.
 2. Execute `./gradlew gradle-plugin:publishPlugins`.
 3. Verify that the update is visible on the [Gradle](https://plugins.gradle.org/plugin/org.rewedigital.konversation).
 ## CLI
+There are two ways. At first the manual way:
 1. Create the fat jar by executing `./gradlew cli:fatJar`
-
-TODO: Explain how to publish the CLI
+2. Create a new release at GitHub.
+3. Upload the created konversation.jar at the release page named as `konversation-cli.jar`.
 ### Homebrew
+1. Check out the tap currently at https://github.com/rekire/homebrew-packages
+2. Update the sha256 hash and the (download) url in `konversation/Formular/konversation.rb`
+3. Commit the changes and tag it
 ### Chocolaty
+1. Copy the konversation.jar into `cli-integrations/chocolaty/tools`
+2. Update the sha256 hash and the download url in `cli-integrations/chocolaty/tools/legal/VERIFICATION.txt`
+3. Run in cmd or powershell `cli-integrations/chocolaty`: `choco pack && choco push konversation.nupkg -s https://chocolatey.org/`
+
+Or the more automated way:
+1. Create a token in [GitHub](https://github.com/settings/tokens) with repo permission.
+2. Open a shell e.g. bash
+3. Execute `./upload-cli.sh <version of the release> <true if preview> <github token>`. This might take a while since it does the manual steps and creates 2 commits in two repositories and two tags.
+4. Open cmd or powershell (on Windows)
+5. Execute in `cli-integrations/chocolaty`: `choco pack && choco push konversation.nupkg -s https://chocolatey.org/`

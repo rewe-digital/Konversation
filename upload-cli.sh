@@ -62,4 +62,4 @@ git push origin --tags
 echo "Please also update chocolatey with:"
 echo "cd cli-integrations/chocolatey"
 echo "choco pack"
-echo "choco push konversation.nupkg -s https://chocolatey.org/"
+echo "choco push konversation.$version.nupkg -s https://push.chocolatey.org/"

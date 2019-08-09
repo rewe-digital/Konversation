@@ -48,12 +48,13 @@ git tag -a "v$version" -m "v$version"
 git push origin --tags
 
 echo "Patching Chocolatey..."
-cd ../../../cli-integrations/chocolatey/legal
-sed -e "s#jar: .*#jar: $jarUrl#g" -e "s/checksum: .*/checksum: $sha256/g" -i VERIFICATION.txt
+cd ../../../cli-integrations/chocolatey
+sed -e "s#jar: .*#jar: $jarUrl#g" -e "s/checksum: .*/checksum: $sha256/g" -i legal/VERIFICATION.txt
+sed -e "s#<version>.*</version>#<version>$version</version>#g" -i konversation.nuspec
 git add VERIFICATION.txt
 # update artifact
-rm "../$artifact" | true
-cp "../../../$source" "../$artifact"
+rm "tools/konversation.jar" | true
+cp "../../$source" "tools/konversation.jar"
 git commit -m "Update Chocolatey to version $version"
 git tag -a "cli-$version" -m "cli-$version"
 git push origin --tags

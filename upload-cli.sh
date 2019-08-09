@@ -51,6 +51,9 @@ echo "Patching Chocolatey..."
 cd ../../../cli-integrations/chocolatey/legal
 sed -e "s#jar: .*#jar: $jarUrl#g" -e "s/checksum: .*/checksum: $sha256/g" -i VERIFICATION.txt
 git add VERIFICATION.txt
+# update artifact
+rm "../$artifact" | true
+cp "../../../$source" "../$artifact"
 git commit -m "Update Chocolatey to version $version"
 git tag -a "cli-$version" -m "cli-$version"
 git push origin --tags

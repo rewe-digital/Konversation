@@ -1,6 +1,6 @@
 {
   "name": "@rewe-digital/konversation",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Konversation is a tool to generate rich and diversified responses to the user of a voice application.",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "René Kilczan",
   "license": "MIT",
   "dependencies": {
-    "kotlin": "^1.3.11",
+    "kotlin": "^1.3.31",
     "sprintf-js": "^1.1.2"
   },
   "repository": {

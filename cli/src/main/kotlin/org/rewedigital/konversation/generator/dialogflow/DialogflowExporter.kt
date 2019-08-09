@@ -15,7 +15,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
     override fun prettyPrinted(outputStream: OutputStream, intents: List<Intent>, entities: List<Entities>?) {
         val zipStream = ZipOutputStream(outputStream)
         val json = StringBuilder()
-        intents.filter { !it.name.startsWith("AMAZON.") }.forEachSlotType(entities) { slotType ->
+        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachSlotType(entities) { slotType ->
             json.clear()
             val meta = EntityMetaData(automatedExpansion = false,
                 id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
@@ -40,7 +40,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.filter { !it.name.startsWith("AMAZON.") }.forEachIndexed { i, intent ->
+        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachIndexed { i, intent ->
             json.clear()
             val intentData = DialogflowIntent(
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
@@ -95,13 +95,13 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
     override fun minified(outputStream: OutputStream, intents: List<Intent>, entities: List<Entities>?) {
         val zipStream = ZipOutputStream(outputStream)
         val json = StringBuilder()
-        intents.forEachSlotType(entities) { slotType ->
+        intents.filter { !it.name.startsWith("AMAZON.") }.forEachSlotType(entities) { slotType ->
             json.clear()
             val meta = EntityMetaData(automatedExpansion = false,
-                id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
+                id = UUID.nameUUIDFromBytes("$invocationName:${slotType.name}".toByteArray()),
                 isEnum = false,
                 isOverridable = false,
-                name = slotType.name)
+                name = slotType.name.cleanupSlotName())
             meta.minified { s -> json.append(s) }
             zipStream.add("entities/${slotType.name}.json", json)
             json.clear()
@@ -111,13 +111,21 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             json.append("[")
             entries.forEachBreakable {
                 it.minified { s -> json.append(s) }
-                if (hasNext()) json.append(",\n")
+                if (hasNext()) json.append(",")
             }
             json.append("]")
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.forEach { intent ->
+        intents.filter { !it.name.startsWith("AMAZON.") }.forEachIndexed { i, intent ->
+            json.clear()
+            val intentData = DialogflowIntent(
+                id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
+                lastUpdate = System.currentTimeMillis() / 1000,
+                name = intent.name,
+                responses = createResponses(intent))
+            intentData.minified { s -> json.append(s) }
+            zipStream.add("intents/${intent.name}.json", json)
             json.clear()
             json.append("[")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
@@ -126,13 +134,13 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
-                utterance.permutations.forEachIndexedAndBreakable { sentence, i ->
+                utterance.permutations.forEachBreakable { sentence ->
                     val data = if (sentence.contains("{") && sentence.contains("}")) {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
                             val type = slots[part]
                             type?.let {
                                 val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
-                                val sample = values?.get(i % values.size) ?: defaultValue(type, i)
+                                val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
 
                                 DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
@@ -153,14 +161,6 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }
             json.append("]")
             zipStream.add("intents/${intent.name}_usersays_$lang.json", json)
-            //println(json)
-            json.clear()
-            val intentData = DialogflowIntent(id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
-                lastUpdate = System.currentTimeMillis() / 1000,
-                name = intent.name,
-                responses = createResponses(intent))
-            intentData.minified { s -> json.append(s) }
-            zipStream.add("intents/${intent.name}.json", json)
         }
         zipStream.add("package.json", java.lang.StringBuilder("{\"version\":\"1.0.0\"}"))
         zipStream.close()
@@ -200,6 +200,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             entities?.firstOrNull { entity -> entity.name == type } //?:
         }
         .toHashSet()
+        .map { it.copy(name = it.name.cleanupSlotName()) }
         .forEach(action)
 
     private fun useSystemTypes(slot: String): String = when (slot) {
@@ -216,12 +217,6 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         "sys.ordinal" -> "$int."
         "sys.color" -> "Blau"
         else -> type
-    }
-
-    private fun <T> Iterable<T>.forEachIndexedAndBreakable(block: BreakableIterator<T>.(element: T, i: Int) -> Unit) {
-        val iterator = BreakableIterator(iterator())
-        var i = 0
-        while (iterator.hasNext()) block(iterator, iterator.next(), i++)
     }
 
     // this method is something like a zip operation, but it equalized the list length first
@@ -249,5 +244,17 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             samples += equalizedLists.joinToString(separator = " ") { it[i] }.replace(" *\n ".toRegex(), "\n")
         }
         return samples
+    }
+
+    private fun String.cleanupSlotName() = when {
+        startsWith("AMAZON.", ignoreCase = true) ->
+            drop(7).also {
+                Cli.L.warn("Found Amazon prefix in slot type \"$this\", removing it and use \"$it\" now.")
+            }
+        contains('.') -> {
+            Cli.L.warn("Found \".\" in slot type \"$this\", replacing it by \"_\".")
+            replace(".", "_")
+        }
+        else -> this
     }
 }

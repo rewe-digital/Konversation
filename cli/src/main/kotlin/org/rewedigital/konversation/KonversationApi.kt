@@ -42,6 +42,18 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
                     }
             }
         }
+        // merge utterances (for the case that they are defined in multiple files)
+        intents.forEach { (_, intents) ->
+            intents.groupingBy { it.name }.eachCount().filter { it.value > 1 }.forEach { (intent, _) ->
+                val all = intents.filter { it.name == intent }
+                all.first().let { master ->
+                    all.drop(1).forEach {
+                        master.utterances += it.utterances
+                        intents.remove(it)
+                    }
+                }
+            }
+        }
         Pair(intents, entities)
     }
 

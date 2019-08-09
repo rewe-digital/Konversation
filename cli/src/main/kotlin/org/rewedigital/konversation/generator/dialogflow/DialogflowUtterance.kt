@@ -35,18 +35,14 @@ data class DialogflowUtterance(
     }
 
     override fun minified(printer: Printer) {
-        printer("{\"count\":$count,\"data\":[")
+        printer("""{"id":"$id","data":[""")
         data.forEachIterator {
             it.minified(printer)
             if (hasNext()) {
                 printer(",")
             }
         }
-        printer("],")
-        printer("\"id\":\"$id\",")
-        printer("\"isTemplate\":$isTemplate,")
-        printer("\"updated\":$updated")
-        printer("}")
+        printer("""],"isTemplate":$isTemplate,"count":$count}""")
     }
 
     data class UtterancePart(
@@ -80,48 +76,3 @@ data class DialogflowUtterance(
         }
     }
 }
-
-/*
-Error processing intent from file: 'intents/REWE.shopping.search.product.in.category_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.reorder_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.product.details_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.delivery.time_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.delete_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.cart.price_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.myproducts.show_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.gradingborder_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.topicworld_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.bulkysurcharge_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.favorites.add_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.favorites.new_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.cart.add_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.checkout_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.favorites.show_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.minimumorder_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.change_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.search.myproducts_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.search.offer_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.search.price_usersays_de.json'. Uploaded file contains invalid Intent.
-
-
-Error processing intent from file: 'intents/REWE.shopping.search.product.in.category_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.reorder_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.product.details_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.delivery.time_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.delete_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.cart.price_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.myproducts.show_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.gradingborder_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.topicworld_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.bulkysurcharge_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.favorites.add_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.favorites.new_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.cart.add_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.checkout_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.favorites.show_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.minimumorder_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.order.change_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.search.myproducts_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.search.offer_usersays_de.json'. Uploaded file contains invalid Intent.
-Error processing intent from file: 'intents/REWE.shopping.search.price_usersays_de.json'. Uploaded file contains invalid Intent.
- */

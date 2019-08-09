@@ -1,0 +1,1 @@
+{"parts":[{"type":"Text","variants":["Hallo $planet. You are ${user.name}!"]},{"type":"VoiceOnly","variants":["And I know this age: %1.2f$age"]}],"suggestions":["Tell me more about $planet","Tell me more about ${user.name}"],"reprompts":{}}

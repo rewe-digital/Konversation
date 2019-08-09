@@ -3,7 +3,7 @@ import java.nio.file.Paths
 plugins {
     id 'kotlin-platform-jvm'
     // FIX COMPILE ERROR WITH THIS
-    //id 'org.jetbrains.kotlin.kapt' version '1.3.11'
+    //id 'org.jetbrains.kotlin.kapt' version '1.3.31'
     id 'maven-publish'
     id 'com.novoda.bintray-release'
 }
@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.3.11"
+    compile "org.jetbrains.kotlin:kotlin-reflect:${rootProject.ext.versions.kotlin}"
     expectedBy project(":runtime-shared")
     expectedBy project(":shared")
     compile project(":shared")
@@ -137,7 +137,7 @@ publishing.publications {
 publish {
     userOrg = 'rewe-digital'
     groupId = 'org.rewedigital.voice'
-    artifactId = 'konversation'
+    artifactId = 'Konversation'
     repoName = 'Konversation'
     publishVersion = rootProject.ext.versions.runtime_jvm
     desc = 'Konversation is a tool to generate rich and diversified responses to the user of a voice application.'

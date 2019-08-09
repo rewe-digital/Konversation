@@ -42,6 +42,7 @@ data class Response(
         printer("""{"resetContexts":$resetContexts,"action":"$action","affectedContexts":[],"parameters":[""")
         parameters.forEachBreakable {
             it.minified(printer)
+            if (hasNext()) printer(",")
         }
         printer("""],"messages":[""")
         messages.forEachBreakable {

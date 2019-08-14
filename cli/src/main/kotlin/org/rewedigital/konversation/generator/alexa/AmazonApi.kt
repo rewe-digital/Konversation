@@ -86,8 +86,8 @@ class AmazonApi(private val clientId: String, private val clientSecret: String, 
             url = "https://api.amazonalexa.com/v1/skills/$skillId/stages/development/interactionModel/locales/$locale",
             headers = mapOf("Authorization" to "Bearer $accessToken"),
             data = json.toString())
-        if (response.statusCode != 200) {
-            println("Error while updating the intent schema: " + String(response.content))
+        if (response.statusCode != 202) {
+            println("Error ${response.statusCode} while updating the intent schema: " + String(response.content))
         }
         return response.statusCode == 200
     }

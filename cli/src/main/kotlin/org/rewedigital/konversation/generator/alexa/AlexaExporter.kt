@@ -261,6 +261,11 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
         "number" -> "AMAZON.NUMBER"
         "ordinal" -> "AMAZON.Ordinal"
         "color" -> "AMAZON.Color"
+        "de-city" -> "AMAZON.DE_CITY"
+        "at-city" -> "AMAZON.AT_CITY"
+        "eu-city" -> "AMAZON.EUROPE_CITY"
+        "us-city" -> "AMAZON.US_CITY"
+        "gb-city" -> "AMAZON.GB_CITY"
         else -> slot
     }
 

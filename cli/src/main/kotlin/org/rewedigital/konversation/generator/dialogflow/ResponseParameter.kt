@@ -37,7 +37,8 @@ private val String.slotType: String
         substringAfter(':')
     } else {
         this
-    }.asSystemType()
+    }.removePrefix("AMAZON.")
+        .asSystemType()
 
 private val String.slotName: String
     get() = if (contains(':')) {
@@ -52,5 +53,10 @@ private fun String.asSystemType() =
         "number" -> "sys.number"
         "ordinal" -> "sys.ordinal"
         "color" -> "sys.color"
+        "de-city" -> "sys.geo-city"
+        "at-city" -> "sys.geo-city"
+        "eu-city" -> "sys.geo-city"
+        "us-city" -> "sys.geo-city"
+        "gb-city" -> "sys.geo-city"
         else -> this
     }

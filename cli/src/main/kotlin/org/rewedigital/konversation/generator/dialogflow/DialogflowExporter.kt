@@ -28,7 +28,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             //println("entities/${slotType.name}.json:\n$json")
             json.clear()
             val entries = slotType.values.map { entry ->
-                Entity(value = entry.master, synonyms = entry.synonyms)
+                Entity(value = entry.key ?: entry.master, synonyms = entry.synonyms)
             }
             //println("\nentities/${slotType.name}_entries_<LANG>.json:")
             json.append("[\n")
@@ -106,7 +106,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}.json", json)
             json.clear()
             val entries = slotType.values.map { entry ->
-                Entity(value = entry.master, synonyms = entry.synonyms)
+                Entity(value = entry.key ?: entry.master, synonyms = entry.synonyms)
             }
             json.append("[")
             entries.forEachBreakable {

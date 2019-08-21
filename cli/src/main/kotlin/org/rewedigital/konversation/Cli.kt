@@ -42,7 +42,7 @@ open class Cli {
                 if (argFile.absoluteFile.exists()) {
                     inputFiles += File(arg).absoluteFile
                 } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar") || arg.endsWith(".values")) {
-                    if (arg.contains('*')) {
+                    if (arg.contains('*') && argFile.parentFile.exists()) {
                         val matcher = argFile.name.replace(".", "\\.").replace("*", ".*?").toRegex()
                         argFile.parentFile.listFiles { _, name ->
                             matcher.matches(name)

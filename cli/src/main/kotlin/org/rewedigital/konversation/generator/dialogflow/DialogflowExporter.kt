@@ -28,7 +28,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             //println("entities/${slotType.name}.json:\n$json")
             json.clear()
             val entries = slotType.values.map { entry ->
-                Entity(value = entry.key ?: entry.master, synonyms = entry.synonyms)
+                Entity(key = entry.key, value = entry.master, synonyms = entry.synonyms)
             }
             //println("\nentities/${slotType.name}_entries_<LANG>.json:")
             json.append("[\n")
@@ -40,7 +40,8 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachIndexed { i, intent ->
+        var i = 0
+        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEach { intent ->
             json.clear()
             val intentData = DialogflowIntent(
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
@@ -62,10 +63,11 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 utterance.permutations.forEachBreakable { sentence ->
                     val data = if (sentence.contains("{") && sentence.contains("}")) {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
-                            val type = slots[part]
+                            val type = slots[part]?.removePrefix("AMAZON.")
                             type?.let {
-                                val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
+                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.flatMap { it.synonyms }
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
+                                i++
 
                                 DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
@@ -106,7 +108,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}.json", json)
             json.clear()
             val entries = slotType.values.map { entry ->
-                Entity(value = entry.key ?: entry.master, synonyms = entry.synonyms)
+                Entity(key = entry.key, value = entry.master, synonyms = entry.synonyms)
             }
             json.append("[")
             entries.forEachBreakable {
@@ -117,7 +119,8 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.filter { !it.name.startsWith("AMAZON.") }.forEachIndexed { i, intent ->
+        var i = 0
+        intents.filter { !it.name.startsWith("AMAZON.") }.forEach { intent ->
             json.clear()
             val intentData = DialogflowIntent(
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
@@ -137,10 +140,11 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 utterance.permutations.forEachBreakable { sentence ->
                     val data = if (sentence.contains("{") && sentence.contains("}")) {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
-                            val type = slots[part]
+                            val type = slots[part]?.removePrefix("AMAZON.")
                             type?.let {
-                                val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
+                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.flatMap { it.synonyms }
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
+                                i++
 
                                 DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)

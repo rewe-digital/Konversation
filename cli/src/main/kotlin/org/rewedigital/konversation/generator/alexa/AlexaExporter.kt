@@ -107,9 +107,11 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                 }
                 printer("              \"name\": {\n" +
                         "                \"value\": \"${entity.master}\"")
-                if (entity.synonyms.isNotEmpty()) {
+
+                val synonyms = entity.synonyms.removeEntriesWithEmoticons()
+                if (synonyms.isNotEmpty()) {
                     printer(",\n                \"synonyms\": [\n")
-                    entity.synonyms.forEachIterator { alias ->
+                    synonyms.forEachIterator { alias ->
                         printer("                  \"$alias\"" + (if (hasNext()) "," else "") + "\n")
                     }
                     printer("                ]")
@@ -194,6 +196,7 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                 )
                 values.forEachIterator { valueLine ->
                     if (valueLine.startsWith('{')) {
+                        // FIXME the pretty printed code looks different
                         val aliases = valueLine.substring(1, valueLine.length - 1).split('|')
                         val (id, value) = aliases.first().split(':', limit = 2).let {
                             when (it.size) {
@@ -209,7 +212,7 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                         printer("\"name\":{" +
                                 "\"value\":\"$value\"," +
                                 "\"synonyms\":[")
-                        aliases.toHashSet().apply {
+                        aliases.removeEntriesWithEmoticons().toHashSet().apply {
                             remove(aliases.first()) // remove key
                         }.forEachIterator { alias ->
                             printer("\"$alias\"" + (if (hasNext()) "," else ""))
@@ -281,3 +284,25 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
         }
         .forEachIterator(action)
 }
+
+private fun List<String>.removeEntriesWithEmoticons() = filter { !it.containsEmoticons }
+
+private val String.containsEmoticons
+    get() = any {
+        when (it.toInt()) {
+            in 0x1F600..0x1F64F, // Emoticons
+            in 0x1F300..0x1F5FF, // Misc Symbols and Pictographs
+            in 0x1F680..0x1F6FF, // Transport and Map
+            in 0x1F1E6..0x1F1FF, // Regional country flags
+            in 0x2600..0x26FF, // Misc symbols
+            in 0x2700..0x27BF, // Dingbats
+            in 0xE0020..0xE007F, // Tags
+            in 0xFE00..0xFE0F, // Variation Selectors
+            in 0x1F900..0x1F9FF, // Supplemental Symbols and Pictographs
+            in 0x1F018..0x1F270, // Various asian characters
+            in 0x238C..0x2454, // Misc items
+            in 0x20D0..0x20FF -> // Combining Diacritical Marks for Symbols
+                true
+            else -> false
+        }
+    }

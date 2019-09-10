@@ -6,7 +6,7 @@ import org.rewedigital.konversation.generator.Printer
 import java.io.File
 
 class AlexaExporter(private val skillName: String, private val baseDir: File, private val limit: Int) : Exporter {
-    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
+    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color", "de-city", "at-city", "eu-city", "us-city", "gb-city")
 
     // TODO make sure that both branches have equal functionality
     override fun prettyPrinted(printer: Printer, intents: List<Intent>, entities: List<Entities>?) {

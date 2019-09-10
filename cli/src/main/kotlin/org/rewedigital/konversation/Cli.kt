@@ -109,7 +109,7 @@ open class Cli {
                         "dump",
                         "-dump" -> dumpOnly = true
                         "-v",
-                        "-version" -> L.log("Konversation CLI version 1.1.0-rc3")
+                        "-version" -> L.log("Konversation CLI version 1.1.0-rc4")
                         else -> L.error("Unknown argument \"$arg\".")
                     }
                 }

@@ -10,7 +10,7 @@ import java.util.zip.ZipOutputStream
 
 class DialogflowExporter(private val invocationName: String) : StreamExporter {
     private val lang = "de"
-    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
+    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color", "de-city", "at-city", "eu-city", "us-city", "gb-city")
 
     override fun prettyPrinted(outputStream: OutputStream, intents: List<Intent>, entities: List<Entities>?) {
         val zipStream = ZipOutputStream(outputStream)

@@ -51,7 +51,7 @@ open class Konversation(val name: String, private val environment: Environment) 
      */
     fun createOutput(data: Map<String, Any> = emptyMap()) = buildOutput().run {
         Output(displayText = text.applyVariables(data),
-            ssml = "<speak>" + ssml.applyVariables(data).escapeForXml() + "</speak>",
+            ssml = ssml.applyVariables(data).escapeForXml(),
             reprompts = answer.reprompts.map { it.key.toInt() to it.value[random.next(it.value.size)].applyVariables(data).escapeForXml() }.toMap(),
             suggestions = answer.suggestions.map { it.applyVariables(data) },
             extras = emptyMap())

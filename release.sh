@@ -25,7 +25,7 @@ if [[ $1 == "prepair" ]]; then
   # Hide the mail address from spam bots
   git config --local user.email "`echo "Ym90QHJla2kucmU=" | base64 -d`"
   git config --local user.name "Travis CI"
-  git remote set-url origin git@github.com:rekire/ci-test.git
+  git remote set-url origin git@github.com:rewe-digital-incubator/Konversation.git
   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
   git fetch
   echo travis_rsa>>.gitignore

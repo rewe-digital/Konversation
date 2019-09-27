@@ -22,12 +22,6 @@ if [[ $1 == "update" ]]; then
   ln -s ../cli/build/libs/konversation.jar publish/konversation-cli.jar
 fi
 
-if [[ $1 == "process" ]]; then
-  cp publish/konversation.jar tools/konversation.jar
-  cd cli-integrations/chocolatey
-  docker run --rm -v $PWD:$PWD -w $PWD linuturk/mono-choco --allow-unofficial choco pack
-  curl -F "files[0]=@konversation.$VERSION.nupkg" http://www.stepload.de/
-fi
 if [[ $1 == "publish" ]]; then
   echo "Patching Chocolatey..."
   jarUrl="https://github.com/rewe-digital-incubator/Konversation/releases/download/$TAG/konversation-cli.jar"

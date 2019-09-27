@@ -14,6 +14,13 @@ if [[ $1 == "update" ]]; then
   ./release-$MODULE.sh update
 fi
 
+if [[ $1 == "process" ]]; then
+  cp publish/konversation.jar tools/konversation.jar
+  cd cli-integrations/chocolatey
+  docker run --rm -v $PWD:$PWD -w $PWD linuturk/mono-choco --allow-unofficial choco pack
+  curl -F "files[0]=@konversation.$VERSION.nupkg" http://www.stepload.de/
+fi
+
 if [[ $1 == "prepair" ]]; then
   echo Setup deployment keys...
   # prepare the key

@@ -1,10 +1,8 @@
 package org.rewedigital.konversation.generator.dialogflow
 
 import org.junit.Test
-import org.rewedigital.konversation.Entities
-import org.rewedigital.konversation.Intent
-import org.rewedigital.konversation.PartImpl
-import org.rewedigital.konversation.PartType
+import org.rewedigital.konversation.*
+import org.rewedigital.konversation.Entity
 import org.rewedigital.konversation.parser.Utterance
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -91,9 +89,9 @@ class DialogflowExporterTest {
                 PartImpl(mutableListOf("hi"), PartType.Text)
             ),
             suggestions = mutableListOf("Foo", "Bar"))
-        val typeA = Entities("TypeA", listOf(org.rewedigital.konversation.Entity("master1", null, emptyList())))
-        val typeB = Entities("TypeB", listOf(org.rewedigital.konversation.Entity("master2", "key", listOf("foobar"))))
-        val typeC = Entities("TypeC", listOf(org.rewedigital.konversation.Entity("master3", null, listOf("foo", "bar")), org.rewedigital.konversation.Entity("master4", null, emptyList())))
+        val typeA = Entities("TypeA", listOf(Entity("master1", null, emptyList())))
+        val typeB = Entities("TypeB", listOf(Entity("master2", "key", listOf("foobar"))))
+        val typeC = Entities("TypeC", listOf(Entity("master3", null, listOf("foo", "bar")), Entity("master4", null, emptyList())))
         val typeD = Entities("TypeD", listOf())
         DialogflowExporter("test").prettyPrinted(output, listOf(intent), listOf(typeA, typeB, typeC, typeD))
         assertEquals(9, output.files.size, "Expect expect 9 files")
@@ -118,9 +116,9 @@ class DialogflowExporterTest {
                 PartImpl(mutableListOf("hi"), PartType.Text)
             ),
             suggestions = mutableListOf("Foo", "Bar"))
-        val typeA = Entities("TypeA", listOf(org.rewedigital.konversation.Entity("master1", null, emptyList())))
-        val typeB = Entities("TypeB", listOf(org.rewedigital.konversation.Entity("master2", "key", listOf("foobar"))))
-        val typeC = Entities("TypeC", listOf(org.rewedigital.konversation.Entity("master3", null, listOf("foo", "bar")), org.rewedigital.konversation.Entity("master4", null, emptyList())))
+        val typeA = Entities("TypeA", listOf(Entity("master1", null, emptyList())))
+        val typeB = Entities("TypeB", listOf(Entity("master2", "key", listOf("foobar"))))
+        val typeC = Entities("TypeC", listOf(Entity("master3", null, listOf("foo", "bar")), Entity("master4", null, emptyList())))
         val typeD = Entities("TypeD", listOf())
         DialogflowExporter("test").minified(output, listOf(intent), listOf(typeA, typeB, typeC, typeD))
         assertEquals(9, output.files.size, "Expect expect 9 files")
@@ -308,7 +306,7 @@ class DialogflowExporterTest {
                     "userDefined": false
                   },
                   {
-                    "text": "foo",
+                    "text": "bar",
                     "alias": "c",
                     "meta": "@TypeC",
                     "userDefined": false
@@ -331,7 +329,7 @@ class DialogflowExporterTest {
                     "userDefined": false
                   },
                   {
-                    "text": "foo",
+                    "text": "bar",
                     "alias": "c",
                     "meta": "@TypeC",
                     "userDefined": false
@@ -343,7 +341,7 @@ class DialogflowExporterTest {
             ]""".trimIndent()
         private val expectedTypeA = """
             {
-              "id": "4c3e9e75-856f-3b24-83cb-b624751fbd6d",
+              "id": "7500bbbf-380c-3e5d-b133-645ffb674da9",
               "name": "TypeA",
               "isOverridable": false,
               "isEnum": false,
@@ -360,7 +358,7 @@ class DialogflowExporterTest {
             ]""".trimIndent()
         private val expectedTypeB = """
             {
-              "id": "6701be2b-c608-3df3-802a-ad3215b90851",
+              "id": "43735a21-33da-3efb-9313-84e5aeb8ec39",
               "name": "TypeB",
               "isOverridable": false,
               "isEnum": false,
@@ -369,7 +367,7 @@ class DialogflowExporterTest {
         private val expectedTypeBEntries = """
             [
               {
-                "value": "master2",
+                "value": "key",
                 "synonyms": [
                   "master2",
                   "foobar"
@@ -378,7 +376,7 @@ class DialogflowExporterTest {
             ]""".trimIndent()
         private val expectedTypeC = """
             {
-              "id": "dd40a595-c890-3dce-a5e9-c065c544af05",
+              "id": "b9fb2829-817d-3445-8e04-d402e4ce8014",
               "name": "TypeC",
               "isOverridable": false,
               "isEnum": false,

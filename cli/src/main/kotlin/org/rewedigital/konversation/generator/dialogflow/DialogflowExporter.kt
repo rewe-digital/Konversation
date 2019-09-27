@@ -18,7 +18,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachSlotType(entities) { slotType ->
             json.clear()
             val meta = EntityMetaData(automatedExpansion = false,
-                id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
+                id = UUID.nameUUIDFromBytes("$invocationName:${slotType.name}".toByteArray()),
                 isEnum = false,
                 isOverridable = false,
                 name = slotType.name)

@@ -37,5 +37,6 @@ if [[ $1 == "prepair" ]]; then
   git tag -fa $TAG -m "Release $MODULE $VERSION"
   git push origin master --tags -f
 
+  ls -l publish
   sed -i '' publish/*
 fi

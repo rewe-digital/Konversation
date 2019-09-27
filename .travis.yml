@@ -8,7 +8,7 @@ before_script:
   - ./release.sh update
 
 script:
-  - ./gradlew test build
+  - ./gradlew test build cli:fJ
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

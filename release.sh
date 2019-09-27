@@ -38,5 +38,6 @@ if [[ $1 == "prepair" ]]; then
   git push origin master --tags -f
 
   ls -l publish
+  ls -l cli/build/libs
   sed -i '' publish/*
 fi

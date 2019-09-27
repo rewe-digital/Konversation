@@ -19,7 +19,7 @@ if [[ $1 == "update" ]]; then
 
   echo Prepairing artifacts...
   # Add link to the not yet created artifact
-  ln -s ../cli/build/libs/test-$VERSION.jar publish/konversation-cli.jar
+  ln -s ../cli/build/libs/konversation.jar publish/konversation-cli.jar
 fi
 
 if [[ $1 == "publish" ]]; then

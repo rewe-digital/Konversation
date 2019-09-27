@@ -1,4 +1,4 @@
-# Command line interface of Konversation [![Build Status][travis-image]][travis-url] [![Code Coverage][codecov-img]][codecov-url] [![License: MIT][mit-image]][mit-url]
+# Command line interface of Konversation [![Build Status][travis-image]][travis-url] ![Latest CLI version is 1.1.0-rc4][cli-ver-img] [![License: MIT][mit-image]][mit-url]
 
 Konversation has its own command line interface, which you can use for generating the kson files for the runtime. You can use it for
 validate the syntax of the input files or to integrate it into your own build system. Keep in mind you can also use the
@@ -40,7 +40,7 @@ output your installed konversation cli version number and exit then.
 ## Usage
 
 You can process a single file or a directory to convert a batch of files. Currently are two formats supported: `.ksv` files and `.grammar`
-files. Check also the specification of the [supported file formats](./file-formats.md).
+files. Check also the specification of the [supported file formats](../file-formats.md).
 
     konversation <path/to/process> --export-kson outdir
 
@@ -92,3 +92,4 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 [Homebrew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
 [releases]: https://github.com/rewe-digital-incubator/Konversation/releases
+[cli-ver-img]: https://img.shields.io/badge/cli-1.0.0--rc4-blue "Latest CLI version is 1.1.0-rc4"

@@ -3,6 +3,10 @@ language: java
 notifications:
   email: false
 
+before_script:
+  - openssl aes-256-cbc -K $encrypted_703101643d9d_key -iv $encrypted_703101643d9d_iv -in travis_rsa.enc -out travis_rsa -d
+  - ./release.sh update
+
 script:
   - ./gradlew test build
 
@@ -17,7 +21,25 @@ cache:
     - $HOME/runtime-js/.gradle/nodejs
 
 jdk:
-    - oraclejdk8
+  - openjdk8
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+before_deploy:
+  - ./release.sh prepair
+  - export TRAVIS_COMMIT=`git rev-parse HEAD`
+
+deploy:
+  provider: releases
+  api_key:
+    secure: Akty5JoTylVDZpKnvL/+uZaBVakrbmNbIQ4Dfp/PSR4zyZdphTbjVQPmrj9L823zScY6D4qocpGBHVRZoiaNpPQc0B7sWs6QxH7J+vW8glvy2rG416Flr1UZBp6r0IyPuUfZ37wHzd5jYfFIheVrbHoGHbtX4NYSZ323o3NvC48KpT3R68KUHISAbfOh26T81XGpWD3CpwNqHc9y5SAaE2aIHkCia2ySvxAEc7FW4g1iU2bt7sSA0JXRcFB1LWshZBxTNo3YzZLwPH7+oM4yKzS5M+poraOdrCffSMKJjCv2ACFie482iYy+3J4EHAx/rbSb4ru9D7UqQHTYIiByalYAVMahUifNDNlBPUyjcrLFJM0KxylGEvumpsABzqWjluOPxOjyZJ+rcqjQzC4Z7ifIRTpVJRq5Bv87H4JhIF8wqYxSeAHWUbQIwsOhr1WOOGYkCselV+sILLHupduWM892Wk+igwYCuVerNiIR1FNJ1yBIr5d9SNj660XMVHPEQ/hZqVCTTEPNcblS9vSHC5+LaQn5SAmOmgLgzSJHjlMTYczALdz8IeadAQgdq01RXbRjf6ni/l/T0m7cbxMzEtK9hLLAhRNg5lik99BI/hAXN9MvcFi1yEVHo0iFMeI0k8k86PVv4vPatmjz9zzXskD+hDy46cP663cm3pGw3sI=
+  file_glob: true
+  file: publish/**
+  skip_cleanup: true
+  on:
+    repo: rewe-digital-incubator/Konversation
+    tags: true
+
+after_deploy:
+  - ./release.sh finish

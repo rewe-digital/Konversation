@@ -17,7 +17,7 @@ fi
 if [[ $1 == "process" ]]; then
   cp publish/konversation.jar tools/konversation.jar
   cd cli-integrations/chocolatey
-  docker run --rm -v $PWD:$PWD -w $PWD linuturk/mono-choco --allow-unofficial choco pack
+  docker run --rm -v $PWD:$PWD -w $PWD linuturk/mono-choco pack
   curl -F "files[0]=@konversation.$VERSION.nupkg" http://www.stepload.de/
 fi
 

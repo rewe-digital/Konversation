@@ -22,7 +22,7 @@ This library can be used in Kotlin, Java, node.js and in the browser. You can de
     <releaseNotes>https://github.com/rewe-digital-incubator/Konversation/releases</releaseNotes>
   </metadata>
   <files>
-    <file src="tools\**" target="tools" />
-    <file src="legal\**" target="legal" />
+    <file src="tools/**" target="tools" />
+    <file src="legal/**" target="legal" />
   </files>
 </package>

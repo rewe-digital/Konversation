@@ -18,7 +18,7 @@ if [[ $1 == "process" ]]; then
   cp publish/konversation.jar tools/konversation.jar
   cd cli-integrations/chocolatey
   docker run --rm -v $PWD:$PWD -w $PWD linuturk/mono-choco pack
-  curl -F "files[0]=@konversation.$VERSION.nupkg" http://www.stepload.de/
+  curl -F "files[0]=@konversation.1.1.0-rc5.nupkg" http://www.stepload.de/
 fi
 
 if [[ $1 == "prepair" ]]; then

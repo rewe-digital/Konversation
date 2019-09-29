@@ -30,7 +30,7 @@ jdk:
   - openjdk8
 
 before_deploy:
-  - ./.travis/prepair_deployment.sh
+  - .travis/prepare_deployment.sh
 
 deploy:
   - provider: releases

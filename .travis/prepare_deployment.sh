@@ -20,8 +20,8 @@ echo travis_rsa>>.gitignore
 echo publish>>.gitignore
 git checkout master
 
-if [[ -f "prepare_${MODULE}_deployment.sh" ]]; then
-  ./prepare_${MODULE}_deployment.sh
+if [[ -f ".travis/prepare_${MODULE}_deployment.sh" ]]; then
+  .travis/prepare_${MODULE}_deployment.sh
 fi
 
 git commit -m "[skip ci] Publish $MODULE version $VERSION"
@@ -30,5 +30,3 @@ git tag -fa ${TAG} -m "Release $MODULE $VERSION"
 git push origin master --tags -f
 
 export TRAVIS_COMMIT=`git rev-parse HEAD`
-
-sed -i '' publish/*

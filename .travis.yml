@@ -59,7 +59,7 @@ deploy:
       tags: true
       condition: $TRAVIS_TAG =~ ^js-
   - provider: script
-    script: gradlew runtime-jvm:bintrayUpload
+    script: ./gradlew runtime-jvm:bintrayUpload
     on:
       branch: master
       repo: rewe-digital-incubator/Konversation

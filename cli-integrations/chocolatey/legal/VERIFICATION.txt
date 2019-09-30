@@ -6,13 +6,13 @@ Package can be verified like this:
 
 1. Go to https://github.com/rewe-digital-incubator/Konversation/releases, search the latest released jar.
 
-   jar: https://github.com/rewe-digital-incubator/Konversation/releases/download/cli-1.1.0-rc5/konversation-cli.jar
+   jar: https://github.com/rewe-digital-incubator/Konversation/releases/download/cli-1.1.0-rc6/konversation-cli.jar
 
 2. You can use one of the following methods to obtain the SHA256 checksum:
    - Use powershell function 'Get-FileHash'
    - Use Chocolatey utility 'checksum.exe'
 
-   checksum: 47fb618df62a3d905b39d2501a07b01e71918f5387457e1125ac871cc60ab62a
+   checksum: b4d2128e71924b24f59d1560ca3c29ec504fe3bbf740c28c5c0dd77310a0668a
 
 File 'LICENSE.txt' obtained from:
    https://github.com/rewe-digital-incubator/Konversation/LICENSE.txt

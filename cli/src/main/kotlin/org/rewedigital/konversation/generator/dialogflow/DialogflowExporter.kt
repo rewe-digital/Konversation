@@ -221,10 +221,10 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
     }
 
     private fun defaultValue(type: String, int: Int) = when (type) {
-        "sys.any" -> "foo bar"
-        "sys.number" -> int.toString()
-        "sys.ordinal" -> "$int."
-        "sys.color" -> "Blau"
+        "any" -> "foo bar"
+        "number" -> int.toString()
+        "ordinal" -> "$int."
+        "color" -> "Blau"
         "de-city" -> listOf("Stuttgart", "München", "Berlin", "Potsdam", "Bremen", "Hamburg", "Wiesbaden", "Schwerin", "Hannover", "Düsseldorf", "Mainz", "Saarbrücken", "Dresden", "Magdeburg", "Kiel", "Erfurt").run {
             get(int % size)
         }

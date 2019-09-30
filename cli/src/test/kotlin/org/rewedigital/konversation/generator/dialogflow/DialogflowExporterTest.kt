@@ -80,6 +80,23 @@ class DialogflowExporterTest {
     }
 
     @Test
+    fun `Verify sample utterances for system types`() {
+        val output = ZipHelper()
+        val intent = Intent(name = "Foo",
+            utterances = mutableListOf(
+                Utterance("Ich bin {{age:number}} und kommt aus {{city:de-city}}", "Ich bin {age} und kommt aus {city}")),
+            prompt = mutableListOf(
+                PartImpl(mutableListOf("hi"), PartType.Text)
+            ),
+            suggestions = mutableListOf("Foo", "Bar"))
+        DialogflowExporter("test").prettyPrinted(output, listOf(intent), null)
+        assertEquals(3, output.files.size, "Expect expect 3 files")
+        assertEquals("{\n  \"version\": \"1.0.0\"\n}", output.files["package.json"], "package.json has an unexpected content")
+        assertEquals(expectedIntentWithSystemEntities, output.files["intents/Foo.json"].replaceTimestamp())
+        assertEquals(expectedUsersaysWithSystemEntities, output.files["intents/Foo_usersays_de.json"])
+    }
+
+    @Test
     fun `Verify export of entities`() {
         val output = ZipHelper()
         val intent = Intent(name = "Foo",
@@ -183,6 +200,36 @@ class DialogflowExporterTest {
                 "count": 0
               }
             ]""".trimIndent()
+        private val expectedUsersaysWithSystemEntities = """
+            [
+              {
+                "id": "c65f278c-1284-36c7-b856-45417bb1f6f2",
+                "data": [
+                  {
+                    "text": "Ich bin ",
+                    "userDefined": false
+                  },
+                  {
+                    "text": "0",
+                    "alias": "age",
+                    "meta": "@sys.number",
+                    "userDefined": false
+                  },
+                  {
+                    "text": " und kommt aus ",
+                    "userDefined": false
+                  },
+                  {
+                    "text": "München",
+                    "alias": "city",
+                    "meta": "@sys.geo-city",
+                    "userDefined": false
+                  }
+                ],
+                "isTemplate": false,
+                "count": 0
+              }
+            ]""".trimIndent()
         private const val expectedExtendedIntentMinified =
             """{"id":"1356c67d-7ad1-338d-816b-fb822dd2c25d","name":"Foo","auto":true,"contexts":[],"responses":[{"resetContexts":false,"action":"Foo","affectedContexts":[],"parameters":[],"messages":[{"type":0,"lang":"de","speech":[]}],"defaultResponsePlatforms":{},"speech":[]}],"priority":500000,"webhookUsed":true,"webhookForSlotFilling":false,"lastUpdate":4711,"fallbackIntent":false,"events":[]}"""
         private val expectedIntent = """
@@ -226,6 +273,63 @@ class DialogflowExporterTest {
               "fallbackIntent": false,
               "events": []
             }""".trimIndent()
+        private val expectedIntentWithSystemEntities = """
+            {
+              "id": "1356c67d-7ad1-338d-816b-fb822dd2c25d",
+              "name": "Foo",
+              "auto": true,
+              "contexts": [],
+              "responses": [
+                {
+                  "resetContexts": false,
+                  "action": "Foo",
+                  "affectedContexts": [],
+                  "parameters": [
+                    {
+                      "id": "67199ddf-4516-33ce-8e1d-3a53f3c8067c",
+                      "dataType": "@sys.number",
+                      "name": "age",
+                      "value": "${'$'}age",
+                      "isList": false
+                    },
+                    {
+                      "id": "2b88d619-659b-3242-9d0d-4995bff44931",
+                      "dataType": "@sys.geo-city",
+                      "name": "city",
+                      "value": "${'$'}city",
+                      "isList": false
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "type": 0,
+                      "lang": "de",
+                      "speech": [
+                        "hi"
+                      ]
+                    },
+
+                    {
+                      "type": 2,
+                      "lang": "de",
+                      "replies": [
+                        "Foo",
+                        "Bar"
+                      ]
+                    }
+                  ],
+                  "defaultResponsePlatforms": {},
+                  "speech": []
+                }
+              ],
+              "priority": 500000,
+              "webhookUsed": true,
+              "webhookForSlotFilling": false,
+              "lastUpdate": 4711,
+              "fallbackIntent": false,
+              "events": []
+            }
+        """.trimIndent()
         private val expectedIntentWithEntities = """
             {
               "id": "1356c67d-7ad1-338d-816b-fb822dd2c25d",

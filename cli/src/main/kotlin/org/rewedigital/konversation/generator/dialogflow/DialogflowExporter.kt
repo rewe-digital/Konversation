@@ -56,7 +56,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             //println("Dumping ${intent.name} (${intent.utterances.sumByLong { it.permutationCount }} utterances):")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
                 val parts = it.split(":")
-                parts.first() to useSystemTypes(parts.last())
+                parts.first() to parts.last()
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
@@ -69,7 +69,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
                                 i++
 
-                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
+                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@${useSystemTypes(type)}", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
 
                         }
@@ -212,6 +212,11 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         "number" -> "sys.number"
         "ordinal" -> "sys.ordinal"
         "color" -> "sys.color"
+        "de-city",
+        "at-city",
+        "eu-city",
+        "us-city",
+        "gb-city" -> "sys.geo-city"
         else -> slot
     }
 

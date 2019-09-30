@@ -52,7 +52,7 @@ deploy:
       tags: true
       condition: $TRAVIS_TAG =~ ^cli-
   - provider: script
-    script: gradlew runtime-js:publishNpmPackage
+    script: ./gradlew runtime-js:publishNpmPackage
     on:
       branch: master
       repo: rewe-digital-incubator/Konversation
@@ -66,7 +66,7 @@ deploy:
       tags: true
       condition: $TRAVIS_TAG =~ ^jvm-
   - provider: script
-    script: gradlew gradle-plugin:publishPlugins
+    script: ./gradlew gradle-plugin:publishPlugins
     on:
       branch: master
       repo: rewe-digital-incubator/Konversation

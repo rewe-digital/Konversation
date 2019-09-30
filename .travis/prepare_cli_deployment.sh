@@ -11,6 +11,9 @@ sed -i -E "s/version is [0-9][^]\"]+/version is $VERSION/g" cli/readme.md
 sed -i -E "s/cli-[0-9][^ ]+-blue/`echo ${TAG}|sed -e "s/-/--/g"`-blue/g" cli/readme.md
 git add cli/readme.md
 
+sed -i -e "s/const val version = \".*\"/const val version = \"$VERSION\"/g" cli/src/main/kotlin/org/rewedigital/konversation/Cli.kt
+git add cli/src/main/kotlin/org/rewedigital/konversation/Cli.kt
+
 sed -i -e "s/versions.cli = '.*'/versions.cli = '$VERSION'/g" build.gradle
 git add build.gradle
 

@@ -109,7 +109,7 @@ open class Cli {
                         "dump",
                         "-dump" -> dumpOnly = true
                         "-v",
-                        "-version" -> L.log("Konversation CLI version 1.1.0-rc5")
+                        "-version" -> L.log("Konversation CLI version $version")
                         else -> L.error("Unknown argument \"$arg\".")
                     }
                 }
@@ -316,6 +316,7 @@ open class Cli {
         }
 
         var L: LoggerFacade = DefaultLogger()
+        const val version = "1.1.0-rc5"
     }
 }
 

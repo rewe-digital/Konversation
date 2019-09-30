@@ -25,6 +25,6 @@ fi
 git commit -m "[skip ci] Publish $MODULE version $VERSION"
 git push
 git tag -fa ${TAG} -m "Release $MODULE $VERSION"
-git push origin master --tags -f
+#git push origin master --tags -f
 
 export TRAVIS_COMMIT=`git rev-parse HEAD`

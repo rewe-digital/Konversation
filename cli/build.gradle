@@ -9,7 +9,7 @@ apply plugin: 'application'
 apply plugin: 'kotlin'
 
 group 'org.rewedigital.voice'
-version '1.1.0-rc6'
+version '1.1.0-rc7'
 
 repositories {
     maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }

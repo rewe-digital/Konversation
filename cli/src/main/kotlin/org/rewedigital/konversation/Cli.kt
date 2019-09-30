@@ -316,7 +316,7 @@ open class Cli {
         }
 
         var L: LoggerFacade = DefaultLogger()
-        const val version = "1.1.0-rc6"
+        const val version = "1.1.0-rc7"
     }
 }
 

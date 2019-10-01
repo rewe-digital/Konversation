@@ -400,7 +400,7 @@ class DialogflowExporterTest {
                 "id": "76708b37-55f9-31c9-83d3-aeb5ade29341",
                 "data": [
                   {
-                    "text": "TypeA",
+                    "text": "master1",
                     "alias": "a",
                     "meta": "@TypeA",
                     "userDefined": false
@@ -410,7 +410,7 @@ class DialogflowExporterTest {
                     "userDefined": false
                   },
                   {
-                    "text": "bar",
+                    "text": "master4",
                     "alias": "c",
                     "meta": "@TypeC",
                     "userDefined": false
@@ -423,7 +423,7 @@ class DialogflowExporterTest {
                 "id": "7a85140f-d4a2-30fc-9dea-9f26650f39c2",
                 "data": [
                   {
-                    "text": "foobar",
+                    "text": "master2",
                     "alias": "b",
                     "meta": "@TypeB",
                     "userDefined": false
@@ -433,7 +433,7 @@ class DialogflowExporterTest {
                     "userDefined": false
                   },
                   {
-                    "text": "bar",
+                    "text": "master4",
                     "alias": "c",
                     "meta": "@TypeC",
                     "userDefined": false

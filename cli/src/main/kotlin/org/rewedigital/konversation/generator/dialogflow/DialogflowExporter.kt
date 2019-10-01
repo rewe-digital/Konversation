@@ -65,7 +65,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
                             val type = slots[part]?.removePrefix("AMAZON.")
                             type?.let {
-                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.flatMap { it.synonyms }
+                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.map { it.master }
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
                                 i++
 
@@ -142,7 +142,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
                             val type = slots[part]?.removePrefix("AMAZON.")
                             type?.let {
-                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.flatMap { it.synonyms }
+                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.map { it.master }
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
                                 i++
 

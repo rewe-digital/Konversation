@@ -4,6 +4,7 @@ import org.rewedigital.konversation.*
 import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
 import java.io.File
+import java.util.*
 
 class AlexaExporter(private val skillName: String, private val baseDir: File, private val limit: Int) : Exporter {
     private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color", "de-city", "at-city", "eu-city", "us-city", "gb-city")
@@ -52,24 +53,33 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
             }
             printer("\n")
             var total: Int
-            var moreUtterances: Boolean
+            val hashes = TreeSet<Int>()
+            var first = true
             intent.utterances.forEachBreakable { utterance ->
                 total = 0
-                moreUtterances = hasNext()
                 utterance.permutations.forEachBreakable {
-                    total++
-                    if (total >= limit) {
-                        stop()
-                        moreUtterances = false
+                    it.toLowerCase().hashCode().let { hash ->
+                        if (!hashes.contains(hash)) {
+                            total++
+                            if (total >= limit) {
+                                stop()
+                            }
+                            hashes += hash
+                            if (first) {
+                                first = false
+                            } else {
+                                printer(",\n")
+                            }
+                            printer("            \"${it.removeAndWarn("?").removeAndWarn(",").removeAndWarn(".")}\"")
+                        }
                     }
-                    printer("            \"${it.removeAndWarn("?").removeAndWarn(",").removeAndWarn(".")}\"" + (if (hasNext() || moreUtterances) "," else "") + "\n")
                 }
                 if (total > limit) {
                     stop()
                 }
             }
             if (intent.utterances.isNotEmpty()) {
-                printer("          ]\n")
+                printer("\n          ]\n")
             }
             printer("        }" + (if (hasNext()) "," else "") + "\n")
         }
@@ -165,11 +175,23 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
             // write sample utterances
             printer("]," +
                     "\"samples\":[")
-            var moreUtterances: Boolean
+            val hashes = TreeSet<Int>()
+            var first = true
             intent.utterances.forEachIterator { utterance ->
-                moreUtterances = hasNext()
                 utterance.permutations.forEachIterator {
-                    printer("\"$it\"" + (if (hasNext() || moreUtterances) "," else ""))
+                    it.toLowerCase().hashCode().let { hash ->
+                        if (!hashes.contains(hash)) {
+                            if (first) {
+                                first = false
+                            } else {
+                                printer(",")
+                            }
+                            printer("\"$it\"")
+                            hashes += hash
+                        } else {
+                            println("AHA! $it")
+                        }
+                    }
                 }
             }
             printer("]" +

@@ -20,8 +20,8 @@ data class Intent(
     var inContext: MutableList<String> = mutableListOf(),
     /** The output context, for future usage. */
     var outContext: MutableList<String> = mutableListOf(),
-    /** The next logical intent, for future usage. */
-    val followUp: MutableList<String> = mutableListOf(),
+    /** All annotations related to the intent. */
+    val annotations: MutableMap<String, List<String>> = mutableMapOf(),
     /** The suggestions what the user can say next when using this intent. */
     val suggestions: MutableList<String> = mutableListOf(),
     /** The extras e.g. for UI Elements, for future usage. */

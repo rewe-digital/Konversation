@@ -19,10 +19,10 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
 
         // write out intents
         intents.filter { intent ->
-            intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.")
+            intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.", ignoreCase = true)
         }.forEachIterator { intent ->
             printer("        {\n" +
-                    "          \"name\": \"${intent.name.cleanupIntentName()}\",\n" +
+                    "          \"name\": \"${intent.cleanName}\",\n" +
                     "          \"slots\": [")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             if (allSlots.isEmpty()) {
@@ -144,9 +144,11 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
                 "\"intents\":[")
 
         // write out intents
-        intents.forEachIterator { intent ->
+        intents.filter { intent ->
+            intent.utterances.isNotEmpty() || intent.name.startsWith("AMAZON.", ignoreCase = true)
+        }.forEachIterator { intent ->
             printer("{" +
-                    "\"name\":\"${intent.name}\"," +
+                    "\"name\":\"${intent.cleanName}\"," +
                     "\"slots\":[")
             val allSlots = intent.utterances.flatMap { it.slotTypes }.toHashSet()
             allSlots.forEachIterator { slot ->
@@ -258,6 +260,9 @@ class AlexaExporter(private val skillName: String, private val baseDir: File, pr
             Cli.L.warn("Found \".\" in intent name \"$this\", replacing it by \"_\".")
             replace(".", "_")
         } else this
+
+    private val Intent.cleanName
+        get() = (annotations["AlexaName"]?.first() ?: name).cleanupIntentName()
 
     private fun useSystemTypes(slot: String): String = when (slot) {
         "any" -> "AMAZON.SearchQuery"

@@ -150,6 +150,34 @@ class DialogflowExporterTest {
         assertEquals(expectedTypeCEntries.minified(), output.files["entities/TypeC_entries_de.json"])
     }
 
+    @Test
+    fun `Verify that annotations work as expected`() {
+        val minified = ZipHelper()
+        val prettyPrinted = ZipHelper()
+        val fallbackTestWithEvent = Intent(
+            name = "FallbackTestWithEvent",
+            utterances = mutableListOf(Utterance("Test", "Test")),
+            annotations = mutableMapOf("Fallback" to emptyList(), "Events" to listOf("Works")))
+        val listElementsWithMultipleEvents = Intent(
+            name = "ListElementsWithMultipleEvents",
+            utterances = mutableListOf(Utterance("I like {{colors:color}}", "I like {color}")),
+            annotations = mutableMapOf("ListParameters" to listOf("colors"), "Events" to listOf("Works", "Fine")))
+        DialogflowExporter("test").apply {
+            prettyPrinted(prettyPrinted, listOf(fallbackTestWithEvent, listElementsWithMultipleEvents), emptyList())
+            minified(minified, listOf(fallbackTestWithEvent, listElementsWithMultipleEvents), emptyList())
+        }
+        assertEquals(5, prettyPrinted.files.size, "Expect expect 3 files")
+        assertEquals(5, minified.files.size, "Expect expect 3 files")
+        assertEquals(expectedIntentWithFallbackAndEvent, prettyPrinted.files["intents/FallbackTestWithEvent.json"].replaceTimestamp())
+        assertEquals(expectedIntentWithFallbackAndEvent.minified(), minified.files["intents/FallbackTestWithEvent.json"].replaceTimestamp())
+        assertEquals(expectedUsersaysFallbackAndEvent, prettyPrinted.files["intents/FallbackTestWithEvent_usersays_de.json"])
+        assertEquals(expectedUsersaysFallbackAndEvent.minified(), minified.files["intents/FallbackTestWithEvent_usersays_de.json"])
+        assertEquals(expectedIntentListElementsWithMultipleEvents, prettyPrinted.files["intents/ListElementsWithMultipleEvents.json"].replaceTimestamp())
+        assertEquals(expectedIntentListElementsWithMultipleEvents.minified(), minified.files["intents/ListElementsWithMultipleEvents.json"].replaceTimestamp())
+        assertEquals(expectedUsersaysForColors, prettyPrinted.files["intents/ListElementsWithMultipleEvents_usersays_de.json"])
+        assertEquals(expectedUsersaysForColors.minified(), minified.files["intents/ListElementsWithMultipleEvents_usersays_de.json"])
+    }
+
     private class ZipHelper : ByteArrayOutputStream() {
         val files by lazy {
             val zipStream = ZipInputStream(ByteArrayInputStream(toByteArray()))
@@ -501,6 +529,116 @@ class DialogflowExporterTest {
                 "synonyms": [
                   "master4"
                 ]
+              }
+            ]""".trimIndent()
+        private val expectedIntentWithFallbackAndEvent = """
+            {
+              "id": "1864ae49-2563-3913-b8bb-b522f5170fde",
+              "name": "FallbackTestWithEvent",
+              "auto": true,
+              "contexts": [],
+              "responses": [
+                {
+                  "resetContexts": false,
+                  "action": "FallbackTestWithEvent",
+                  "affectedContexts": [],
+                  "parameters": [],
+                  "messages": [
+                    {
+                      "type": 0,
+                      "lang": "de",
+                      "speech": [
+                      ]
+                    }
+                  ],
+                  "defaultResponsePlatforms": {},
+                  "speech": []
+                }
+              ],
+              "priority": 500000,
+              "webhookUsed": true,
+              "webhookForSlotFilling": false,
+              "lastUpdate": 4711,
+              "fallbackIntent": true,
+              "events": [
+                "Works"
+              ]
+            }
+        """.trimIndent()
+        private val expectedIntentListElementsWithMultipleEvents = """
+            {
+              "id": "ffb418fb-53da-32cf-96bd-3e9ea6f74e5c",
+              "name": "ListElementsWithMultipleEvents",
+              "auto": true,
+              "contexts": [],
+              "responses": [
+                {
+                  "resetContexts": false,
+                  "action": "ListElementsWithMultipleEvents",
+                  "affectedContexts": [],
+                  "parameters": [
+                    {
+                      "id": "5e959b94-caa7-3fe1-8f7d-dc5bb335e712",
+                      "dataType": "@sys.color",
+                      "name": "colors",
+                      "value": "${'$'}colors",
+                      "isList": true
+                    }
+                  ],
+                  "messages": [
+                    {
+                      "type": 0,
+                      "lang": "de",
+                      "speech": [
+                      ]
+                    }
+                  ],
+                  "defaultResponsePlatforms": {},
+                  "speech": []
+                }
+              ],
+              "priority": 500000,
+              "webhookUsed": true,
+              "webhookForSlotFilling": false,
+              "lastUpdate": 4711,
+              "fallbackIntent": false,
+              "events": [
+                "Works",
+                "Fine"
+              ]
+            }""".trimIndent()
+        private val expectedUsersaysFallbackAndEvent = """
+            [
+              {
+                "id": "d6c3e65a-36f0-3e45-80ff-b2080dc26d0d",
+                "data": [
+                  {
+                    "text": "Test",
+                    "userDefined": false
+                  }
+                ],
+                "isTemplate": false,
+                "count": 0
+              }
+            ]""".trimIndent()
+        private val expectedUsersaysForColors = """
+            [
+              {
+                "id": "7109c5dd-485c-3e9a-8a2e-5da3177c116f",
+                "data": [
+                  {
+                    "text": "I like ",
+                    "userDefined": false
+                  },
+                  {
+                    "text": "Blau",
+                    "alias": "colors",
+                    "meta": "@sys.color",
+                    "userDefined": false
+                  }
+                ],
+                "isTemplate": false,
+                "count": 0
               }
             ]""".trimIndent()
 

@@ -1,0 +1,15 @@
+@Fallback
+FallbackIntent:
+
+@ListParameters("colors")
+@Event
+ColorIntent:
+! Ich mag {{colors:color}}
+! Ich mag die Farben {{colors:color}}
+
+NumberIntent:
+! Ich denke an {{number}}
+
+@Event("Surprise")
+ExampleEvent:
+- Gut

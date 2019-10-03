@@ -2,7 +2,6 @@ package org.rewedigital.konversation.parser
 
 import org.rewedigital.konversation.*
 import java.io.File
-import java.text.ParseException
 import java.util.*
 
 class Parser(input: File) {
@@ -34,18 +33,19 @@ class Parser(input: File) {
         var lastPart: Part? = null
         var lastIntentName = UUID.randomUUID().toString()
         val intents = mutableListOf<Intent>()
-        lines.filter { it.isNotBlank() }.forEachIndexed { index, line ->
-            val trimmed = line.trim()
+        val nextIntentAnnotations: MutableMap<String, List<String>> = mutableMapOf()
+        lines.filter { it.isNotBlank() }.forEachIndexed { index, rawLine ->
+            val line = rawLine.trimComments()
             when {
-                line.startsWith("//") || line.startsWith("#") || line.isBlank() -> {
+                line.isBlank() -> {
                     // ignore comments and blank lines
                 }
-                line.trim() == "+" -> addTo {
+                line == "+" -> addTo {
                     // just let the block end
                     lastPart = null
                     //prompt.parts.add(PartImpl(type = PartType.Text, variants = mutableListOf(" ")))
                 }
-                line.trim() == "-" -> addTo {
+                line == "-" -> addTo {
                     // add a line break
                     lastPart = null
                     prompt.add(PartImpl(type = PartType.Text, variants = mutableListOf(" \n")))
@@ -78,12 +78,20 @@ class Parser(input: File) {
                     val prompt = reprompt.getOrPut(level) { mutableListOf(PartImpl(type = PartType.VoiceOnly, variants = mutableListOf())) }
                     prompt.first().variants.addAll(Permutator.generate(text))
                 }
-                trimmed.startsWith("[") && trimmed.endsWith("]") -> addTo {
+                line.startsWith("[") && line.endsWith("]") -> addTo {
                     // suggestions
-                    suggestions.addAll(trimmed.substring(1, trimmed.length - 1).split("]\\W*\\[".toRegex()))
+                    suggestions.addAll(line.substring(1, line.length - 1).split("]\\W*\\[".toRegex()))
                 }
-                line.startsWith("@") -> addTo {
-                    followUp.add(line.substring(1).trim())
+                line.startsWith("@") -> {
+                    if (line.contains('(') && !line.endsWith(')')) {
+                        // FIXME the intent name is wrong, because the intent name will follow
+                        throw KonversationSyntaxError(rawLine, lastIntentName, index, "Missing closing bracket", input.name)
+                    }
+                    if (!line.contains('(') && line.endsWith(')')) {
+                        throw KonversationSyntaxError(rawLine, lastIntentName, index, "Missing opening bracket", input.name)
+                    }
+                    val (annotation, rawValues) = (line.substring(1).trimEnd(')') + "(").split('(')
+                    nextIntentAnnotations += annotation to rawValues.split(',').map { it.trim(' ', '"', '\'') }.filter { it.isNotEmpty() }
                 }
                 line.startsWith(">") -> addTo {
                     inContext.add(line.substring(1).trim())
@@ -107,19 +115,22 @@ class Parser(input: File) {
                 line.endsWith(":") -> { // intent found
                     lastPart = null
                     lastIntentName = line.substring(0, line.length - 1)
-                    if (intents.find { it.name.equals(lastIntentName, true) } != null) {
+                    val knownIntent = intents.find { it.name.equals(lastIntentName, true) }
+                    if (knownIntent != null) {
                         printErr("Intent \"${lastIntent?.name}\" already defined. Appending new parts. You have been warned.")
+                        knownIntent.annotations += nextIntentAnnotations
                     } else {
-                        lastIntent = Intent(lastIntentName).also {
+                        lastIntent = Intent(lastIntentName, annotations = nextIntentAnnotations.toMutableMap()).also {
                             intents.add(it)
                         }
                     }
+                    nextIntentAnnotations.clear()
                 }
                 else -> addTo {
                     if (isGrammarFile) {
                         addUtterance(this, line)
                     } else {
-                        throw ParseException("This line has no prefix: $line", index)
+                        throw KonversationSyntaxError(rawLine, lastIntentName, index, "This line has no prefix", input.name)
                     }
                 }
             }
@@ -155,4 +166,6 @@ class Parser(input: File) {
         Cli.L.error(errorMsg)
 
     private fun addTo(block: Intent.() -> Unit) = lastIntent?.let(block::invoke) ?: printErr("No intent defined.")
+
+    private fun String.trimComments() = substringBefore("//").substringBefore("#").trim()
 }

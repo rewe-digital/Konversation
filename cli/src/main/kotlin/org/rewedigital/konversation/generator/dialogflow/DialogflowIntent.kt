@@ -37,8 +37,10 @@ data class DialogflowIntent(
   "webhookForSlotFilling": $webhookForSlotFilling,
   "lastUpdate": $lastUpdate,
   "fallbackIntent": $fallbackIntent,
-  "events": []
-}""")
+  "events": [""")
+        printer(events.joinToString(separator = ",") { "\n    \"$it\"" })
+        if (events.isNotEmpty()) printer("\n  ")
+        printer("]\n}")
     }
 
     override fun minified(printer: Printer) {
@@ -47,6 +49,8 @@ data class DialogflowIntent(
             it.minified(printer)
             if (hasNext()) printer(",")
         }
-        printer("""],"priority":$priority,"webhookUsed":$webhookUsed,"webhookForSlotFilling":$webhookForSlotFilling,"lastUpdate":$lastUpdate,"fallbackIntent":$fallbackIntent,"events":[]}""")
+        printer("""],"priority":$priority,"webhookUsed":$webhookUsed,"webhookForSlotFilling":$webhookForSlotFilling,"lastUpdate":$lastUpdate,"fallbackIntent":$fallbackIntent,"events":[""")
+        printer(events.joinToString(separator = ",") { "\"$it\"" })
+        printer("]}")
     }
 }

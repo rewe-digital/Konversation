@@ -47,7 +47,9 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
                 lastUpdate = System.currentTimeMillis() / 1000,
                 name = intent.name,
-                responses = createResponses(intent))
+                responses = createResponses(intent),
+                fallbackIntent = intent.annotations.containsKey("Fallback"),
+                events = intent.annotations["Events"] ?: intent.annotations["Event"] ?: emptyList())
             intentData.prettyPrinted { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
             json.clear()
@@ -126,7 +128,9 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
                 lastUpdate = System.currentTimeMillis() / 1000,
                 name = intent.name,
-                responses = createResponses(intent))
+                responses = createResponses(intent),
+                fallbackIntent = intent.annotations.containsKey("Fallback"),
+                events = intent.annotations["Events"] ?: intent.annotations["Event"] ?: emptyList())
             intentData.minified { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
             json.clear()
@@ -176,7 +180,9 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
                 speech = intent.prompt.generateSamples()),
                 createSuggestion(intent.suggestions)),
-            parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
+            parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map {
+                ResponseParameter(it, intent.annotations["ListParameters"]?.contains(it.substringBefore(':')) == true)
+            }))
 
     private fun createSuggestion(suggestions: List<String>): NodeExporter? =
         if (suggestions.isEmpty()) null else QuickReply(lang, suggestions)

@@ -82,15 +82,16 @@ class Parser(input: File) {
                     // suggestions
                     suggestions.addAll(line.substring(1, line.length - 1).split("]\\W*\\[".toRegex()))
                 }
-                line.startsWith("@") -> addTo {
+                line.startsWith("@") -> {
                     if (line.contains('(') && !line.endsWith(')')) {
+                        // FIXME the intent name is wrong, because the intent name will follow
                         throw KonversationSyntaxError(rawLine, lastIntentName, index, "Missing closing bracket", input.name)
                     }
                     if (!line.contains('(') && line.endsWith(')')) {
                         throw KonversationSyntaxError(rawLine, lastIntentName, index, "Missing opening bracket", input.name)
                     }
-                    val (annotation, rawValues) = line.substring(1).trimEnd(')').split('(')
-                    nextIntentAnnotations += annotation to rawValues.split(',').map { it.trim(' ', '"', '\'') }
+                    val (annotation, rawValues) = (line.substring(1).trimEnd(')') + "(").split('(')
+                    nextIntentAnnotations += annotation to rawValues.split(',').map { it.trim(' ', '"', '\'') }.filter { it.isNotEmpty() }
                 }
                 line.startsWith(">") -> addTo {
                     inContext.add(line.substring(1).trim())
@@ -118,9 +119,8 @@ class Parser(input: File) {
                     if (knownIntent != null) {
                         printErr("Intent \"${lastIntent?.name}\" already defined. Appending new parts. You have been warned.")
                         knownIntent.annotations += nextIntentAnnotations
-
                     } else {
-                        lastIntent = Intent(lastIntentName, annotations = nextIntentAnnotations).also {
+                        lastIntent = Intent(lastIntentName, annotations = nextIntentAnnotations.toMutableMap()).also {
                             intents.add(it)
                         }
                     }

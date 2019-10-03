@@ -11,12 +11,12 @@ data class ResponseParameter(
     val value: String,
     val isList: Boolean
 ) : NodeExporter {
-    constructor(slot: String) : this(
+    constructor(slot: String, isList: Boolean) : this(
         id = UUID.nameUUIDFromBytes(slot.toByteArray()),
         dataType = "@${slot.slotType}",
         name = slot.slotName,
         value = "$${slot.slotName}",
-        isList = false
+        isList = isList
     )
 
     override fun prettyPrinted(printer: Printer) =

@@ -137,7 +137,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             json.append("[")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
                 val parts = it.split(":")
-                parts.first() to useSystemTypes(parts.last())
+                parts.first() to parts.last()
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
@@ -150,7 +150,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
                                 i++
 
-                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
+                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@${useSystemTypes(type)}", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
 
                         }

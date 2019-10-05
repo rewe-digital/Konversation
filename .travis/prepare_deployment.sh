@@ -3,6 +3,10 @@ TAG=`git describe --tags`
 MODULE=`echo ${TAG}|cut -d- -f 1`
 VERSION=`echo ${TAG}|cut -d- -f 2-`
 
+if [[ -f ".travis/prepare_${MODULE}_deployment.sh" ]]; then
+  .travis/prepare_${MODULE}_deployment.sh
+fi
+
 echo Setup deployment keys...
 # prepare the key
 chmod 600 travis_rsa

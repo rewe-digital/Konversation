@@ -17,6 +17,6 @@ git config --local user.name "Travis CI"
 git remote set-url origin git@github.com:${TRAVIS_REPO_SLUG}.git
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 
-if [[ -f ".travis/prepare_${MODULE}_deployment.sh" ]]; then
-  .travis/prepare_${MODULE}_deployment.sh
+if [[ -f ".travis/configure_${MODULE}.sh" ]]; then
+  .travis/configure_${MODULE}.sh
 fi

@@ -34,6 +34,8 @@ The gradle plugin create some hooks into the gradle build to create the required
 
 ### Version 1.2 ![testing][testing-badge-url]
 - Provisioning
+- Refactoring of the cli (to make it easier to use for the gradle plugin)
+- Extensions of the gradle plugin to configure the credentials and multiple targets
 
 ### IntelliJ Plugin ![work in progress][wip-badge-url]
 - Syntax Highlighting

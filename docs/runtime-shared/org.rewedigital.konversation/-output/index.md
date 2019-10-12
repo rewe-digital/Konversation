@@ -21,3 +21,9 @@ Holds a static output of a reply.
 | [reprompts](reprompts.md) | `val reprompts: `[`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html)`<`[`Int`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)`, `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`>`<br>The reprompts which should the user hear when the user gives no input. |
 | [ssml](ssml.md) | `val ssml: `[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)<br>The Speech Synthesis Markup Language, the spoken output. |
 | [suggestions](suggestions.md) | `val suggestions: `[`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)`<`[`String`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)`>`<br>The list of suggestions which should been displayed. |
+
+### Functions
+
+| Name | Summary |
+|---|---|
+| [plus](plus.md) | `operator fun plus(output: `[`Output`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-output/index.md)`): `[`Output`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-output/index.md) |

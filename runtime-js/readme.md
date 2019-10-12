@@ -1,4 +1,4 @@
-# Koversation (JS-Runtime) [![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][npm-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
+# Konversation (JS-Runtime) [![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][npm-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
 
 This is the runtime library of [Konversation][github-url]. Konversation is a tool to generate rich and
 diversified responses to the user of a voice application.

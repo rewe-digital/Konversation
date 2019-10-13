@@ -195,7 +195,9 @@ The gradle plugin create some hooks into the gradle build to create the required
 - Jump to definition
 
 ## Want to help?
-Great! Please check the open issues and feel free to add a pull request ;-)
+Great!  
+You found a bug? Please [open a new issue][issues] and tag it with the problematic component.   
+You want to contribute? Please check the [open issues][issues] and feel free to add a pull request ;-)
 
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
@@ -218,3 +220,4 @@ Great! Please check the open issues and feel free to add a pull request ;-)
 [Dialog]: https://github.com/rewe-digital-incubator/dialog
 [ChatbotBase]: https://github.com/rekire/ChatbotBase
 [file-formats]: https://github.com/rewe-digital-incubator/Konversation/blob/master/file-formats.md
+[issues]: https://github.com/rewe-digital-incubator/Konversation/issues

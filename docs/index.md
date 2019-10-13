@@ -161,7 +161,7 @@ Konversation can be installed with brew (for Linux and MacOS) and with chocolaty
 In version 1.1 will be added the export for Dialogflow with zip files.  
 In version 1.2 provisioning will follow, that will allow you to integrate konversation into your CI/CD flow to automatically update your Alexa or Dialogflow project.
 
-### Runtime [![latest JVM Runtime version is 1.0.1][jvm-badge-url]][runtime-jvm] [![latest JS runtime version is 1.0.3][js-badge-url]][runtime-js]
+### Runtime [![latest JVM runtime version is 1.0.1][jvm-badge-url]][runtime-jvm] [![latest JS runtime version is 1.0.3][js-badge-url]][runtime-js]
 The runtime has 3 modules: a shared module for base classes which are used in the cli and each one module for JVM and JavaScript usage. So you can use Konveration in JVM languages like Kotlin and Java and JavaScript languages like ECMAScript or TypeScript.
 To keep the JS interface as simple as possible there is also a small facade to use the runtime in a more natural way without using the kotlin classes.  
 

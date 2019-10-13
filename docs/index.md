@@ -22,6 +22,7 @@ and [ChatbotBase] for script languages like TypeScript or JavaScript.
   - [Runtime](#runtime--)
   - [Gradle plugin](#gradle-plugin-)
 - [Roadmap](#roadmap)
+- [Want to help?](#want-to-help)
   
 
 ## Code usage
@@ -183,6 +184,9 @@ The gradle plugin create some hooks into the gradle build to create the required
 - Refactoring of the cli (to make it easier to use for the gradle plugin)
 - Extensions of the gradle plugin to configure the credentials and multiple targets
 
+### Version 1.3 ![planned][planned-badge-url]
+- Contextual fallback support
+
 ### IntelliJ Plugin ![work in progress][wip-badge-url]
 - Syntax Highlighting
 - Refactoring
@@ -210,7 +214,7 @@ Great! Please check the open issues and feel free to add a pull request ;-)
 [rc-badge-url]: https://img.shields.io/badge/status-release%20candiate-yellow
 [testing-badge-url]: https://img.shields.io/badge/status-testing-orange
 [wip-badge-url]: https://img.shields.io/badge/status-in%20early%20development-red
-
+[planned-badge-url]: https://img.shields.io/badge/status-planned-red
 [Dialog]: https://github.com/rewe-digital-incubator/dialog
 [ChatbotBase]: https://github.com/rekire/ChatbotBase
 [file-formats]: https://github.com/rewe-digital-incubator/Konversation/blob/master/file-formats.md

@@ -1,4 +1,4 @@
-# Koversation (JS-Runtime) [![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][npm-url] [![Code Coverage][codecov-img]][codecov-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
+# Konversation (JS-Runtime) [![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][npm-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
 
 This is the runtime library of [Konversation][github-url]. Konversation is a tool to generate rich and
 diversified responses to the user of a voice application.
@@ -45,8 +45,6 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 [npm-image]: https://img.shields.io/npm/v/@rewe-digital/konversation.svg
 [npm-url]: https://npmjs.org/package/@rewe-digital/konversation
 [downloads-image]: https://img.shields.io/npm/dm/@rewe-digital/konversation.svg
-[codecov-img]: http://codecov.io/github/rewe-digital-incubator/Konversation/coverage.svg?branch=master
-[codecov-url]: http://codecov.io/github/rewe-digital-incubator/Konversation?branch=master
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
 [github-url]: https://github.com/rewe-digital-incubator/Konversation

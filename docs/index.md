@@ -19,8 +19,8 @@ and [ChatbotBase] for script languages like TypeScript or JavaScript.
   - [Export to Dialogflow](#export-to-dialogflow)
 - [Components](#components)
   - [CLI](#cli--)
-  - [Runtime](#runtime)
-  - [Gradle plugin](#gradle-plugin)
+  - [Runtime](#runtime--)
+  - [Gradle plugin](#gradle-plugin-)
 - [Roadmap](#roadmap)
   
 

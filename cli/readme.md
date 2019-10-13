@@ -92,4 +92,4 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 [Homebrew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
 [releases]: https://github.com/rewe-digital-incubator/Konversation/releases
-[cli-ver-img]: https://img.shields.io/badge/cli--1.1.0--rc6-blue "Latest CLI version is 1.1.0-rc9"
+[cli-ver-img]: https://img.shields.io/badge/cli-1.1.0--rc9-blue "Latest CLI version is 1.1.0-rc9"

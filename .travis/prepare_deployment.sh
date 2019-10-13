@@ -21,7 +21,7 @@ git push
 git tag -fa ${TAG} -m "Release $MODULE $VERSION"
 git push origin master --tags -f
 
-gradlew dokka
+./gradlew dokka
 git add docs/*
 git commit -m "[skip ci] Update generated documentation"
 

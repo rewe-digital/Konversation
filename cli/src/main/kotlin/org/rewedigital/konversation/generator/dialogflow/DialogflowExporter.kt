@@ -10,7 +10,7 @@ import java.util.zip.ZipOutputStream
 
 class DialogflowExporter(private val invocationName: String) : StreamExporter {
     private val lang = "de"
-    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color")
+    private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color", "de-city", "at-city", "eu-city", "us-city", "gb-city")
 
     override fun prettyPrinted(outputStream: OutputStream, intents: List<Intent>, entities: List<Entities>?) {
         val zipStream = ZipOutputStream(outputStream)
@@ -18,7 +18,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachSlotType(entities) { slotType ->
             json.clear()
             val meta = EntityMetaData(automatedExpansion = false,
-                id = UUID.nameUUIDFromBytes("$invocationName:$slotType".toByteArray()),
+                id = UUID.nameUUIDFromBytes("$invocationName:${slotType.name}".toByteArray()),
                 isEnum = false,
                 isOverridable = false,
                 name = slotType.name)
@@ -28,7 +28,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             //println("entities/${slotType.name}.json:\n$json")
             json.clear()
             val entries = slotType.values.map { entry ->
-                Entity(value = entry.master, synonyms = entry.synonyms)
+                Entity(key = entry.key, value = entry.master, synonyms = entry.synonyms)
             }
             //println("\nentities/${slotType.name}_entries_<LANG>.json:")
             json.append("[\n")
@@ -40,13 +40,16 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEachIndexed { i, intent ->
+        var i = 0
+        intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEach { intent ->
             json.clear()
             val intentData = DialogflowIntent(
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
                 lastUpdate = System.currentTimeMillis() / 1000,
                 name = intent.name,
-                responses = createResponses(intent))
+                responses = createResponses(intent),
+                fallbackIntent = intent.annotations.containsKey("Fallback"),
+                events = intent.annotations["Events"] ?: intent.annotations["Event"] ?: emptyList())
             intentData.prettyPrinted { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
             json.clear()
@@ -55,19 +58,20 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             //println("Dumping ${intent.name} (${intent.utterances.sumByLong { it.permutationCount }} utterances):")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
                 val parts = it.split(":")
-                parts.first() to useSystemTypes(parts.last())
+                parts.first() to parts.last()
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
                 utterance.permutations.forEachBreakable { sentence ->
                     val data = if (sentence.contains("{") && sentence.contains("}")) {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
-                            val type = slots[part]
+                            val type = slots[part]?.removePrefix("AMAZON.")
                             type?.let {
-                                val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
+                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.map { it.master }
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
+                                i++
 
-                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
+                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@${useSystemTypes(type)}", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
 
                         }
@@ -106,7 +110,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}.json", json)
             json.clear()
             val entries = slotType.values.map { entry ->
-                Entity(value = entry.master, synonyms = entry.synonyms)
+                Entity(key = entry.key, value = entry.master, synonyms = entry.synonyms)
             }
             json.append("[")
             entries.forEachBreakable {
@@ -117,32 +121,36 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             zipStream.add("entities/${slotType.name}_entries_$lang.json", json)
             //println(json)
         }
-        intents.filter { !it.name.startsWith("AMAZON.") }.forEachIndexed { i, intent ->
+        var i = 0
+        intents.filter { !it.name.startsWith("AMAZON.") }.forEach { intent ->
             json.clear()
             val intentData = DialogflowIntent(
                 id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
                 lastUpdate = System.currentTimeMillis() / 1000,
                 name = intent.name,
-                responses = createResponses(intent))
+                responses = createResponses(intent),
+                fallbackIntent = intent.annotations.containsKey("Fallback"),
+                events = intent.annotations["Events"] ?: intent.annotations["Event"] ?: emptyList())
             intentData.minified { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
             json.clear()
             json.append("[")
             val slots = intent.utterances.flatMap { it.slotTypes }.map {
                 val parts = it.split(":")
-                parts.first() to useSystemTypes(parts.last())
+                parts.first() to parts.last()
             }.toMap()
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
                 utterance.permutations.forEachBreakable { sentence ->
                     val data = if (sentence.contains("{") && sentence.contains("}")) {
                         sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
-                            val type = slots[part]
+                            val type = slots[part]?.removePrefix("AMAZON.")
                             type?.let {
-                                val values = entities?.firstOrNull { it.name == type }?.values?.flatMap { it.synonyms }
+                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.map { it.master }
                                 val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
+                                i++
 
-                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@$type", userDefined = false)
+                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@${useSystemTypes(type)}", userDefined = false)
                             } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
 
                         }
@@ -172,7 +180,9 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 lang = lang, // FIXME the structure of the exporter does not allow that we know other translations.
                 speech = intent.prompt.generateSamples()),
                 createSuggestion(intent.suggestions)),
-            parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map(::ResponseParameter)))
+            parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map {
+                ResponseParameter(it, intent.annotations["ListParameters"]?.contains(it.substringBefore(':')) == true)
+            }))
 
     private fun createSuggestion(suggestions: List<String>): NodeExporter? =
         if (suggestions.isEmpty()) null else QuickReply(lang, suggestions)
@@ -208,14 +218,127 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         "number" -> "sys.number"
         "ordinal" -> "sys.ordinal"
         "color" -> "sys.color"
+        "de-city",
+        "at-city",
+        "eu-city",
+        "us-city",
+        "gb-city" -> "sys.geo-city"
         else -> slot
     }
 
     private fun defaultValue(type: String, int: Int) = when (type) {
-        "sys.any" -> "foo bar"
-        "sys.number" -> int.toString()
-        "sys.ordinal" -> "$int."
-        "sys.color" -> "Blau"
+        "any" -> "foo bar"
+        "number" -> int.toString()
+        "ordinal" -> "$int."
+        "color" -> "Blau"
+        "de-city" -> listOf("Stuttgart", "München", "Berlin", "Potsdam", "Bremen", "Hamburg", "Wiesbaden", "Schwerin", "Hannover", "Düsseldorf", "Mainz", "Saarbrücken", "Dresden", "Magdeburg", "Kiel", "Erfurt").run {
+            get(int % size)
+        }
+        "at-city" -> listOf("Eisenstadt", "Klagenfurt am Wörthersee", "St. Pölten", "Salzburg", "Graz", "Innsbruck", "Bregenz", "Wien").run {
+            get(int % size)
+        }
+        "eu-city" -> listOf("Amsterdam",
+            "Andorra",
+            "Athen",
+            "Belgrad",
+            "Berlin",
+            "Bern",
+            "Bratislava",
+            "Brüssel",
+            "Budapest",
+            "Bukarest",
+            "Chișinău",
+            "Città",
+            "Dublin",
+            "Helsinki",
+            "Kiew",
+            "Kopenhagen",
+            "Lissabon",
+            "Ljubljana",
+            "London",
+            "Luxemburg",
+            "Madrid",
+            "Minsk",
+            "Monaco",
+            "Moskau",
+            "Nikosia",
+            "Oslo",
+            "Paris",
+            "Podgorica",
+            "Prag",
+            "Reykjavík",
+            "Riga",
+            "Rom",
+            "Sarajevo",
+            "Skopje",
+            "Sofia",
+            "Stockholm",
+            "Tallinn",
+            "Tirana",
+            "Vaduz",
+            "Valletta",
+            "Vatikanstadt",
+            "Vilnius",
+            "Warschau",
+            "Wien",
+            "Zagreb").run {
+            get(int % size)
+        }
+        "us-city" -> listOf("Montgomery",
+            "Juneau",
+            "Phoenix",
+            "Rock",
+            "Sacramento",
+            "Denver",
+            "Hartford",
+            "Dover",
+            "Tallahassee",
+            "Atlanta",
+            "Honolulu",
+            "Boise",
+            "Springfield",
+            "Indianapolis",
+            "Moines",
+            "Topeka",
+            "Frankfort",
+            "Rouge",
+            "Augusta",
+            "Annapolis",
+            "Boston",
+            "Lansing",
+            "Paul",
+            "Jackson",
+            "City",
+            "Helena",
+            "Lincoln",
+            "City",
+            "Concord",
+            "Trenton",
+            "Fe",
+            "Albany",
+            "Raleigh",
+            "Bismarck",
+            "Columbus",
+            "City",
+            "Salem",
+            "Harrisburg",
+            "Providence",
+            "Columbia",
+            "Pierre",
+            "Nashville",
+            "Austin",
+            "City",
+            "Montpelier",
+            "Richmond",
+            "Olympia",
+            "Charleston",
+            "Madison",
+            "Cheyenne").run {
+            get(int % size)
+        }
+        "gb-city" -> listOf("London", "Edinburgh", "Cardiff", "Belfast").run {
+            get(int % size)
+        }
         else -> type
     }
 

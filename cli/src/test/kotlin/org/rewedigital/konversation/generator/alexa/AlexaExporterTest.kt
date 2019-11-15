@@ -42,6 +42,31 @@ class AlexaExporterTest {
         assertEqualsIgnoringLineBreaks(expectedMinifiedResult, sb.toString())
     }
 
+    @Test
+    fun `Check that there are no duplicated utterances (case insentitive)`() {
+        val help = Parser("$pathPrefix/dub.kvs").intents
+        val sb = StringBuilder()
+        val exporter = AlexaExporter("test", File(".").absoluteFile.parentFile, Int.MAX_VALUE)
+        exporter.prettyPrinted({ line -> sb.append(line) }, help, null)
+        assertEqualsIgnoringLineBreaks("""{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "test",
+      "intents": [
+        {
+          "name": "Copy",
+          "slots": [],
+          "samples": [
+            "I am a copy"
+          ]
+        }
+      ],
+      "types": []
+    }
+  }
+}""", sb.toString())
+    }
+
     companion object {
         val pathPrefix = (if (File("").absolutePath.endsWith("cli")) "" else "cli/") + "src/test/resources"
         val expectedResult = File("$pathPrefix/help-expected-alexa-result.json").absoluteFile.readText()

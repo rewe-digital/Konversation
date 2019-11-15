@@ -34,6 +34,7 @@ sha256=`sha256sum ${source} | cut -d " " -f 1`
 
 echo "Clone homebrew tap..."
 cd build
+rm -rf "homebrew-packages" | true
 git clone --depth=1 git@github.com:rekire/homebrew-packages.git
 cd homebrew-packages/Formula
 
@@ -45,13 +46,14 @@ echo "Committing changes..."
 git add konversation.rb
 git commit -m "Update homebrew to version $version"
 git tag -a "v$version" -m "v$version"
+git push
 git push origin --tags
 
 echo "Patching Chocolatey..."
 cd ../../../cli-integrations/chocolatey
 sed -e "s#jar: .*#jar: $jarUrl#g" -e "s/checksum: .*/checksum: $sha256/g" -i legal/VERIFICATION.txt
 sed -e "s#<version>.*</version>#<version>$version</version>#g" -i konversation.nuspec
-git add VERIFICATION.txt
+git add legal/VERIFICATION.txt konversation.nuspec
 # update artifact
 rm "tools/konversation.jar" | true
 cp "../../$source" "tools/konversation.jar"

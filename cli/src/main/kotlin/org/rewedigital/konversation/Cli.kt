@@ -46,7 +46,7 @@ open class Cli {
                 if (argFile.absoluteFile.exists()) {
                     api.inputFiles += File(arg).absoluteFile
                 } else if (arg.endsWith(".kvs") || arg.endsWith(".grammar") || arg.endsWith(".values")) {
-                    if (arg.contains('*')) {
+                    if (arg.contains('*') && argFile.parentFile.exists()) {
                         val matcher = argFile.name.replace(".", "\\.").replace("*", ".*?").toRegex()
                         argFile.parentFile.listFiles { _, name ->
                             matcher.matches(name)
@@ -117,7 +117,7 @@ open class Cli {
                         "dump",
                         "-dump" -> dumpOnly = true
                         "-v",
-                        "-version" -> L.log("Konversation CLI version 1.2.0-beta1")
+                        "-version" -> L.log("Konversation CLI version $version")
                         else -> throw IllegalArgumentException("Unknown argument \"$arg\".")
                     }
                 }
@@ -261,6 +261,7 @@ open class Cli {
         }
 
         var L: LoggerFacade = DefaultLogger()
+        const val version = "1.2.0-beta1"
         const val amazonClientId = "amzn1.application-oa2-client.c57e86e21f464b0d8166b37ef867abd8"
         const val amazonClientSecret = "88f6586c4ff2519f6c129402a9d732e0a8baa7d375e29f80010796ac82f06a00"
     }

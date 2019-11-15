@@ -6,7 +6,7 @@ import org.rewedigital.konversation.assertEqualsIgnoringLineBreaks
 class EntityTest {
     @Test
     fun exportZeroSynonyms() {
-        val sut = Entity("master", listOf())
+        val sut = Entity(null, "master", listOf())
         val sb = StringBuilder()
         sut.prettyPrinted { str -> sb.append(str) }
         assertEqualsIgnoringLineBreaks(zeroSynonyms.prettyPrinted, sb.toString())
@@ -17,7 +17,7 @@ class EntityTest {
 
     @Test
     fun exportOneSynonym() {
-        val sut = Entity("master", listOf("synonym1"))
+        val sut = Entity(null, "master", listOf("synonym1"))
         val sb = StringBuilder()
         sut.prettyPrinted { str -> sb.append(str) }
         assertEqualsIgnoringLineBreaks(oneSynonym.prettyPrinted, sb.toString())
@@ -28,7 +28,7 @@ class EntityTest {
 
     @Test
     fun exportTwoSynonyms() {
-        val sut = Entity("master", listOf("synonym1", "synonym2"))
+        val sut = Entity(null, "master", listOf("synonym1", "synonym2"))
         val sb = StringBuilder()
         sut.prettyPrinted { str -> sb.append(str) }
         assertEqualsIgnoringLineBreaks(twoSynonyms.prettyPrinted, sb.toString())

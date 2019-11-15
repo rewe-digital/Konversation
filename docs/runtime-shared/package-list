@@ -1,4 +1,4 @@
 $dokka.format:gfm
 $dokka.linkExtension:md
-
+$dokka.location:org.rewedigital.konversation$forEachIterator(kotlin.collections.Iterable((org.rewedigital.konversation.forEachIterator.T)), kotlin.Function2((kotlin.collections.Iterator((org.rewedigital.konversation.forEachIterator.T)), , kotlin.Unit)))org.rewedigital.konversation/kotlin.collections.-iterable/for-each-iterator.md
 org.rewedigital.konversation

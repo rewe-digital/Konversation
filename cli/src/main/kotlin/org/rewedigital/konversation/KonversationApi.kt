@@ -1,5 +1,6 @@
 package org.rewedigital.konversation
 
+import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
 import org.rewedigital.konversation.generator.alexa.AlexaExporter
 import org.rewedigital.konversation.generator.alexa.AmazonApi
@@ -8,6 +9,7 @@ import org.rewedigital.konversation.generator.dialogflow.DialogflowExporter
 import org.rewedigital.konversation.generator.kson.KsonExporter
 import org.rewedigital.konversation.parser.Parser
 import java.io.File
+import java.io.FileOutputStream
 
 class KonversationApi(private val amazonClientId: String, private val amazonClientSecret: String) {
     private var inputFileCount = 0
@@ -88,6 +90,10 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
         targetDirectory.absoluteFile.parentFile.mkdirs()
         val exporter = AlexaExporter(skillName)
         val stream = targetDirectory.outputStream()
+        exportToStream(stream, prettyPrint, exporter, intents, config)
+    }
+
+    private fun exportToStream(stream: FileOutputStream, prettyPrint: Boolean, exporter: Exporter, intents: List<Intent>, config: String) {
         val printer: Printer = { line ->
             stream.write(line.toByteArray())
         }
@@ -116,15 +122,7 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
             val exporter = KsonExporter(intent.name)
             targetDir.mkdirs()
             val stream = File(targetDir, "${intent.name}.kson").outputStream()
-            val printer: Printer = { line ->
-                stream.write(line.toByteArray())
-            }
-            if (prettyPrint) {
-                exporter.prettyPrinted(printer, intents, entityDb[config])
-            } else {
-                exporter.minified(printer, intents, entityDb[config])
-            }
-            stream.close()
+            exportToStream(stream, prettyPrint, exporter, intents, config)
         }
     }
 

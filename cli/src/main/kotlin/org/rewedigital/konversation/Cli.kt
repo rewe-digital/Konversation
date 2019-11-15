@@ -1,6 +1,5 @@
 package org.rewedigital.konversation
 
-import org.rewedigital.konversation.parser.Parser
 import java.io.File
 import java.util.*
 import java.util.function.Consumer
@@ -23,9 +22,7 @@ open class Cli {
 
     private var invocationName: String = ""
         get() {
-            if (field.isEmpty()) {
-                throw IllegalArgumentException("Invocation name not set!")
-            }
+            require(field.isNotEmpty()) { "Invocation name not set!" }
             return field
         }
 
@@ -147,8 +144,6 @@ open class Cli {
             }
         }
     }
-
-    open fun parseFile(file: File) = Parser(file)
 
     private fun showStats(api: KonversationApi) = api.intentDb[""]?.let { intents ->
         val intentCount = api.intentDb.values.flatten().distinctBy { it.name }.size

@@ -155,7 +155,7 @@ This will generate a `dialogflow-.zip` file in the current (`.`) directory conta
 ## Components
 This Projects consists of a lot of modules, some parts are still in early development and not yet pushed.
 
-### CLI [![latest brew version is 1.1.0-rc9][brew-badge-url]][cli-readme] [![latest chocolaty version is 1.1.0-rc9][chocolaty-badge-url]][cli-readme]
+### CLI [![latest brew version is 1.1.0][brew-badge-url]][cli-readme] [![latest chocolaty version is 1.1.0][chocolaty-badge-url]][cli-readme]
 The command line interface (CLI) has the task to generate the from the supported input formats (kvs, grammar and values) to the output formats (kson, txt, json, and zip) depending on the arguments and use cases.  
 Konversation can be installed with brew (for Linux and MacOS) and with chocolaty for Windows. For detailed instructions check the [readme][cli-readme] file.  
 In version 1.1 will be added the export for Dialogflow with zip files.  
@@ -207,8 +207,8 @@ You want to contribute? Please check the [open issues][issues] and feel free to 
 [runtime-jvm]: https://github.com/rewe-digital-incubator/Konversation/blob/master/runtime-jvm/readme.md
 [js-badge-url]: https://img.shields.io/npm/v/@rewe-digital/konversation?label=js
 [runtime-js]: https://github.com/rewe-digital-incubator/Konversation/blob/master/runtime-js/readme.md
-[brew-badge-url]: https://img.shields.io/badge/brew-1.1.0--rc9-blue
-[chocolaty-badge-url]: https://img.shields.io/badge/chocolaty-1.1.0--rc9-blue
+[brew-badge-url]: https://img.shields.io/badge/brew-1.1.0-blue
+[chocolaty-badge-url]: https://img.shields.io/badge/chocolaty-1.1.0-blue
 [cli-readme]: https://github.com/rewe-digital-incubator/Konversation/blob/master/cli/readme.md
 [gradle-badge-url]: https://img.shields.io/badge/gradle--plugin-1.0.0-blue
 [gradle-plugin-url]: https://plugins.gradle.org/plugin/org.rewedigital.konversation

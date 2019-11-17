@@ -1,17 +1,25 @@
+@file:Suppress("UnstableApiUsage")
+
 package org.rewedigital.konversation
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.internal.operations.DefaultBuildOperationIdFactory
 import org.gradle.internal.time.Time
 import org.gradle.tooling.internal.consumer.SynchronizedLogging
+import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
+import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.parser.Utterance
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import javax.inject.Inject
+import kotlin.random.Random
 
 open class KonversationPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
@@ -32,6 +40,18 @@ open class KonversationPlugin : Plugin<Project> {
         tasks.create("exportAlexa", AlexaExportTask::class.java) { task ->
             task.inputFiles += inputDirs.listFilesByExtension("kvs", "grammar")
         }
+        tasks.create("provisioningAll", DefaultTask::class.java).dependsOn.addAll(
+            listOf("foo", "bar").map { project ->
+                tasks.create("provisioning${project.capitalize()}", DefaultTask::class.java).also {
+                    it.dependsOn.addAll(
+                        TargetPlatform.values().map { platform ->
+                            tasks.create("provisioning${project.capitalize()}On${platform.name.capitalize()}", ProvisioningTask::class.java) { task ->
+                                task.projectName = project
+                                task.target = platform
+                            }
+                        })
+                }
+            })
         tasks.getByName("processResources").dependsOn += compile
     }
 }
@@ -49,10 +69,12 @@ private fun Iterable<File>.listFilesByExtension(vararg extensions: String) =
         }
     }
 
+//@kotlinx.serialization.Serializ
 open class KonversationExtension(project: Project) {
     var cacheDir = project.buildDir.path + "/konversation/cache"
     var alexaIntentSchemaFile = project.buildDir.path + "/konversation/alexa-intent-schema.json"
     var invocationName: String? = null
+    var invocationNames: Map<String, String>? = null
 }
 
 fun createLoggingFacade(logger: Logger) = object : LoggerFacade {
@@ -125,11 +147,47 @@ open class AlexaExportTask : DefaultTask() {
     @TaskAction
     fun exportAlexaIntentSchema() {
         val cli = Cli()
-        if (config.invocationName.isNullOrBlank()) throw IllegalStateException("The alexa export task required the invocation name in the konversation configuration")
+        check(!config.invocationName.isNullOrBlank()) { "The alexa export task required the invocation name in the konversation configuration" }
 
-        LOGGER.debug("Processing files: " + inputFiles.map { it.absolutePath }.joinToString())
+        LOGGER.debug("Processing files: " + inputFiles.joinToString { it.absolutePath })
 
         Utterance.cacheDir = config.cacheDir
         cli.parseArgs((listOf("-invocation", config.invocationName!!, "--export-alexa", config.alexaIntentSchemaFile, "-prettyprint") + inputFiles.map { it.absolutePath }).toTypedArray())
+    }
+}
+
+interface ProvisioningParameters : WorkParameters {
+    //val config: Property<KonversationExtension>
+    val projectName: Property<String>
+    val platform: Property<TargetPlatform>
+}
+
+abstract class ProvisioningAction : WorkAction<ProvisioningParameters> {
+    override fun execute() {
+        //println("Deploying ${parameters.platform} on ${parameters.platform}. You know ${parameters.config.get().invocationName}")
+        println("Deploying ${parameters.projectName.get()} on ${parameters.platform.get()}")
+        Thread.sleep(Random.nextLong(5000, 30000))
+        println("Done")
+    }
+}
+
+enum class TargetPlatform {
+    Alexa,
+    Dialogflow
+}
+
+open class ProvisioningTask @Inject constructor(private var workerExecutor: WorkerExecutor) : DefaultTask() {
+    private val config = project.extensions.getByName("konversation") as? KonversationExtension ?: KonversationExtension(project)
+    var target: TargetPlatform? = null
+    var projectName: String? = null
+
+    @TaskAction
+    fun provision() {
+        require(!(projectName == null || target == null)) { "config error project name or target not set" }
+        workerExecutor.noIsolation().submit(ProvisioningAction::class.java) {
+            //it.config.set(config)
+            it.projectName.set(projectName)
+            it.platform.set(target)
+        }
     }
 }

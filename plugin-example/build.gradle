@@ -29,4 +29,12 @@ compileTestKotlin {
 
 konversation {
     invocationName = "test"
+    invocationNames.de = "hallo"
+    invocationNames.en = "welt"
+    alexa {
+        invocationName = "AAA"
+    }
+    dialogflow {
+        invocationName = "Dia"
+    }
 }

@@ -5,6 +5,8 @@ package org.rewedigital.konversation
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.AbstractTask
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
@@ -24,7 +26,9 @@ import kotlin.random.Random
 open class KonversationPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
 
-        extensions.create("konversation", KonversationExtension::class.java, project)
+        val kvs = extensions.create("konversation", KonversationExtension::class.java, project) as ExtensionAware
+        kvs.extensions.create("alexa", AlexaTargetExtension::class.java, project)
+        kvs.extensions.create("dialogflow", DialogflowTargetExtension::class.java, project)
 
         val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
         val inputDirs = mutableListOf<File>()
@@ -39,16 +43,16 @@ open class KonversationPlugin : Plugin<Project> {
         }
         tasks.create("exportAlexa", AlexaExportTask::class.java) { task ->
             task.inputFiles += inputDirs.listFilesByExtension("kvs", "grammar")
-        }
-        tasks.create("provisioningAll", DefaultTask::class.java).dependsOn.addAll(
+        }.groupToKonversation()
+        tasks.create("provisioningAll", DefaultTask::class.java).groupToKonversation().dependsOn.addAll(
             listOf("foo", "bar").map { project ->
-                tasks.create("provisioning${project.capitalize()}", DefaultTask::class.java).also {
+                tasks.create("provisioning${project.capitalize()}", DefaultTask::class.java).groupToKonversation().also {
                     it.dependsOn.addAll(
                         TargetPlatform.values().map { platform ->
                             tasks.create("provisioning${project.capitalize()}On${platform.name.capitalize()}", ProvisioningTask::class.java) { task ->
                                 task.projectName = project
                                 task.target = platform
-                            }
+                            }.groupToKonversation()
                         })
                 }
             })
@@ -69,12 +73,39 @@ private fun Iterable<File>.listFilesByExtension(vararg extensions: String) =
         }
     }
 
-//@kotlinx.serialization.Serializ
-open class KonversationExtension(project: Project) {
+abstract class KonversationExtension(project: Project) : BasicConfig(project) {
     var cacheDir = project.buildDir.path + "/konversation/cache"
     var alexaIntentSchemaFile = project.buildDir.path + "/konversation/alexa-intent-schema.json"
+    val alexa: AlexaTargetExtension
+        get() = getExtension("alexa")
+    val dialogflow: DialogflowTargetExtension
+        get() = getExtension("dialogflow")
+
+    override fun toString() =
+        "KonversationExtension(cacheDir='$cacheDir', alexaIntentSchemaFile='$alexaIntentSchemaFile', invocationName=$invocationName, invocationNames=$invocationNames, alexa=$alexa, dialogflow=$dialogflow)"
+}
+
+abstract class BasicConfig(project: Project) : ExtensionAware {
     var invocationName: String? = null
-    var invocationNames: Map<String, String>? = null
+    var invocationNames = mutableMapOf<String, String>()
+    @InputFiles
+    val inputFiles = mutableListOf<File>()
+    @OutputDirectory
+    var outputDirectory = File(project.buildDir.path, "konversation")
+}
+
+abstract class AlexaTargetExtension(project: Project) : BasicConfig(project) {
+    var token: String? = null
+    var authorization: File? = null
+
+    override fun toString() = "AlexaTargetExtension(outputDirectory=$outputDirectory, invocationName=$invocationName, token=$token, authorization=$authorization)"
+}
+
+abstract class DialogflowTargetExtension(project: Project) : BasicConfig(project) {
+    var outputDir = File(project.buildDir.path, "konversation")
+    var authorization: File? = null
+
+    override fun toString() = "DialogflowTargetExtension(outputDir=$outputDir, invocationName=$invocationName, authorization=$authorization)"
 }
 
 fun createLoggingFacade(logger: Logger) = object : LoggerFacade {
@@ -135,7 +166,7 @@ open class AlexaExportTask : DefaultTask() {
 
     init {
         Cli.L = createLoggingFacade(LOGGER)
-        config = project.extensions.getByName("konversation") as? KonversationExtension ?: KonversationExtension(project)
+        config = getExtension("konversation")
     }
 
     @InputFiles
@@ -157,7 +188,6 @@ open class AlexaExportTask : DefaultTask() {
 }
 
 interface ProvisioningParameters : WorkParameters {
-    //val config: Property<KonversationExtension>
     val projectName: Property<String>
     val platform: Property<TargetPlatform>
 }
@@ -177,12 +207,19 @@ enum class TargetPlatform {
 }
 
 open class ProvisioningTask @Inject constructor(private var workerExecutor: WorkerExecutor) : DefaultTask() {
-    private val config = project.extensions.getByName("konversation") as? KonversationExtension ?: KonversationExtension(project)
+    //private val config = project.extensions.getByName("konversation") as KonversationExtension
     var target: TargetPlatform? = null
     var projectName: String? = null
 
     @TaskAction
     fun provision() {
+
+        val config = project.getExtension<KonversationExtension>("konversation")
+        println("Debug:")
+        println(config.invocationNames)
+        println(config.alexa)
+        println(config.dialogflow)
+
         require(!(projectName == null || target == null)) { "config error project name or target not set" }
         workerExecutor.noIsolation().submit(ProvisioningAction::class.java) {
             //it.config.set(config)
@@ -191,3 +228,14 @@ open class ProvisioningTask @Inject constructor(private var workerExecutor: Work
         }
     }
 }
+
+private fun AbstractTask.groupToKonversation() = apply {
+    group = "Konversation"
+    description = "Collection of tasks to the export and deployment of Alexa and Dialogflow projects."
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> ExtensionAware.getExtension(name: String): T = extensions.getByName(name) as T
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> Project.getExtension(name: String): T = extensions.getByName(name) as T

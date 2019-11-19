@@ -12,12 +12,12 @@ Help:                                    // Intent name
 !Help {|me|us|how does this app work}    // Utterance how the user can call this intent
 !How {works|do I use} this App           // more utterances
 -You can use this app to                 // A block for a response within a block
--With this app you can                   // a line will be randomly choosen.
+-With this app you can                   // a line will be randomly chosen.
 +                                        // Concats two blocks without a linebreak
--{read|hear}                             // elements in brackets are alterntives
+-{read|hear}                             // elements in brackets are alternatives
 +
--recipies and offers.
--offers and recipies.
+-recipes and offers.
+-offers and recipes.
 +
 ~Cool isn't it?                          // This sentence should not be displayed just said.
 +
@@ -25,7 +25,7 @@ Help:                                    // Intent name
 ~What should {we|I} do now?
 
 ?1 How can I help you{| now}?            // Reprompts when the user gives no input
-?2 What should {I|we} do now?            // Second repromt used when no input was given again
+?2 What should {I|we} do now?            // Second reprompt used when no input was given again
 [Offers] [Recipes]                       // Suggestions what the user could try (GUI only)
 
 Hello:                                   // Second intent
@@ -62,7 +62,7 @@ This is an example for `build.gradle` file:
 ```
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.31'
-    id 'org.rewedigital.konversation' version '1.0-beta2'
+    id 'org.rewedigital.konversation' version '1.0.0'
 }
 
 apply plugin: 'kotlin'
@@ -74,7 +74,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile "org.rewedigital.voice:konversation-jvm:0.1"
+    compile "org.rewedigital.voice:konversation-jvm:1.0.0"
 }
 
 konversation {
@@ -112,7 +112,7 @@ When you have installed [Chocolatey] just enter in your shell:
 Download the latest cli jar from the [release page][releases] and store it somewhere you like. On **Windows** you need
 to create a file called `konversation.cmd` somewhere in any directory you have in your path variable, the content should be:
 
-    java -jar path/to/your/konveration.jar %1 %2 %3 %4 %5 %6 %7 %8 %9
+    java -jar path/to/your/konveration.jar %*
 
 If you use Linux or Mac create a file called `konversation` in `/usr/local/bin` with this content:
 

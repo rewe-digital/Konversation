@@ -9,20 +9,15 @@ import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.internal.AbstractTask
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.gradle.internal.operations.DefaultBuildOperationIdFactory
-import org.gradle.internal.time.Time
-import org.gradle.tooling.internal.consumer.SynchronizedLogging
 import org.gradle.workers.WorkAction
-import org.gradle.workers.WorkParameters
-import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.parser.Utterance
+import org.rewedigital.konversation.tasks.CompileTask
+import org.rewedigital.konversation.tasks.ExportTask
+import org.rewedigital.konversation.tasks.UpdateTask
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
-import javax.inject.Inject
-import kotlin.random.Random
 
 open class KonversationPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
@@ -48,7 +43,34 @@ open class KonversationPlugin : Plugin<Project> {
         //    task.inputFiles += inputDirs.listFilesByExtension("kvs", "grammar")
         //}.groupToKonversation()
 
-        val projects: Map<String, KonversationProject> = mapOf()
+        val testRoot = File("")
+
+        val projects: Map<String, KonversationProject> = mapOf(
+            "Markt Demo" to KonversationProject(
+                invocationName = "rewe demo",
+                language = "de",
+                inputFiles = mutableListOf(File(testRoot, "market/market.grammar")),
+                outputDirectory = File("out")
+            ).apply {
+                inputFiles += File(testRoot, "market/").listFiles { _, name -> name.endsWith(".values") } ?: emptyArray()
+                alexa.enabled = true
+                alexa.inputFiles += File(testRoot, "market/market-alexa.grammar")
+                dialogflow.enabled = true
+                dialogflow.inputFiles += File(testRoot, "market/market-google.grammar")
+            },
+            "Shop Demo" to KonversationProject(
+                invocationName = "rewe shop demo",
+                language = "de",
+                inputFiles = mutableListOf(File(testRoot, "shop/shop.grammar")),
+                outputDirectory = File("out")
+            ).apply {
+                inputFiles += File(testRoot, "shop/").listFiles { _, name -> name.endsWith(".values") } ?: emptyArray()
+                alexa.enabled = true
+                alexa.inputFiles += File(testRoot, "shop/shop-alexa.grammar")
+                dialogflow.enabled = true
+                dialogflow.inputFiles += File(testRoot, "shop/shop-google.grammar")
+            }
+        )
 
         buildExportTaskTree(projects, tasks)
         buildUpdateTaskTree(projects, tasks)
@@ -124,67 +146,6 @@ private fun Iterable<File>.listFilesByExtension(vararg extensions: String) =
         }
     }
 
-abstract class KonversationExtension(project: Project) : BasicConfig(project) {
-    var cacheDir = project.buildDir.path + "/konversation/cache"
-    var alexaIntentSchemaFile = project.buildDir.path + "/konversation/alexa-intent-schema.json"
-    val alexa: AlexaTargetExtension?
-        get() = getExtension("alexa")
-    val dialogflow: DialogflowTargetExtension?
-        get() = getExtension("dialogflow")
-    val projects = mutableMapOf<String, KonversationProject>()
-
-    override fun toString() =
-        "KonversationExtension(cacheDir='$cacheDir', alexaIntentSchemaFile='$alexaIntentSchemaFile', invocationName=$invocationName, invocationNames=$invocationNames, alexa=$alexa, dialogflow=$dialogflow. projects=$projects)"
-}
-
-data class KonversationProject(
-    val alexa: BasicPlatformConfig = BasicPlatformConfig(),
-    val dialogflow: BasicPlatformConfig = BasicPlatformConfig(),
-    override var invocationName: String?,
-    override var language: String?,
-    override var invocationNames: MutableMap<String, String> = mutableMapOf(),
-    override val inputFiles: MutableList<File>,
-    override var outputDirectory: File?) : VoiceAppConfig, java.io.Serializable {
-
-    init {
-        println("Invocation name result: ${invocationName?.isNotBlank() == true}")
-        //require(!((invocationName == null && invocationNames.isEmpty()) ||
-        //        (alexa.invocationName == null && alexa.invocationNames.isEmpty()) ||
-        //        (dialogflow.invocationName == null && dialogflow.invocationNames.isEmpty()))) {
-        //    "You must set ether the invocationName or at least one translation of invocationNames. You can set it in the root config per platform."
-        //}
-    }
-
-    override fun toString() =
-        "KonversationProject(alexa=$alexa, dialogflow=$dialogflow, invocationName=$invocationName, invocationNames=$invocationNames, inputFiles=$inputFiles, outputDirectory=$outputDirectory)"
-}
-
-data class BasicPlatformConfig(
-    override var invocationName: String? = null,
-    override var language: String? = null,
-    override var invocationNames: MutableMap<String, String> = mutableMapOf(),
-    override val inputFiles: MutableList<File> = mutableListOf(),
-    override var outputDirectory: File? = null,
-    var enabled: Boolean = false
-) : VoiceAppConfig, java.io.Serializable
-
-interface VoiceAppConfig {
-    var invocationName: String?
-    var language: String?
-    var invocationNames: MutableMap<String, String>
-    val inputFiles: MutableList<File>
-    var outputDirectory: File?
-}
-
-abstract class BasicConfig(project: Project) : ExtensionAware, VoiceAppConfig {
-    override var invocationName: String? = null
-    override var invocationNames = mutableMapOf<String, String>()
-    @InputFiles
-    override val inputFiles = mutableListOf<File>()
-    @OutputDirectory
-    override var outputDirectory: File? = File(project.buildDir.path, "konversation")
-}
-
 abstract class AlexaTargetExtension(project: Project) : BasicConfig(project) {
     var token: String? = null
     var authorization: File? = null
@@ -205,49 +166,6 @@ fun createLoggingFacade(logger: Logger) = object : LoggerFacade {
     override fun info(msg: String) = logger.info(msg)
     override fun error(msg: String) = logger.error(msg)
     override fun warn(msg: String) = logger.warn(msg)
-}
-
-@CacheableTask
-open class CompileTask : DefaultTask() {
-
-    private val progressLoggerFactory = SynchronizedLogging(Time.clock(), DefaultBuildOperationIdFactory()).progressLoggerFactory
-    private val LOGGER = LoggerFactory.getLogger(CompileTask::class.java)
-
-    init {
-        Cli.L = createLoggingFacade(LOGGER)
-    }
-
-    @InputFiles
-    val inputFiles = mutableListOf<File>()
-
-    @OutputDirectories
-    val outputDirectories = mutableListOf<File>()
-
-    @TaskAction
-    fun compile() {
-        val cli = Cli()
-        val config = project.extensions.getByName("konversation") as? KonversationExtension
-        Utterance.cacheDir = config?.cacheDir ?: project.buildDir.path + "/konversation/cache"
-        val op = progressLoggerFactory.newOperation(CompileTask::class.java)
-        //op.loggingHeader = "header"
-        op.description = "description"
-        //org.gradle.api.logging.Logger().lifecycle("blah")
-        //op.setShortDescription("description")
-        //val foo = op.start("description", "description")
-        LOGGER.info("Processing ${inputFiles.size} files...")
-        op.started()
-        inputFiles.forEach { file ->
-            //Thread.sleep(5000)
-            op.progress("${op.description}: ${file.path}")
-            LOGGER.debug("${op.description}: ${file.path}")
-            val start = file.path.indexOf("src" + File.separator) + 4
-            val end = file.path.indexOf(File.separatorChar, start)
-            val sourceSet = file.path.substring(start, end)
-            cli.parseArgs(arrayOf("--export-kson", project.buildDir.path + "/konversation/res/$sourceSet/", file.path))
-        }
-        //Thread.sleep(3000)
-        op.completed()
-    }
 }
 
 @CacheableTask
@@ -278,90 +196,13 @@ open class AlexaExportTask : DefaultTask() {
     }
 }
 
-interface KonversationProjectParameters : WorkParameters {
-    val project: Property<KonversationProject>
-}
-
-abstract class UpdateAlexaAction : WorkAction<KonversationProjectParameters> {
-    override fun execute() {
-        //println("Deploying ${parameters.platform} on ${parameters.platform}. You know ${parameters.config.get().invocationName}")
-        val api = KonversationApi("", "")
-        api.inputFiles += project.inputFiles
-        api.inputFiles += project.alexa.inputFiles
-        api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateAlexaAction::class.java))
-        api.invocationName = project.invocationName ?: project.alexa.invocationName ?: project.invocationNames.values.firstOrNull() ?: project.alexa.invocationNames.values.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
-        val tmp = createTempDir(prefix = "alexa-", directory = File(""))
-        println("Updating to $tmp")
-        api.exportAlexaSchema(File(tmp, "schema.json"), api.invocationName.orEmpty())
-        //Thread.sleep(Random.nextLong(5000, 30000))
-        println("Done")
-    }
-}
-
-abstract class UpdateDialogflowAction : WorkAction<KonversationProjectParameters> {
-    override fun execute() {
-        //println("Deploying ${parameters.platform} on ${parameters.platform}. You know ${parameters.config.get().invocationName}")
-        println("Deploying ${parameters.project.get()}")
-        Thread.sleep(Random.nextLong(5000, 30000))
-        println("Done")
-    }
-}
-
-abstract class ExportAlexaAction : WorkAction<KonversationProjectParameters> {
-    override fun execute() {
-        //println("Deploying ${parameters.platform} on ${parameters.platform}. You know ${parameters.config.get().invocationName}")
-        println("Deploying ${parameters.project.get()}")
-        Thread.sleep(Random.nextLong(5000, 30000))
-        println("Done")
-    }
-}
-
-abstract class ExportDialogflowAction : WorkAction<KonversationProjectParameters> {
-    override fun execute() {
-        //println("Deploying ${parameters.platform} on ${parameters.platform}. You know ${parameters.config.get().invocationName}")
-        println("Deploying ${parameters.project.get()}")
-        Thread.sleep(Random.nextLong(5000, 30000))
-        println("Done")
-    }
-}
-
-open class ExportTask @Inject constructor(private var workerExecutor: WorkerExecutor) : DefaultTask() {
-    var config: KonversationProject? = null
-
-    @TaskAction
-    fun provision() = when {
-        config?.dialogflow?.enabled == true -> workerExecutor.noIsolation().submit(ExportDialogflowAction::class.java) {
-            it.project.set(config)
-        }
-        config?.alexa?.enabled == true -> workerExecutor.noIsolation().submit(ExportAlexaAction::class.java) {
-            it.project.set(config)
-        }
-        else -> throw IllegalArgumentException("Config error: Nothing to deploy")
-    }
-}
-
-open class UpdateTask @Inject constructor(private var workerExecutor: WorkerExecutor) : DefaultTask() {
-    var config: KonversationProject? = null
-
-    @TaskAction
-    fun provision() = when {
-        config?.dialogflow?.enabled == true -> workerExecutor.noIsolation().submit(UpdateDialogflowAction::class.java) {
-            it.project.set(config)
-        }
-        config?.alexa?.enabled == true -> workerExecutor.noIsolation().submit(UpdateAlexaAction::class.java) {
-            it.project.set(config)
-        }
-        else -> throw IllegalArgumentException("Config error: Nothing to deploy")
-    }
-}
-
 private fun AbstractTask.groupToKonversation(description: String) = apply {
     this.group = "Konversation"
     this.description = description
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T> ExtensionAware.getExtension(name: String): T? = try {
+fun <T> ExtensionAware.getExtension(name: String): T? = try {
     extensions.getByName(name) as? T
 } catch (e: UnknownDomainObjectException) {
     null
@@ -370,5 +211,5 @@ private fun <T> ExtensionAware.getExtension(name: String): T? = try {
 @Suppress("UNCHECKED_CAST")
 private fun <T> Project.getExtension(name: String): T = extensions.getByName(name) as T
 
-private val WorkAction<KonversationProjectParameters>.project
+val WorkAction<KonversationProjectParameters>.project
     get() = parameters.project.get()

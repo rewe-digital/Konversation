@@ -37,4 +37,8 @@ konversation {
     dialogflow {
         invocationName = "Dia"
     }
+
+    projects["foo"] = {
+            invocationName = "Hallo"
+    }
 }

@@ -86,8 +86,9 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
         }
     }
 
+    // FIXME skillName is redundant
     fun exportAlexaSchema(targetDirectory: File, skillName: String, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
-        targetDirectory.absoluteFile.parentFile.mkdirs()
+        //targetDirectory.absoluteFile.parentFile.mkdirs()
         val exporter = AlexaExporter(skillName)
         val stream = targetDirectory.outputStream()
         exportToStream(stream, prettyPrint, exporter, intents, config)

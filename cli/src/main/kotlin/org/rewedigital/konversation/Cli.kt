@@ -92,9 +92,7 @@ open class Cli {
                         "--dialogflow-upload" -> if (argNo + 2 < args.size) {
                             dialogflowServiceAccount = File(args[++argNo])
                             dialogflowProject = args[++argNo]
-                            if (dialogflowServiceAccount?.exists() != true) {
-                                throw IllegalArgumentException("Service account file not found")
-                            }
+                            require(dialogflowServiceAccount?.exists() == true) { "Service account file not found" }
                         } else {
                             throw IllegalArgumentException("Arguments missing: service account file and project name is required.")
                         }

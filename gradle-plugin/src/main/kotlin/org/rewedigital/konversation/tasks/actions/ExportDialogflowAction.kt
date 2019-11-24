@@ -1,15 +1,26 @@
 package org.rewedigital.konversation.tasks.actions
 
+import org.gradle.api.logging.Logger
 import org.gradle.workers.WorkAction
+import org.rewedigital.konversation.KonversationApi
 import org.rewedigital.konversation.KonversationProjectParameters
-import kotlin.random.Random
+import org.rewedigital.konversation.createLoggingFacade
+import org.rewedigital.konversation.project
+import org.slf4j.LoggerFactory
 
 @Suppress("UnstableApiUsage")
 abstract class ExportDialogflowAction : WorkAction<KonversationProjectParameters> {
+    private val logger = LoggerFactory.getLogger(ExportDialogflowAction::class.java) as Logger
+
     override fun execute() {
-        //println("Deploying ${parameters.platform} on ${parameters.platform}. You know ${parameters.config.get().invocationName}")
-        println("Deploying ${parameters.project.get()}")
-        Thread.sleep(Random.nextLong(5000, 30000))
-        println("Done")
+        val api = KonversationApi("", "")
+        api.inputFiles += project.inputFiles
+        api.inputFiles += project.dialogflow.inputFiles
+        api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateAlexaAction::class.java))
+        api.invocationName =
+            project.invocationName ?: project.dialogflow.invocationName ?: project.invocationNames.values.firstOrNull() ?: project.dialogflow.invocationNames.values.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
+        logger.lifecycle("Exporting ${api.invocationName} to ${project.outputDirectory}...")
+        api.exportDialogflow(project.outputDirectory!!, true)
+        logger.info("Export finished")
     }
 }

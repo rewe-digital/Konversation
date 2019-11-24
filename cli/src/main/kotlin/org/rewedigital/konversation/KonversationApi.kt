@@ -86,10 +86,8 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
         }
     }
 
-    // FIXME skillName is redundant
-    fun exportAlexaSchema(targetDirectory: File, skillName: String, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
-        //targetDirectory.absoluteFile.parentFile.mkdirs()
-        val exporter = AlexaExporter(skillName)
+    fun exportAlexaSchema(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
+        val exporter = AlexaExporter(invocationName ?: throw IllegalArgumentException("invocation name was null"))
         val stream = targetDirectory.outputStream()
         exportToStream(stream, prettyPrint, exporter, intents, config)
     }
@@ -106,9 +104,9 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
         stream.close()
     }
 
-    fun exportDialogflow(targetDirectory: File, invocationName: String, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
-        val exporter = DialogflowExporter(invocationName)
-        val stream = File(targetDirectory, "dialogflow-$config.zip").outputStream()
+    fun exportDialogflow(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
+        val exporter = DialogflowExporter(invocationName ?: throw IllegalArgumentException("invocation name was null"))
+        val stream = File(targetDirectory, "$invocationName.zip").outputStream()
         if (prettyPrint) {
             exporter.prettyPrinted(stream, intents, entityDb[config])
         } else {

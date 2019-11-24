@@ -11,7 +11,6 @@ import java.io.File
 @Suppress("UnstableApiUsage")
 abstract class UpdateAlexaAction : WorkAction<KonversationProjectParameters> {
     override fun execute() {
-        //println("Deploying ${parameters.platform} on ${parameters.platform}. You know ${parameters.config.get().invocationName}")
         val api = KonversationApi("", "")
         api.inputFiles += project.inputFiles
         api.inputFiles += project.alexa.inputFiles
@@ -19,8 +18,7 @@ abstract class UpdateAlexaAction : WorkAction<KonversationProjectParameters> {
         api.invocationName = project.invocationName ?: project.alexa.invocationName ?: project.invocationNames.values.firstOrNull() ?: project.alexa.invocationNames.values.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
         val tmp = createTempDir(prefix = "alexa-", directory = File(""))
         println("Updating to $tmp")
-        api.exportAlexaSchema(File(tmp, "schema.json"), api.invocationName.orEmpty())
-        //Thread.sleep(Random.nextLong(5000, 30000))
+        api.exportAlexaSchema(File(tmp, "schema.json"), true)
         println("Done")
     }
 }

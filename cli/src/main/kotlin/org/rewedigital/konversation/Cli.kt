@@ -127,10 +127,10 @@ open class Cli {
                 api.exportKson(dir, prettyPrint)
             }
             alexaIntentSchema?.let { file ->
-                api.exportAlexaSchema(file, invocationName, prettyPrint)
+                api.exportAlexaSchema(file, prettyPrint)
             }
             dialogflowDir?.let { dir ->
-                api.exportDialogflow(dir, invocationName, prettyPrint)
+                api.exportDialogflow(dir, prettyPrint)
             }
             amazonSkillId?.let { skillId ->
                 amazonRefreshToken?.let { refreshToken ->

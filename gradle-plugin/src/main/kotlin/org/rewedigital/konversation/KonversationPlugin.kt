@@ -44,13 +44,14 @@ open class KonversationPlugin : Plugin<Project> {
         //}.groupToKonversation()
 
         val testRoot = File("")
+        val outdir = File("")
 
         val projects: Map<String, KonversationProject> = mapOf(
             "Markt Demo" to KonversationProject(
                 invocationName = "rewe demo",
                 language = "de",
                 inputFiles = mutableListOf(File(testRoot, "market/market.grammar")),
-                outputDirectory = File("out")
+                outputDirectory = outdir
             ).apply {
                 inputFiles += File(testRoot, "market/").listFiles { _, name -> name.endsWith(".values") } ?: emptyArray()
                 alexa.enabled = true
@@ -62,7 +63,7 @@ open class KonversationPlugin : Plugin<Project> {
                 invocationName = "rewe shop demo",
                 language = "de",
                 inputFiles = mutableListOf(File(testRoot, "shop/shop.grammar")),
-                outputDirectory = File("out")
+                outputDirectory = outdir
             ).apply {
                 inputFiles += File(testRoot, "shop/").listFiles { _, name -> name.endsWith(".values") } ?: emptyArray()
                 alexa.enabled = true

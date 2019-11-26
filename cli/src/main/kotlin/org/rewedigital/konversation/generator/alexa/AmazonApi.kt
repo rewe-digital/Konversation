@@ -79,16 +79,46 @@ class AmazonApi(private val clientId: String, private val clientSecret: String, 
         this.refreshToken = refreshToken
     }
 
-    fun uploadSchema(invocationName: String, locale: String, intents: List<Intent>, entities: List<Entities>?, skillId: String): Boolean {
+    fun uploadSchema(invocationName: String, locale: String, intents: List<Intent>, entities: List<Entities>?, skillId: String): String? {
         val json = StringBuilder()
         AlexaExporter(invocationName, Int.MAX_VALUE).minified({ json.append(it) }, intents, entities)
         val response = khttp.put(
             url = "https://api.amazonalexa.com/v1/skills/$skillId/stages/development/interactionModel/locales/$locale",
             headers = mapOf("Authorization" to "Bearer $accessToken"),
             data = json.toString())
-        if (response.statusCode != 202) {
+        return if (response.statusCode != 202) {
             println("Error ${response.statusCode} while updating the intent schema: " + String(response.content))
+            null
+        } else {
+            //println("Used Authorization: Bearer $accessToken\nLocation: ${response.headers["Location"]}\n${response.text}")
+            response.headers["Location"]
         }
-        return response.statusCode == 200
     }
+
+    fun checkStatus(location: String, locale: String): Pair<Status, String> =
+        khttp.get(
+            url = "https://api.amazonalexa.com$location",
+            headers = mapOf("Authorization" to "Bearer $accessToken"))
+            .jsonObject
+            .getJSONObject("interactionModel")
+            .getJSONObject(locale)
+            .getJSONObject("lastUpdateRequest").let { details ->
+                val status = Status.valueOf(details.getString("status"))
+                if (status == Status.SUCCEEDED) return status to "Done"
+                if (!details.has("buildDetails")) return status to "Processing"
+                val steps = details.getJSONObject("buildDetails").getJSONArray("steps")
+                for (i in 0 until steps.length()) {
+                    val step = steps.getJSONObject(i)
+                    val stepStatus = Status.valueOf(step.getString("status"))
+                    val name = when (step.getString("name")) {
+                        "LANGUAGE_MODEL_QUICK_BUILD" -> "Building quick model"
+                        "LANGUAGE_MODEL_FULL_BUILD" -> "Building full model"
+                        else -> step.getString("name")
+                    }
+                    if (stepStatus == Status.IN_PROGRESS) {
+                        return stepStatus to name
+                    }
+                }
+                return status to "Finishing"
+            }
 }

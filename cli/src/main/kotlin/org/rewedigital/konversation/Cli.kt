@@ -121,7 +121,7 @@ open class Cli {
 
             showStats(api)
 
-            lookForCollisions(api.intentDb)
+            //lookForCollisions(api.intentDb)
 
             ksonDir?.let { dir ->
                 api.exportKson(dir, prettyPrint)

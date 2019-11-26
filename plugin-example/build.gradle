@@ -28,14 +28,14 @@ compileTestKotlin {
 }
 
 konversation {
-    invocationName = "test"
+//    invocationName = "test"
     invocationNames.de = "hallo"
     invocationNames.en = "welt"
     alexa {
-        invocationName = "AAA"
+        //invocationName = "AAA"
     }
     dialogflow {
-        invocationName = "Dia"
+        //invocationName = "Dia"
     }
 
     projects["foo"] = {

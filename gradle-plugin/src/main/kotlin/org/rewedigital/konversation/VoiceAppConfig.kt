@@ -1,11 +1,10 @@
 package org.rewedigital.konversation
 
 import java.io.File
+import java.util.*
 
 interface VoiceAppConfig {
-    var invocationName: String?
-    var language: String?
-    var invocationNames: MutableMap<String, String>
+    var invocationNames: MutableMap<Locale, String>
     val inputFiles: MutableList<File>
     var outputDirectory: File?
 }

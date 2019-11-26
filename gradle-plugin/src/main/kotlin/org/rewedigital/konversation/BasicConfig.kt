@@ -5,10 +5,10 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import java.io.File
+import java.util.*
 
 abstract class BasicConfig(project: Project) : ExtensionAware, VoiceAppConfig {
-    override var invocationName: String? = null
-    override var invocationNames = mutableMapOf<String, String>()
+    override var invocationNames = mutableMapOf<Locale, String>()
     @InputFiles
     override val inputFiles = mutableListOf<File>()
     @OutputDirectory

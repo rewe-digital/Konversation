@@ -4,6 +4,7 @@ import org.rewedigital.konversation.generator.Exporter
 import org.rewedigital.konversation.generator.Printer
 import org.rewedigital.konversation.generator.alexa.AlexaExporter
 import org.rewedigital.konversation.generator.alexa.AmazonApi
+import org.rewedigital.konversation.generator.alexa.Status
 import org.rewedigital.konversation.generator.dialogflow.DialogflowApi
 import org.rewedigital.konversation.generator.dialogflow.DialogflowExporter
 import org.rewedigital.konversation.generator.kson.KsonExporter
@@ -128,12 +129,23 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
     fun authorizeAmazon(serverPort: Int) =
         AmazonApi(amazonClientId, amazonClientSecret).login(serverPort)
 
-    fun updateAlexaSchema(refreshToken: String, skillName: String, skillId: String, stage: String = "development") {
+    fun updateAlexaSchema(refreshToken: String, skillName: String, skillId: String, stage: String = "development"): String? =
         intentDb[""]?.let { intents ->
-            AmazonApi(amazonClientId, amazonClientSecret, refreshToken)
-                .uploadSchema(skillName, "de-DE", intents, entityDb[""], skillId)
+            val api = AmazonApi(amazonClientId, amazonClientSecret, refreshToken)
+            api.uploadSchema(skillName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
+                var msg: String? = null
+                for (i in 0..60) {
+                    Thread.sleep(1000)
+                    val (status, message) = api.checkStatus(location, "de-DE")
+                    if (status != Status.IN_PROGRESS) return message
+                    if (msg != message) {
+                        println("$message...")
+                        msg = message
+                    }
+                }
+                return null
+            }
         }
-    }
 
     fun updateDialogflowProject(serviceAccount: File, project: String, invocationName: String) {
         intentDb[""]?.let { intents ->

@@ -17,8 +17,7 @@ abstract class ExportDialogflowAction : WorkAction<KonversationProjectParameters
         api.inputFiles += project.inputFiles
         api.inputFiles += project.dialogflow.inputFiles
         api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateAlexaAction::class.java))
-        api.invocationName =
-            project.invocationName ?: project.dialogflow.invocationName ?: project.invocationNames.values.firstOrNull() ?: project.dialogflow.invocationNames.values.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
+        api.invocationName = project.invocationNames.values.firstOrNull() ?: project.dialogflow.invocationNames.values.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
         logger.lifecycle("Exporting ${api.invocationName} to ${project.outputDirectory}...")
         api.exportDialogflow(project.outputDirectory!!, true)
         logger.info("Export finished")

@@ -12,5 +12,5 @@ abstract class KonversationExtension(project: Project) : BasicConfig(project) {
     val projects = mutableMapOf<String, KonversationProject>()
 
     override fun toString() =
-        "KonversationExtension(cacheDir='$cacheDir', alexaIntentSchemaFile='$alexaIntentSchemaFile', invocationName=$invocationName, invocationNames=$invocationNames, alexa=$alexa, dialogflow=$dialogflow. projects=$projects)"
+        "KonversationExtension(cacheDir='$cacheDir', alexaIntentSchemaFile='$alexaIntentSchemaFile', invocationNames=$invocationNames, alexa=$alexa, dialogflow=$dialogflow. projects=$projects)"
 }

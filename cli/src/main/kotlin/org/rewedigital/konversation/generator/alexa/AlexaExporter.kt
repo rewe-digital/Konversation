@@ -192,8 +192,8 @@ class AlexaExporter(
                             }
                             printer("\"$it\"")
                             hashes += hash
-                        } else {
-                            println("AHA! $it")
+                            //} else {
+                            //println("AHA! $it")
                         }
                     }
                 }

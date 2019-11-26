@@ -18,6 +18,7 @@ import org.rewedigital.konversation.tasks.UpdateTask
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.*
 
 open class KonversationPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
@@ -48,8 +49,7 @@ open class KonversationPlugin : Plugin<Project> {
 
         val projects: Map<String, KonversationProject> = mapOf(
             "Markt Demo" to KonversationProject(
-                invocationName = "rewe demo",
-                language = "de",
+                invocationNames = mutableMapOf(Locale.GERMANY to "rewe demo"),
                 inputFiles = mutableListOf(File(testRoot, "market/market.grammar")),
                 outputDirectory = outdir
             ).apply {
@@ -58,18 +58,17 @@ open class KonversationPlugin : Plugin<Project> {
                 alexa.inputFiles += File(testRoot, "market/market-alexa.grammar")
                 dialogflow.enabled = true
                 dialogflow.inputFiles += File(testRoot, "market/market-google.grammar")
-            },
-            "Shop Demo" to KonversationProject(
-                invocationName = "rewe shop demo",
-                language = "de",
-                inputFiles = mutableListOf(File(testRoot, "shop/shop.grammar")),
-                outputDirectory = outdir
-            ).apply {
-                inputFiles += File(testRoot, "shop/").listFiles { _, name -> name.endsWith(".values") } ?: emptyArray()
-                alexa.enabled = true
-                alexa.inputFiles += File(testRoot, "shop/shop-alexa.grammar")
-                dialogflow.enabled = true
-                dialogflow.inputFiles += File(testRoot, "shop/shop-google.grammar")
+                //},
+                //"Shop Demo" to KonversationProject(
+                //    invocationNames = mutableMapOf(Locale.GERMANY to "rewe shop demo"),
+                //    inputFiles = mutableListOf(File(testRoot, "shop/shop.grammar")),
+                //    outputDirectory = outdir
+                //).apply {
+                //    inputFiles += File(testRoot, "shop/").listFiles { _, name -> name.endsWith(".values") } ?: emptyArray()
+                //    alexa.enabled = true
+                //    alexa.inputFiles += File(testRoot, "shop/shop-alexa.grammar")
+                //    dialogflow.enabled = true
+                //    dialogflow.inputFiles += File(testRoot, "shop/shop-google.grammar")
             }
         )
 
@@ -151,14 +150,14 @@ abstract class AlexaTargetExtension(project: Project) : BasicConfig(project) {
     var token: String? = null
     var authorization: File? = null
 
-    override fun toString() = "AlexaTargetExtension(outputDirectory=$outputDirectory, invocationName=$invocationName, token=$token, authorization=$authorization)"
+    override fun toString() = "AlexaTargetExtension(outputDirectory=$outputDirectory, token=$token, authorization=$authorization)"
 }
 
 abstract class DialogflowTargetExtension(project: Project) : BasicConfig(project) {
     var outputDir = File(project.buildDir.path, "konversation")
     var authorization: File? = null
 
-    override fun toString() = "DialogflowTargetExtension(outputDir=$outputDir, invocationName=$invocationName, authorization=$authorization)"
+    override fun toString() = "DialogflowTargetExtension(outputDir=$outputDir, authorization=$authorization)"
 }
 
 fun createLoggingFacade(logger: Logger) = object : LoggerFacade {
@@ -188,12 +187,12 @@ open class AlexaExportTask : DefaultTask() {
     @TaskAction
     fun exportAlexaIntentSchema() {
         val cli = Cli()
-        check(!config?.invocationName.isNullOrBlank()) { "The alexa export task required the invocation name in the konversation configuration" }
+        check(!config?.invocationNames.isNullOrEmpty()) { "The alexa export task required the invocation name in the konversation configuration" }
 
         LOGGER.debug("Processing files: " + inputFiles.joinToString { it.absolutePath })
 
         Utterance.cacheDir = config?.cacheDir!!
-        cli.parseArgs((listOf("-invocation", config.invocationName!!, "--export-alexa", config.alexaIntentSchemaFile, "-prettyprint") + inputFiles.map { it.absolutePath }).toTypedArray())
+        //cli.parseArgs((listOf("-invocation", config.invocationName!!, "--export-alexa", config.alexaIntentSchemaFile, "-prettyprint") + inputFiles.map { it.absolutePath }).toTypedArray())
     }
 }
 

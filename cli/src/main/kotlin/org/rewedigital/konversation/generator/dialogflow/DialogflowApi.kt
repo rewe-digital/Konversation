@@ -13,7 +13,7 @@ class DialogflowApi(private val credentials : File) {
         val credential = GoogleCredential.fromStream(FileInputStream(credentials))
             .createScoped(listOf("https://www.googleapis.com/auth/dialogflow"))
         credential.refreshToken()
-        val output = ByteArrayOutputStream(512*1024)
+        val output = ByteArrayOutputStream(1024 * 1024 * 5) // 5MB
         DialogflowExporter(invocationName).minified(output, intents, entities)
         val zipFile = String(Base64.getEncoder().encode(output.toByteArray()))
         val response = khttp.post(

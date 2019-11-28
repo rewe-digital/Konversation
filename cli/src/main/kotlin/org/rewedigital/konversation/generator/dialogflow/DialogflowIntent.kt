@@ -1,5 +1,6 @@
 package org.rewedigital.konversation.generator.dialogflow
 
+import org.rewedigital.konversation.Intent
 import org.rewedigital.konversation.forEachBreakable
 import org.rewedigital.konversation.generator.NodeExporter
 import org.rewedigital.konversation.generator.Printer
@@ -18,6 +19,13 @@ data class DialogflowIntent(
     val webhookForSlotFilling: Boolean = false,
     val webhookUsed: Boolean = true
 ) : NodeExporter {
+    constructor(intent: Intent, responses: List<Response>) : this(
+        id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
+        lastUpdate = System.currentTimeMillis() / 1000,
+        name = intent.name,
+        responses = responses,
+        fallbackIntent = intent.annotations.containsKey("Fallback"),
+        events = intent.annotations["Events"] ?: intent.annotations["Event"] ?: emptyList())
     override fun prettyPrinted(printer: Printer) {
         printer("""{
   "id": "$id",

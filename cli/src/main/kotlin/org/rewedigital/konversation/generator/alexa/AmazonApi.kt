@@ -8,7 +8,7 @@ import java.net.URI
 import java.util.*
 
 class AmazonApi(private val clientId: String, private val clientSecret: String, private var refreshToken: String? = null) {
-    private var accessToken: String? = null
+    var accessToken: String? = null
         get() = field ?: refreshToken?.let {
             khttp.post(
                 url = "https://api.amazon.com/auth/o2/token",
@@ -112,7 +112,7 @@ class AmazonApi(private val clientId: String, private val clientSecret: String, 
                     val stepStatus = Status.valueOf(step.getString("status"))
                     val name = when (step.getString("name")) {
                         "LANGUAGE_MODEL_QUICK_BUILD" -> "Building quick model"
-                        "LANGUAGE_MODEL_FULL_BUILD" -> "Building full model"
+                        "LANGUAGE_MODEL_FULL_BUILD" -> "Training model"
                         else -> step.getString("name")
                     }
                     if (stepStatus == Status.IN_PROGRESS) {

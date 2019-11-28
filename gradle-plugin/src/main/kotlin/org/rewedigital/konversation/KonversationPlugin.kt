@@ -40,10 +40,6 @@ open class KonversationPlugin : Plugin<Project> {
         }
         tasks.getByName("processResources").dependsOn += compile
 
-        //tasks.create("exportAlexa", AlexaExportTask::class.java) { task ->
-        //    task.inputFiles += inputDirs.listFilesByExtension("kvs", "grammar")
-        //}.groupToKonversation()
-
         val testRoot = File("")
         val outdir = File("")
 

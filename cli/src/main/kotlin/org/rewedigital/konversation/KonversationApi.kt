@@ -12,7 +12,19 @@ import org.rewedigital.konversation.parser.Parser
 import java.io.File
 import java.io.FileOutputStream
 
-class KonversationApi(private val amazonClientId: String, private val amazonClientSecret: String) {
+class KonversationApi(
+    var amazonClientId: String? = null,
+    var amazonClientSecret: String? = null,
+    var dialogflowServiceAccount: File? = null) {
+
+    private val dialogflowApi: DialogflowApi by lazy { DialogflowApi(dialogflowServiceAccount.orThrow("Google service account not set")) }
+    private val amazonApi: AmazonApi by lazy { AmazonApi(amazonClientId.orThrow("Amazon client id not set"), amazonClientSecret.orThrow("Amazon client secret not set")) }
+
+    val dialogflowToken: String
+        get() = dialogflowApi.accessToken
+    val amazonToken: String?
+        get() = amazonApi.accessToken
+
     private var inputFileCount = 0
 
     val intentDb by lazy { cache.first }
@@ -31,9 +43,15 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
                 }
                 inputFile.isDirectory -> inputFile
                     .listFiles { dir: File?, name: String? ->
-                        File(dir, name).isDirectory && (name == "konversation" || name?.startsWith("konversation-") == true)
-                    }.toList()
-                    .flatMap { it.listFiles { _, name -> name.endsWith(".kvs") || name.endsWith(".grammar") || name.endsWith(".values") }.toList() }
+                        name != null && File(dir, name).isDirectory && (name == "konversation" || name.startsWith("konversation-"))
+                    }
+                    .orEmpty()
+                    .toList()
+                    .flatMap {
+                        it.listFiles { _, name ->
+                            name.endsWith(".kvs") || name.endsWith(".grammar") || name.endsWith(".values")
+                        }.orEmpty().toList()
+                    }
                     .also {
                         inputFileCount += it.size
                     }
@@ -106,8 +124,9 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
     }
 
     fun exportDialogflow(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
-        val exporter = DialogflowExporter(invocationName ?: throw IllegalArgumentException("invocation name was null"))
-        val stream = File(targetDirectory, "$invocationName.zip").outputStream()
+        val invocationName = this.invocationName ?: throw IllegalArgumentException("invocation name was null")
+        val exporter = DialogflowExporter(invocationName)
+        val stream = File(targetDirectory, "${invocationName.replace(' ', '-').toLowerCase()}.zip").outputStream()
         if (prettyPrint) {
             exporter.prettyPrinted(stream, intents, entityDb[config])
         } else {
@@ -127,16 +146,16 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
     }
 
     fun authorizeAmazon(serverPort: Int) =
-        AmazonApi(amazonClientId, amazonClientSecret).login(serverPort)
+        amazonApi.login(serverPort)
 
-    fun updateAlexaSchema(refreshToken: String, skillName: String, skillId: String, stage: String = "development"): String? =
+    fun updateAlexaSchema(refreshToken: String, skillName: String, skillId: String): String? =
         intentDb[""]?.let { intents ->
-            val api = AmazonApi(amazonClientId, amazonClientSecret, refreshToken)
-            api.uploadSchema(skillName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
+            amazonApi.loadToken(refreshToken)
+            amazonApi.uploadSchema(skillName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
                 var msg: String? = null
-                for (i in 0..60) {
+                for (i in 0..600) {
                     Thread.sleep(1000)
-                    val (status, message) = api.checkStatus(location, "de-DE")
+                    val (status, message) = amazonApi.checkStatus(location, "de-DE")
                     if (status != Status.IN_PROGRESS) return message
                     if (msg != message) {
                         println("$message...")
@@ -147,12 +166,12 @@ class KonversationApi(private val amazonClientId: String, private val amazonClie
             }
         }
 
-    fun updateDialogflowProject(serviceAccount: File, project: String, invocationName: String) {
+    fun updateDialogflowProject(project: String, invocationName: String) {
         intentDb[""]?.let { intents ->
-            DialogflowApi(serviceAccount)
-                .uploadIntents(invocationName, project, intents, entityDb[""])
+            dialogflowApi.uploadIntents(invocationName, project, intents, entityDb[""])
         }
     }
 
     private fun parseFile(file: File) = Parser(file)
+    private fun <T> T?.orThrow(msg: String): T = this ?: throw java.lang.IllegalArgumentException(msg)
 }

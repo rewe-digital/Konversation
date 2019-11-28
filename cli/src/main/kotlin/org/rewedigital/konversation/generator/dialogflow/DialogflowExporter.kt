@@ -7,6 +7,7 @@ import java.io.OutputStream
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.math.max
 
 class DialogflowExporter(private val invocationName: String) : StreamExporter {
     private val lang = "de"
@@ -43,13 +44,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         var i = 0
         intents.filter { !it.name.startsWith("AMAZON.", ignoreCase = true) }.forEach { intent ->
             json.clear()
-            val intentData = DialogflowIntent(
-                id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
-                lastUpdate = System.currentTimeMillis() / 1000,
-                name = intent.name,
-                responses = createResponses(intent),
-                fallbackIntent = intent.annotations.containsKey("Fallback"),
-                events = intent.annotations["Events"] ?: intent.annotations["Event"] ?: emptyList())
+            val intentData = DialogflowIntent(intent, createResponses(intent))
             intentData.prettyPrinted { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
             json.clear()
@@ -63,21 +58,8 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
                 utterance.permutations.forEachBreakable { sentence ->
-                    val data = if (sentence.contains("{") && sentence.contains("}")) {
-                        sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
-                            val type = slots[part]?.removePrefix("AMAZON.")
-                            type?.let {
-                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.map { it.master }
-                                val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
-                                i++
-
-                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@${useSystemTypes(type)}", userDefined = false)
-                            } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
-
-                        }
-                    } else {
-                        listOf(DialogflowUtterance.UtterancePart(text = sentence, userDefined = false))
-                    }
+                    val (data, permutations) = createParts(sentence, slots, entities, i)
+                    i += permutations
                     DialogflowUtterance(
                         count = 0,
                         data = data,
@@ -124,13 +106,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         var i = 0
         intents.filter { !it.name.startsWith("AMAZON.") }.forEach { intent ->
             json.clear()
-            val intentData = DialogflowIntent(
-                id = UUID.nameUUIDFromBytes(intent.name.toByteArray()),
-                lastUpdate = System.currentTimeMillis() / 1000,
-                name = intent.name,
-                responses = createResponses(intent),
-                fallbackIntent = intent.annotations.containsKey("Fallback"),
-                events = intent.annotations["Events"] ?: intent.annotations["Event"] ?: emptyList())
+            val intentData = DialogflowIntent(intent, createResponses(intent))
             intentData.minified { s -> json.append(s) }
             zipStream.add("intents/${intent.name}.json", json)
             json.clear()
@@ -142,21 +118,8 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             intent.utterances.forEachBreakable { utterance ->
                 val hasMoreUtterances = hasNext()
                 utterance.permutations.forEachBreakable { sentence ->
-                    val data = if (sentence.contains("{") && sentence.contains("}")) {
-                        sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
-                            val type = slots[part]?.removePrefix("AMAZON.")
-                            type?.let {
-                                val values = entities?.firstOrNull { it.name == slots[part] }?.values?.map { it.master }
-                                val sample = values?.getOrNull(i % Math.max(1, values.size)) ?: defaultValue(type, i)
-                                i++
-
-                                DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@${useSystemTypes(type)}", userDefined = false)
-                            } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
-
-                        }
-                    } else {
-                        listOf(DialogflowUtterance.UtterancePart(text = sentence, userDefined = false))
-                    }
+                    val (data, permutations) = createParts(sentence, slots, entities, i)
+                    i += permutations
                     DialogflowUtterance(
                         count = 0,
                         data = data,
@@ -172,6 +135,28 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
         }
         zipStream.add("package.json", java.lang.StringBuilder("{\"version\":\"1.0.0\"}"))
         zipStream.close()
+    }
+
+    private fun createParts(sentence: String,
+        slots: Map<String, String>,
+        entities: List<Entities>?,
+        sampleOffset: Int): Pair<List<DialogflowUtterance.UtterancePart>, Int> {
+        var i = sampleOffset
+        return if (sentence.contains("{") && sentence.contains("}")) {
+            sentence.split("{", "}").filter { it.isNotEmpty() }.map { part ->
+                val type = slots[part]?.removePrefix("AMAZON.")
+                type?.let {
+                    val values = entities?.firstOrNull { it.name == slots[part] }?.values?.map { it.master }
+                    val sample = values?.getOrNull(i % max(1, values.size)) ?: defaultValue(type, i)
+                    i++
+
+                    DialogflowUtterance.UtterancePart(text = sample, alias = part, meta = "@${useSystemTypes(type)}", userDefined = false)
+                } ?: DialogflowUtterance.UtterancePart(text = part, userDefined = false)
+
+            }
+        } else {
+            listOf(DialogflowUtterance.UtterancePart(text = sentence, userDefined = false))
+        } to i
     }
 
     private fun createResponses(intent: Intent) =

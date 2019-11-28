@@ -19,6 +19,8 @@ open class Cli {
     private var amazonSkillId: String? = null
     private var dialogflowProject: String? = null
     private var dialogflowServiceAccount: File? = null
+    private var exposeDialogflowToken = false
+    private var exposeAlexaToken = false
 
     private var invocationName: String = ""
         get() {
@@ -47,7 +49,7 @@ open class Cli {
                         val matcher = argFile.name.replace(".", "\\.").replace("*", ".*?").toRegex()
                         argFile.parentFile.listFiles { _, name ->
                             matcher.matches(name)
-                        }.map { file ->
+                        }.orEmpty().map { file ->
                             api.inputFiles += file.absoluteFile
                         }
                     } else {
@@ -93,8 +95,16 @@ open class Cli {
                             dialogflowServiceAccount = File(args[++argNo])
                             dialogflowProject = args[++argNo]
                             require(dialogflowServiceAccount?.exists() == true) { "Service account file not found" }
+                            api.dialogflowServiceAccount = dialogflowServiceAccount
                         } else {
                             throw IllegalArgumentException("Arguments missing: service account file and project name is required.")
+                        }
+                        "--show-alexa-token" -> if (exposeToken && amazonRefreshToken != null) {
+                            exposeAlexaToken = true
+                        }
+                        "--show-dialogflow-token" -> if (exposeToken && ++argNo < args.size) {
+                            dialogflowServiceAccount = File(args[argNo])
+                            exposeDialogflowToken = true
                         }
                         "invocation",
                         "-invocation" -> if (++argNo < args.size) {
@@ -127,18 +137,30 @@ open class Cli {
                 api.exportKson(dir, prettyPrint)
             }
             alexaIntentSchema?.let { file ->
+                api.invocationName = invocationName
                 api.exportAlexaSchema(file, prettyPrint)
             }
             dialogflowDir?.let { dir ->
+                api.invocationName = invocationName
+                println("Uploading $invocationName to Dialogflow...")
                 api.exportDialogflow(dir, prettyPrint)
+                println("Done")
             }
             amazonSkillId?.let { skillId ->
                 amazonRefreshToken?.let { refreshToken ->
+                    println("Uploading $invocationName to Alexa...")
                     api.updateAlexaSchema(refreshToken, invocationName, skillId)
                 } ?: throw IllegalArgumentException("Amazon token not set")
+                println("Done")
             }
-            dialogflowServiceAccount?.let { serviceAccount ->
-                api.updateDialogflowProject(serviceAccount, dialogflowProject!!, invocationName)
+            if (exposeAlexaToken) {
+                println("Dialogflow: " + api.amazonToken)
+            }
+            if (exposeDialogflowToken) {
+                println("Dialogflow: " + api.dialogflowToken)
+            }
+            dialogflowProject?.let { dialogflowProject ->
+                api.updateDialogflowProject(dialogflowProject, invocationName)
             }
         }
     }
@@ -257,6 +279,7 @@ open class Cli {
         const val version = "1.2.0-beta1"
         const val amazonClientId = "amzn1.application-oa2-client.c57e86e21f464b0d8166b37ef867abd8"
         const val amazonClientSecret = "88f6586c4ff2519f6c129402a9d732e0a8baa7d375e29f80010796ac82f06a00"
+        const val exposeToken = true
     }
 }
 

@@ -4,8 +4,8 @@ import java.io.File
 import java.util.*
 
 data class KonversationProject(
-    val alexa: BasicPlatformConfig = BasicPlatformConfig(),
-    val dialogflow: BasicPlatformConfig = BasicPlatformConfig(),
+    val alexa: AlexaPlatformConfig = AlexaPlatformConfig(),
+    val dialogflow: DialogflowPlatformConfig = DialogflowPlatformConfig(),
     override var invocationNames: MutableMap<Locale, String> = mutableMapOf(),
     override val inputFiles: MutableList<File>,
     override var outputDirectory: File?) : VoiceAppConfig, java.io.Serializable {

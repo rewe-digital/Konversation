@@ -84,14 +84,14 @@ open class KonversationPlugin : Plugin<Project> {
             tasks.create("export$gradleName", DefaultTask::class.java).groupToKonversation("Export the $name project for all platforms.").also { exportProject ->
                 if (project.alexa.enabled) {
                     val exportProjectOnAlexa = tasks.create("export${gradleName}ForAlexa", ExportTask::class.java) { task ->
-                        task.config = project.copy(dialogflow = BasicPlatformConfig())
+                        task.config = project.copy(dialogflow = DialogflowPlatformConfig())
                     }.groupToKonversation("Export $name for Alexa.")
                     exportProject.dependsOn += exportProjectOnAlexa
                     exportAlexa.dependsOn += exportProjectOnAlexa
                 }
                 if (project.dialogflow.enabled) {
                     val exportProjectOnDialogflow = tasks.create("export${gradleName}ForDialogflow", ExportTask::class.java) { task ->
-                        task.config = project.copy(alexa = BasicPlatformConfig())
+                        task.config = project.copy(alexa = AlexaPlatformConfig())
                     }.groupToKonversation("Export $name for Dialogflow.")
                     exportProject.dependsOn += exportProjectOnDialogflow
                     exportAlexa.dependsOn += exportProjectOnDialogflow
@@ -112,14 +112,14 @@ open class KonversationPlugin : Plugin<Project> {
             tasks.create("update$gradleName", DefaultTask::class.java).groupToKonversation("Update the $name project on all platforms.").also { updateProject ->
                 if (project.alexa.enabled) {
                     val updateProjectOnAlexa = tasks.create("update${gradleName}OnAlexa", UpdateTask::class.java) { task ->
-                        task.config = project.copy(dialogflow = BasicPlatformConfig())
+                        task.config = project.copy(dialogflow = DialogflowPlatformConfig())
                     }.groupToKonversation("Update $name on Alexa.")
                     updateProject.dependsOn += updateProjectOnAlexa
                     updateAlexa.dependsOn += updateProjectOnAlexa
                 }
                 if (project.dialogflow.enabled) {
                     val updateProjectOnDialogflow = tasks.create("update${gradleName}OnDialogflow", UpdateTask::class.java) { task ->
-                        task.config = project.copy(alexa = BasicPlatformConfig())
+                        task.config = project.copy(alexa = AlexaPlatformConfig())
                     }.groupToKonversation("Update $name on Dialogflow.")
                     updateProject.dependsOn += updateProjectOnDialogflow
                     updateAlexa.dependsOn += updateProjectOnDialogflow

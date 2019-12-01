@@ -29,6 +29,7 @@ class DialogflowApi(private val credentials: File) {
         if (response.statusCode != 200) {
             println("Error while updating the intent schema: " + String(response.content))
         }
+        println("Done")
         return response.statusCode == 200
     }
 }

@@ -166,6 +166,10 @@ class KonversationApi(
             }
         }
 
+    fun setAlexaRefreshToken(token: String) {
+        amazonApi.accessToken = token
+    }
+
     fun updateDialogflowProject(project: String, invocationName: String) {
         intentDb[""]?.let { intents ->
             dialogflowApi.uploadIntents(invocationName, project, intents, entityDb[""])

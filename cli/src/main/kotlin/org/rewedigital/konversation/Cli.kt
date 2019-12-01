@@ -9,6 +9,7 @@ import java.util.stream.Stream
 import kotlin.system.exitProcess
 
 open class Cli {
+    private val api: KonversationApi
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
@@ -23,6 +24,7 @@ open class Cli {
     private var dialogflowServiceAccount: File? = null
     private var exposeDialogflowToken = false
     private var exposeAlexaToken = false
+    private var amazonRefreshToken: String? = null
 
     private var invocationName: String = ""
         get() {
@@ -30,10 +32,22 @@ open class Cli {
             return field
         }
 
-    fun parseArgs(args: Array<String>) {
-        val api = KonversationApi(amazonClientId, amazonClientSecret)
+    init {
+        val settingsFile = File("konversation.yaml")
+        api = if (settingsFile.exists()) {
+            val settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
+            amazonRefreshToken = settings.config.alexaRefreshToken
+            KonversationApi(
+                settings.config.alexaClientId ?: amazonClientId,
+                settings.config.alexaClientSecret ?: amazonClientSecret,
+                settings.config.dialogflowServiceAccount)
+        } else {
+            KonversationApi(amazonClientId, amazonClientSecret)
+        }
         api.logger = L
-        var amazonRefreshToken: String? = null
+    }
+
+    fun parseArgs(args: Array<String>) {
         if (args.isEmpty()) {
             L.error("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
             L.error()
@@ -108,8 +122,7 @@ open class Cli {
                         "--show-alexa-token" -> if (exposeToken && amazonRefreshToken != null) {
                             exposeAlexaToken = true
                         }
-                        "--show-dialogflow-token" -> if (exposeToken && ++argNo < args.size) {
-                            dialogflowServiceAccount = File(args[argNo])
+                        "--show-dialogflow-token" -> if (exposeToken && api.dialogflowServiceAccount != null) {
                             exposeDialogflowToken = true
                         }
                         "invocation",
@@ -160,10 +173,11 @@ open class Cli {
                 println("Done")
             }
             if (exposeAlexaToken) {
-                println("Dialogflow: " + api.amazonToken)
+                api.setAlexaRefreshToken(amazonRefreshToken!!)
+                println("Alexa Token: " + api.amazonToken)
             }
             if (exposeDialogflowToken) {
-                println("Dialogflow: " + api.dialogflowToken)
+                println("Dialogflow Token: " + api.dialogflowToken)
             }
             dialogflowProject?.let { dialogflowProject ->
                 api.updateDialogflowProject(dialogflowProject, invocationName)
@@ -273,8 +287,6 @@ open class Cli {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val test = Yaml.default.parse(KonversationConfig.serializer(), File("konversation.yaml").readText())
-            println(test)
             try {
                 Cli().parseArgs(args)
             } catch (e: java.lang.IllegalArgumentException) {
@@ -287,7 +299,7 @@ open class Cli {
         const val version = "1.2.0-beta1"
         const val amazonClientId = "amzn1.application-oa2-client.c57e86e21f464b0d8166b37ef867abd8"
         const val amazonClientSecret = "88f6586c4ff2519f6c129402a9d732e0a8baa7d375e29f80010796ac82f06a00"
-        const val exposeToken = true
+        const val exposeToken = false
     }
 }
 

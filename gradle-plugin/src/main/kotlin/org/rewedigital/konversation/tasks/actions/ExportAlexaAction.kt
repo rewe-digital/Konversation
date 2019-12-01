@@ -14,11 +14,11 @@ abstract class ExportAlexaAction : WorkAction<KonversationProjectParameters> {
     private val logger = LoggerFactory.getLogger(ExportAlexaAction::class.java) as Logger
 
     override fun execute() {
-        val api = KonversationApi("", "")
+        val api = KonversationApi()
         api.inputFiles += project.inputFiles
-        api.inputFiles += project.alexa.inputFiles
+        api.inputFiles += project.alexa?.inputFiles.orEmpty()
         api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateAlexaAction::class.java))
-        api.invocationName = project.invocationNames.values.firstOrNull() ?: project.alexa.invocationNames.values.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
+        api.invocationName = project.invocationNames.values.firstOrNull() ?: project.alexa?.invocationNames?.values?.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
         val target = File(project.outputDirectory, api.invocationName + ".json")
         logger.lifecycle("Exporting ${api.invocationName} to ${target.absolutePath}...")
         api.exportAlexaSchema(target, true)

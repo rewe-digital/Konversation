@@ -19,6 +19,8 @@ pluginManagement {
         mavenLocal() // just for plugin development
         jcenter()
         maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://kotlin.bintray.com/kotlinx" }
+        mavenCentral()
     }
 }
 rootProject.name = 'konversation'

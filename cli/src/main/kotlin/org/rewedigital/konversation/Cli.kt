@@ -1,5 +1,7 @@
 package org.rewedigital.konversation
 
+import com.charleskorn.kaml.Yaml
+import org.rewedigital.konversation.config.KonversationConfig
 import java.io.File
 import java.util.*
 import java.util.function.Consumer
@@ -84,6 +86,10 @@ open class Cli {
                         "--alexa-upload" -> if (++argNo < args.size) {
                             amazonSkillId = args[argNo]
                         } else {
+                            println("if (${argNo + 1} < ${args.size}) ~> false!")
+                            args.forEachIndexed { i, it ->
+                                println("$i: $it")
+                            }
                             throw IllegalArgumentException("Skill id is missing")
                         }
                         "--export-dialogflow" -> if (++argNo < args.size) {
@@ -131,7 +137,7 @@ open class Cli {
 
             showStats(api)
 
-            //lookForCollisions(api.intentDb)
+            lookForCollisions(api.intentDb)
 
             ksonDir?.let { dir ->
                 api.exportKson(dir, prettyPrint)
@@ -267,6 +273,8 @@ open class Cli {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+            val test = Yaml.default.parse(KonversationConfig.serializer(), File("konversation.yaml").readText())
+            println(test)
             try {
                 Cli().parseArgs(args)
             } catch (e: java.lang.IllegalArgumentException) {

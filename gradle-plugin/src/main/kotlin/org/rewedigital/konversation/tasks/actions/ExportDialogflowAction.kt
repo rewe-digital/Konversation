@@ -13,11 +13,11 @@ abstract class ExportDialogflowAction : WorkAction<KonversationProjectParameters
     private val logger = LoggerFactory.getLogger(ExportDialogflowAction::class.java) as Logger
 
     override fun execute() {
-        val api = KonversationApi("", "")
+        val api = KonversationApi()
         api.inputFiles += project.inputFiles
-        api.inputFiles += project.dialogflow.inputFiles
-        api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateAlexaAction::class.java))
-        api.invocationName = project.invocationNames.values.firstOrNull() ?: project.dialogflow.invocationNames.values.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
+        api.inputFiles += project.dialogflow?.inputFiles.orEmpty()
+        api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateDialogflowAction::class.java))
+        api.invocationName = project.invocationNames.values.firstOrNull() ?: project.dialogflow?.invocationNames?.values?.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
         logger.lifecycle("Exporting ${api.invocationName} to ${project.outputDirectory}...")
         api.exportDialogflow(project.outputDirectory!!, true)
         logger.info("Export finished")

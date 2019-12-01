@@ -156,7 +156,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
             }
         } else {
             listOf(DialogflowUtterance.UtterancePart(text = sentence, userDefined = false))
-        } to i
+        } to i - sampleOffset
     }
 
     private fun createResponses(intent: Intent) =

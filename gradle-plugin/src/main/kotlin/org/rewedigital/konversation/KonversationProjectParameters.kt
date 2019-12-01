@@ -5,5 +5,5 @@ import org.gradle.workers.WorkParameters
 
 @Suppress("UnstableApiUsage")
 interface KonversationProjectParameters : WorkParameters {
-    val project: Property<KonversationProject>
+    val project: Property<GradleProject>
 }

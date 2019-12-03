@@ -2,6 +2,7 @@ package org.rewedigital.konversation
 
 import com.charleskorn.kaml.Yaml
 import org.rewedigital.konversation.config.KonversationConfig
+import org.rewedigital.konversation.config.KonversationProject
 import java.io.File
 import java.util.*
 import java.util.function.Consumer
@@ -9,6 +10,7 @@ import java.util.stream.Stream
 import kotlin.system.exitProcess
 
 open class Cli {
+    private val settings: KonversationConfig
     private val api: KonversationApi
     private var cacheEverything = true // should be not the default value
     private var countPermutations = false
@@ -21,10 +23,12 @@ open class Cli {
     private var inspect = false
     private var amazonSkillId: String? = null
     private var dialogflowProject: String? = null
-    private var dialogflowServiceAccount: File? = null
     private var exposeDialogflowToken = false
     private var exposeAlexaToken = false
     private var amazonRefreshToken: String? = null
+    private var project: KonversationProject? = null
+    private var uploadAlexa = false
+    private var uploadDialogflow = false
 
     private var invocationName: String = ""
         get() {
@@ -33,18 +37,32 @@ open class Cli {
         }
 
     init {
-        val settingsFile = File("konversation.yaml")
-        api = if (settingsFile.exists()) {
-            val settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
+        val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
+        //println("Using settings file: " + settingsFile?.absolutePath)
+        api = if (settingsFile?.exists() == true) {
+            settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
+            //println("Using refresh token: " + settings.config.alexaRefreshToken?.take(30))
             amazonRefreshToken = settings.config.alexaRefreshToken
             KonversationApi(
                 settings.config.alexaClientId ?: amazonClientId,
                 settings.config.alexaClientSecret ?: amazonClientSecret,
                 settings.config.dialogflowServiceAccount)
         } else {
+            settings = KonversationConfig()
             KonversationApi(amazonClientId, amazonClientSecret)
         }
         api.logger = L
+    }
+
+    private fun searchFile(workDir: File, fileName: String): File? {
+        val possibleFile = File(workDir, fileName)
+        return when {
+            possibleFile.exists() ->
+                possibleFile
+            workDir.parentFile != null && workDir.parentFile.absolutePath != workDir.absolutePath ->
+                searchFile(workDir.parentFile, fileName)
+            else -> null
+        }
     }
 
     fun parseArgs(args: Array<String>) {
@@ -97,8 +115,10 @@ open class Cli {
                         } else {
                             throw IllegalArgumentException("Refresh token is missing")
                         }
+                        "--upload-alexa",
                         "--alexa-upload" -> if (++argNo < args.size) {
                             amazonSkillId = args[argNo]
+                            uploadAlexa = true
                         } else {
                             println("if (${argNo + 1} < ${args.size}) ~> false!")
                             args.forEachIndexed { i, it ->
@@ -111,19 +131,22 @@ open class Cli {
                         } else {
                             throw IllegalArgumentException("Target is missing")
                         }
-                        "--dialogflow-upload" -> if (argNo + 2 < args.size) {
-                            dialogflowServiceAccount = File(args[++argNo])
+                        "--upload-dialogflow",
+                        "--dialogflow-upload" -> if (argNo + 1 < args.size) {
                             dialogflowProject = args[++argNo]
-                            require(dialogflowServiceAccount?.exists() == true) { "Service account file not found" }
-                            api.dialogflowServiceAccount = dialogflowServiceAccount
+                            uploadDialogflow = true
                         } else {
                             throw IllegalArgumentException("Arguments missing: service account file and project name is required.")
                         }
                         "--show-alexa-token" -> if (exposeToken && amazonRefreshToken != null) {
                             exposeAlexaToken = true
                         }
-                        "--show-dialogflow-token" -> if (exposeToken && api.dialogflowServiceAccount != null) {
-                            exposeDialogflowToken = true
+                        "--show-dialogflow-token" -> if (exposeToken) {
+                            if (api.dialogflowServiceAccount != null) {
+                                exposeDialogflowToken = true
+                            } else {
+                                throw IllegalStateException("Service account not set")
+                            }
                         }
                         "invocation",
                         "-invocation" -> if (++argNo < args.size) {
@@ -133,6 +156,19 @@ open class Cli {
                             ksonDir = File(args[argNo])
                         } else {
                             throw IllegalArgumentException("Target directory is missing")
+                        }
+                        "-p",
+                        "--project" -> if (++argNo < args.size) {
+                            project = settings.projects[args[argNo]]
+                            project?.let {
+                                // TODO use data
+                            } ?: throw IllegalArgumentException("No configuration for project $project found.")
+                        } else {
+                            throw IllegalArgumentException("Project name is missing")
+                        }
+                        "--projects" -> logProjects()
+                        "--create-project" -> {
+                            project = createProject()
                         }
                         "stats",
                         "-stats" -> stats = true
@@ -161,9 +197,7 @@ open class Cli {
             }
             dialogflowDir?.let { dir ->
                 api.invocationName = invocationName
-                println("Uploading $invocationName to Dialogflow...")
                 api.exportDialogflow(dir, prettyPrint)
-                println("Done")
             }
             amazonSkillId?.let { skillId ->
                 amazonRefreshToken?.let { refreshToken ->
@@ -172,6 +206,10 @@ open class Cli {
                 } ?: throw IllegalArgumentException("Amazon token not set")
                 println("Done")
             }
+            dialogflowProject?.let { dialogflowProject ->
+                println("Uploading $invocationName to Dialogflow...")
+                api.updateDialogflowProject(dialogflowProject, invocationName)
+            }
             if (exposeAlexaToken) {
                 api.setAlexaRefreshToken(amazonRefreshToken!!)
                 println("Alexa Token: " + api.amazonToken)
@@ -179,10 +217,68 @@ open class Cli {
             if (exposeDialogflowToken) {
                 println("Dialogflow Token: " + api.dialogflowToken)
             }
-            dialogflowProject?.let { dialogflowProject ->
-                api.updateDialogflowProject(dialogflowProject, invocationName)
+        }
+    }
+
+    private fun createProject(): KonversationProject {
+        var name: String?
+        do {
+            print("Project name: ")
+            name = readLine()
+            if (name == null) {
+                println("Something went wrong")
+                break
+            }
+        } while (name?.isNotBlank() == false)
+        val generalInvocations = readInvocations()
+        print("Do you want to select the automatically the Alexa skill? (yes/no/skip): ")
+        when (readLine()?.toLowerCase()) {
+            "yes" -> {
+
+            }
+            "no" -> {
+
+            }
+            else -> {
+
             }
         }
+        return KonversationProject()
+    }
+
+    private fun readInvocations(): MutableMap<String, String> {
+        var firstLocale = true
+        val translations = mutableMapOf<String, String>()
+        println("Invocation name setup")
+        while (true) {
+            var locale: String?
+            do {
+                if (firstLocale) {
+                    print("Language: ")
+                } else {
+                    print("Language (keep empty to skip more translations): ")
+                }
+                locale = readLine()
+                if (locale == null) {
+                    println("Something went wrong")
+                    break
+                }
+            } while (firstLocale && locale?.isNotBlank() == false)
+            var invocation: String? = null
+            while (invocation.isNullOrBlank() && !locale.isNullOrBlank()) {
+                print("Invocation ($locale): ")
+                invocation = readLine()
+                if (invocation == null) {
+                    println("Something went wrong")
+                    break
+                }
+            }
+            if (locale?.isBlank() == true) break
+            translations[locale!!] = invocation!!
+            //println("Accepted $locale: $invocation")
+            firstLocale = false
+        }
+        return translations
     }
 
     private fun showStats(api: KonversationApi) = api.intentDb[""]?.let { intents ->
@@ -283,6 +379,44 @@ open class Cli {
             }
         }
     }
+
+    private fun logProjects() =
+        settings.projectsWithDefaults.forEach { (name, config) ->
+            println(name)
+            println("  Alexa:")
+            when {
+                config.alexa?.invocations.isNullOrEmpty() -> println("    Invocation: (no invocation set)")
+                config.alexa?.invocations?.size == 1 -> {
+                    config.alexa?.invocations?.entries?.first()?.let { (lang, invocation) ->
+                        println("    Invocation ($lang): $invocation")
+                    }
+                }
+                else -> {
+                    println("    Invocation:")
+                    config.alexa?.invocations?.forEach { (lang, invocation) ->
+                        println("      $lang: $invocation")
+                    }
+                }
+            }
+            println("    SkillID: ${config.alexa?.skillId}")
+
+            println("  Dialogflow:")
+            when {
+                config.dialogflow?.invocations.isNullOrEmpty() -> println("    Invocation: (no invocation set)")
+                config.dialogflow?.invocations?.size == 1 -> {
+                    config.dialogflow?.invocations?.entries?.first()?.let { (lang, invocation) ->
+                        println("    Invocation ($lang): $invocation")
+                    }
+                }
+                else -> {
+                    println("    Invocation:")
+                    config.dialogflow?.invocations?.forEach { (lang, invocation) ->
+                        println("      $lang: $invocation")
+                    }
+                }
+            }
+            println("    ProjectID: ${config.dialogflow?.projectId}")
+        }
 
     companion object {
         @JvmStatic

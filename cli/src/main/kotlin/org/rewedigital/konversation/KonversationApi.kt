@@ -167,7 +167,7 @@ class KonversationApi(
         }
 
     fun setAlexaRefreshToken(token: String) {
-        amazonApi.accessToken = token
+        amazonApi.loadToken(token)
     }
 
     fun updateDialogflowProject(project: String, invocationName: String) {

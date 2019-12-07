@@ -32,6 +32,11 @@ dependencies {
     compile 'com.google.apis:google-api-services-oauth2:v1-rev154-1.25.0'
     compile 'org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0'
     compile 'com.charleskorn.kaml:kaml:0.15.0'
+    //compile("com.squareup.okhttp3:okhttp:4.2.1")
+    compile "io.ktor:ktor-client-okhttp:1.2.6"
+    compile "io.ktor:ktor-client-json:1.2.6"
+    compile "io.ktor:ktor-client-gson:1.2.6"
+    compile "io.ktor:ktor-client-logging:1.2.6"
     compile project(':shared')
     testCompile project(':shared')
     compile project(':runtime-jvm')

@@ -1,13 +1,48 @@
 package org.rewedigital.konversation.generator.alexa
 
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.features.json.GsonSerializer
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.takeFrom
+import kotlinx.coroutines.runBlocking
 import org.rewedigital.konversation.Entities
 import org.rewedigital.konversation.Intent
+import org.rewedigital.konversation.generator.alexa.models.Skills
+import org.rewedigital.konversation.generator.alexa.models.Vendors
 import java.awt.Desktop
 import java.net.ServerSocket
 import java.net.URI
 import java.util.*
 
-class AmazonApi(private val clientId: String, private val clientSecret: String, private var refreshToken: String? = null) {
+class AmazonApi(val clientId: String, val clientSecret: String, var refreshToken: String? = null) {
+    suspend inline fun <reified T> HttpClient.getOrNull(
+        urlString: String,
+        block: HttpRequestBuilder.() -> Unit = {}
+    ): T? = try {
+        get {
+            url.takeFrom(urlString)
+            block()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+
+    val isLoggedIn: Boolean
+        get() = accessToken != null
+
+    private val httpClient =
+        HttpClient(OkHttp) {
+            install(JsonFeature) {
+                serializer = GsonSerializer()
+                acceptContentTypes += ContentType("application", "json+hal")
+            }
+        }
+
     var accessToken: String? = null
         get() = field ?: refreshToken?.let {
             khttp.post(
@@ -20,7 +55,7 @@ class AmazonApi(private val clientId: String, private val clientSecret: String, 
                 .getString("access_token")
         }
 
-    fun login(serverPort: Int) {
+    fun login(serverPort: Int): Boolean {
         val random = UUID.randomUUID().toString()
         val loginUrl = "https://www.amazon.com/ap/oa/?client_id=$clientId&scope=alexa::ask:skills:readwrite+alexa::ask:models:readwrite&response_type=code&redirect_uri=http:%2F%2Flocalhost:21337%2F&state=$random"
 
@@ -46,33 +81,53 @@ class AmazonApi(private val clientId: String, private val clientSecret: String, 
         val success = state == random && code.isNotEmpty()
 
         // Create a response and shutdown the server
-        writer.write("$httpVersion 200 Ok\nContent-Type: text/html\n\n".toByteArray())
-        if (success) {
-            writer.write("<h1>Login successful</h1><p>Please continue in your shell</p>".toByteArray())
-        } else {
-            writer.write("<h1>Login failed</h1>".toByteArray())
-        }
-        writer.flush()
-        client.close()
-        server.close()
 
         if (success) {
             // Fetch the token from Amazon
-            val response = khttp.post(
-                url = "https://api.amazon.com/auth/o2/token",
-                json = mapOf("client_id" to clientId,
-                    "client_secret" to clientSecret,
-                    "code" to code,
-                    "grant_type" to "authorization_code",
-                    "redirect_uri" to "http://localhost:21337/"))
-                .jsonObject
-            accessToken = response.getString("access_token")
-            refreshToken = response.getString("refresh_token")
-            println("Login successful. Your refresh token is: $refreshToken")
+            try {
+                val response = khttp.post(
+                    url = "https://api.amazon.com/auth/o2/token",
+                    json = mapOf("client_id" to clientId,
+                        "client_secret" to clientSecret,
+                        "code" to code,
+                        "grant_type" to "authorization_code",
+                        "redirect_uri" to "http://localhost:21337/"))
+                    .jsonObject
+                accessToken = response.getString("access_token")
+                refreshToken = response.getString("refresh_token")
+                writer.write("$httpVersion 200 Ok\nContent-Type: text/html\n\n".toByteArray())
+                writer.write("<h1>Login successful</h1><p>Please continue in your shell</p>".toByteArray())
+            } catch (e: Exception) {
+                writer.write("$httpVersion 403 Forbidden\nContent-Type: text/html\n\n".toByteArray())
+                writer.write("<h1>Login failed</h1><p>${e.javaClass.simpleName}: ${e.message}</p>".toByteArray())
+                throw e
+            } finally {
+                writer.flush()
+                client.close()
+                server.close()
+            }
         } else {
+            writer.write("$httpVersion 403 Forbidden\nContent-Type: text/html\n\n".toByteArray())
+            writer.write("<h1>Login failed</h1><p>Invalid state or wrong code</p>".toByteArray())
+            writer.flush()
+            client.close()
+            server.close()
             accessToken = null
             refreshToken = null
         }
+        return success
+    }
+
+    fun fetchVendors() = runBlocking {
+        httpClient.getOrNull<Vendors>("https://api.amazonalexa.com/v1/vendors") {
+            headers.append("Authorization", "Bearer $accessToken")
+        }?.vendors
+    }
+
+    fun fetchSkills(vendor: String) = runBlocking {
+        httpClient.getOrNull<Skills>("https://api.amazonalexa.com/v1/skills?vendorId=$vendor") {
+            headers.append("Authorization", "Bearer $accessToken")
+        }?.skills
     }
 
     fun loadToken(refreshToken: String) {

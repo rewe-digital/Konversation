@@ -1,8 +1,16 @@
 package org.rewedigital.konversation
 
 import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
+import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.get
+import io.ktor.http.takeFrom
+import org.rewedigital.konversation.config.AlexaProject
+import org.rewedigital.konversation.config.Auth
 import org.rewedigital.konversation.config.KonversationConfig
 import org.rewedigital.konversation.config.KonversationProject
+import org.rewedigital.konversation.generator.alexa.models.Skill
 import java.io.File
 import java.util.*
 import java.util.function.Consumer
@@ -36,6 +44,18 @@ open class Cli {
             return field
         }
 
+    suspend inline fun <reified T> HttpClient.getOrNull(
+        urlString: String,
+        block: HttpRequestBuilder.() -> Unit = {}
+    ): T? = try {
+        get {
+            url.takeFrom(urlString)
+            block()
+        }
+    } catch (_: Exception) {
+        null
+    }
+
     init {
         val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
         //println("Using settings file: " + settingsFile?.absolutePath)
@@ -46,7 +66,11 @@ open class Cli {
             KonversationApi(
                 settings.config.alexaClientId ?: amazonClientId,
                 settings.config.alexaClientSecret ?: amazonClientSecret,
-                settings.config.dialogflowServiceAccount)
+                settings.config.dialogflowServiceAccount).also { api ->
+                amazonRefreshToken?.let { token ->
+                    api.alexa.loadToken(token)
+                }
+            }
         } else {
             settings = KonversationConfig()
             KonversationApi(amazonClientId, amazonClientSecret)
@@ -72,6 +96,10 @@ open class Cli {
             help()
             exit(-1)
         } else {
+            if (settings.projects.size == 1) {
+                println("Using default project ${settings.projects.keys.first()}.")
+                project = settings.projects.values.first()
+            }
             var argNo = 0
             while (argNo < args.size) {
                 val arg = args[argNo]
@@ -108,7 +136,9 @@ open class Cli {
                             throw IllegalArgumentException("Target is missing")
                         }
                         "--alexa-login" -> {
-                            api.authorizeAmazon(21337)
+                            if (api.authorizeAlexa(21337)) {
+                                println("Login successful. Your access token is: ${api.alexa.accessToken}")
+                            }
                         }
                         "--alexa-token" -> if (++argNo < args.size) {
                             amazonRefreshToken = args[argNo]
@@ -168,7 +198,7 @@ open class Cli {
                         }
                         "--projects" -> logProjects()
                         "--create-project" -> {
-                            project = createProject()
+                            project = createProject(settings)
                         }
                         "stats",
                         "-stats" -> stats = true
@@ -211,16 +241,71 @@ open class Cli {
                 api.updateDialogflowProject(dialogflowProject, invocationName)
             }
             if (exposeAlexaToken) {
-                api.setAlexaRefreshToken(amazonRefreshToken!!)
-                println("Alexa Token: " + api.amazonToken)
+                api.alexa.loadToken(amazonRefreshToken!!)
+                println("Alexa Token: " + api.alexa.accessToken)
             }
             if (exposeDialogflowToken) {
-                println("Dialogflow Token: " + api.dialogflowToken)
+                println("Dialogflow Token: " + api.dialogflow.accessToken)
             }
         }
     }
 
-    private fun createProject(): KonversationProject {
+    private fun createProject(settings: KonversationConfig): KonversationProject {
+        if (settings.config.alexaRefreshToken == null) {
+            print("Do you want to connect your Amazon account for the Alexa setup? (yes/no): ")
+            if (ask() == true && api.authorizeAlexa(21337)) {
+                println("Login successful!")
+            }
+        }
+        if (api.alexa.isLoggedIn) {
+            print("Do you want to import an Alexa skill? (yes/no): ")
+            if (ask() == true) {
+                val vendors = api.alexa.fetchVendors()
+                val vendorId = when {
+                    vendors == null -> {
+                        println("Failed to fetch vendors.")
+                        null
+                    }
+                    vendors.size == 1 -> {
+                        println("Using vendor ${vendors.first().name}")
+                        vendors.first().id
+                    }
+                    else -> {
+                        println("WARNING: Your account has access to multiple accounts, please consider using an account with just the required vendors.")
+                        println("Choose from your vendors:")
+                        vendors.forEachIndexed { i, vendor ->
+                            println("${i + 1}) ${vendor.name}")
+                        }
+                        askForIndex("Please select the vendor you want to use: ", vendors.size)?.let { index ->
+                            vendors.getOrNull(index - 1)?.id
+                        }
+                    }
+                }
+                val skill = vendorId?.let {
+                    val skills = api.alexa.fetchSkills(vendorId)
+                    val publishedSkills = skills.orEmpty().filter { it.stage == "live" }.map { it.skillId }
+                    val sortedSkills = skills.orEmpty().filter {
+                        !(it.skillId in publishedSkills && it.stage == "development")
+                    }.sortedBy {
+                        it.name
+                    }.sortedByDescending {
+                        it.stage
+                    }
+                    sortedSkills.forEachIndexed { i, skill ->
+                        println("${i + 1}) ${skill.name} on Stage ${skill.stage} (${skill.skillId})")
+                    }
+                    askForIndex("Please select the skill you want to import: ", sortedSkills.size)?.let { index ->
+                        sortedSkills.getOrNull(index - 1)
+                    }
+                }
+                skill?.let {
+                    println("Importing $skill...")
+                    val test = KonversationConfig(Auth(api.alexa.refreshToken, api.alexa.clientId, api.alexa.clientSecret))
+                    test.projects[skill.name] = KonversationProject(alexa = AlexaProject(skill.skillId), invocations = skill.nameByLocale.toMutableMap())
+                    println(Yaml(configuration = YamlConfiguration(encodeDefaults = false)).stringify(KonversationConfig.serializer(), test))
+                }
+            }
+        }
         var name: String?
         do {
             print("Project name: ")
@@ -231,20 +316,36 @@ open class Cli {
             }
         } while (name?.isNotBlank() == false)
         val generalInvocations = readInvocations()
-        print("Do you want to select the automatically the Alexa skill? (yes/no/skip): ")
-        when (readLine()?.toLowerCase()) {
-            "yes" -> {
 
-            }
-            "no" -> {
-
-            }
-            else -> {
-
-            }
-        }
         return KonversationProject()
     }
+
+    private fun askForIndex(request: String, maxIndex: Int): Int? {
+        var i: Int? = null
+        while (true) {
+            print(request)
+            val input = readLine()
+            if (input == null) {
+                println("Something went wrong")
+                break
+            }
+            i = input.toIntOrNull()
+            if (i in 1..maxIndex) {
+                break
+            }
+        }
+        return i
+    }
+
+    private val Skill.name
+        get() = nameByLocale.getOrElse("de-DE") { nameByLocale.values.first() }
+
+    private fun ask() =
+        when (readLine()?.toLowerCase()) {
+            "y", "yes" -> true
+            "n", "no" -> false
+            else -> null
+        }
 
     private fun readInvocations(): MutableMap<String, String> {
         var firstLocale = true
@@ -468,5 +569,3 @@ class BreakableIterator<T>(private val inner: Iterator<T>) : Iterator<T> {
         resume = false
     }
 }
-
-fun String?.runIfNotNullOrEmpty(callback: (String) -> Unit) = this?.let { if (this.isNotBlank()) callback.invoke(this) }

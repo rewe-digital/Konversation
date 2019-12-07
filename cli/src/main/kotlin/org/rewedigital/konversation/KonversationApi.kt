@@ -17,13 +17,8 @@ class KonversationApi(
     var amazonClientSecret: String? = null,
     var dialogflowServiceAccount: File? = null) {
 
-    private val dialogflowApi: DialogflowApi by lazy { DialogflowApi(dialogflowServiceAccount.orThrow("Google service account not set")) }
-    private val amazonApi: AmazonApi by lazy { AmazonApi(amazonClientId.orThrow("Amazon client id not set"), amazonClientSecret.orThrow("Amazon client secret not set")) }
-
-    val dialogflowToken: String
-        get() = dialogflowApi.accessToken
-    val amazonToken: String?
-        get() = amazonApi.accessToken
+    val dialogflow: DialogflowApi by lazy { DialogflowApi(dialogflowServiceAccount.orThrow("Google service account not set")) }
+    val alexa: AmazonApi by lazy { AmazonApi(amazonClientId.orThrow("Amazon client id not set"), amazonClientSecret.orThrow("Amazon client secret not set")) }
 
     private var inputFileCount = 0
 
@@ -145,17 +140,17 @@ class KonversationApi(
         }
     }
 
-    fun authorizeAmazon(serverPort: Int) =
-        amazonApi.login(serverPort)
+    fun authorizeAlexa(serverPort: Int) =
+        alexa.login(serverPort)
 
     fun updateAlexaSchema(refreshToken: String, skillName: String, skillId: String): String? =
         intentDb[""]?.let { intents ->
-            amazonApi.loadToken(refreshToken)
-            amazonApi.uploadSchema(skillName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
+            alexa.loadToken(refreshToken)
+            alexa.uploadSchema(skillName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
                 var msg: String? = null
                 for (i in 0..600) {
                     Thread.sleep(1000)
-                    val (status, message) = amazonApi.checkStatus(location, "de-DE")
+                    val (status, message) = alexa.checkStatus(location, "de-DE")
                     if (status != Status.IN_PROGRESS) return message
                     if (msg != message) {
                         println("$message...")
@@ -166,13 +161,9 @@ class KonversationApi(
             }
         }
 
-    fun setAlexaRefreshToken(token: String) {
-        amazonApi.loadToken(token)
-    }
-
     fun updateDialogflowProject(project: String, invocationName: String) {
         intentDb[""]?.let { intents ->
-            dialogflowApi.uploadIntents(invocationName, project, intents, entityDb[""])
+            dialogflow.uploadIntents(invocationName, project, intents, entityDb[""])
         }
     }
 

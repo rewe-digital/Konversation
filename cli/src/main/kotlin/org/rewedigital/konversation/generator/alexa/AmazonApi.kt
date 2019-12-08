@@ -35,13 +35,14 @@ class AmazonApi(val clientId: String, val clientSecret: String, var refreshToken
     val isLoggedIn: Boolean
         get() = accessToken != null
 
-    private val httpClient =
+    private val httpClient by lazy {
         HttpClient(OkHttp) {
             install(JsonFeature) {
                 serializer = GsonSerializer()
                 acceptContentTypes += ContentType("application", "json+hal")
             }
         }
+    }
 
     var accessToken: String? = null
         get() = field ?: refreshToken?.let {

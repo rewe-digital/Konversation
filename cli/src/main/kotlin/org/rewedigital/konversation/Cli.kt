@@ -20,7 +20,6 @@ import kotlin.system.exitProcess
 open class Cli {
     private val settings: KonversationConfig
     private val api: KonversationApi
-    private var cacheEverything = true // should be not the default value
     private var countPermutations = false
     private var stats = false
     private var alexaIntentSchema: File? = null
@@ -119,34 +118,19 @@ open class Cli {
                     }
                 } else {
                     when (arg.toLowerCase()) {
-                        "help",
                         "-help",
                         "-h",
                         "/?" -> {
                             help()
                             return
                         }
-                        "count",
                         "-count" -> countPermutations = true
-                        "cache",
-                        "-cache" -> cacheEverything = true
                         "--export-alexa" -> if (++argNo < args.size) {
                             alexaIntentSchema = File(args[argNo])
                         } else {
                             throw IllegalArgumentException("Target is missing")
                         }
-                        "--alexa-login" -> {
-                            if (api.authorizeAlexa(21337)) {
-                                println("Login successful. Your access token is: ${api.alexa.accessToken}")
-                            }
-                        }
-                        "--alexa-token" -> if (++argNo < args.size) {
-                            amazonRefreshToken = args[argNo]
-                        } else {
-                            throw IllegalArgumentException("Refresh token is missing")
-                        }
-                        "--upload-alexa",
-                        "--alexa-upload" -> if (++argNo < args.size) {
+                        "--upload-alexa" -> if (++argNo < args.size) {
                             amazonSkillId = args[argNo]
                             uploadAlexa = true
                         } else {
@@ -161,26 +145,23 @@ open class Cli {
                         } else {
                             throw IllegalArgumentException("Target is missing")
                         }
-                        "--upload-dialogflow",
-                        "--dialogflow-upload" -> if (argNo + 1 < args.size) {
+                        "--update-dialogflow" -> if (argNo + 1 < args.size) {
                             dialogflowProject = args[++argNo]
                             uploadDialogflow = true
                         } else {
                             throw IllegalArgumentException("Arguments missing: service account file and project name is required.")
                         }
+                        "--alexa-token",
                         "--show-alexa-token" -> if (exposeToken && amazonRefreshToken != null) {
                             exposeAlexaToken = true
                         }
+                        "--dialogflow-token",
                         "--show-dialogflow-token" -> if (exposeToken) {
                             if (api.dialogflowServiceAccount != null) {
                                 exposeDialogflowToken = true
                             } else {
                                 throw IllegalStateException("Service account not set")
                             }
-                        }
-                        "invocation",
-                        "-invocation" -> if (++argNo < args.size) {
-                            invocationName = args[argNo]
                         }
                         "--export-kson" -> if (++argNo < args.size) {
                             ksonDir = File(args[argNo])
@@ -196,15 +177,14 @@ open class Cli {
                         } else {
                             throw IllegalArgumentException("Project name is missing")
                         }
+                        "--show-projects",
+                        "--list-projects",
                         "--projects" -> logProjects()
                         "--create-project" -> {
                             project = createProject(settings)
                         }
-                        "stats",
                         "-stats" -> stats = true
-                        "prettyprint",
                         "-prettyprint" -> prettyPrint = true
-                        "dump",
                         "-dump" -> dumpOnly = true
                         "-v",
                         "-version" -> L.log("Konversation CLI version $version")
@@ -427,19 +407,32 @@ open class Cli {
 
     private fun help() {
         L.log("Arguments for konversation:")
-        L.log("[-help]                         Print this help")
-        L.log("[-version]                      Print the version of this build")
-        L.log("[-count]                        Count the permutations and print this to the console")
-        L.log("[-stats]                        Print out some statistics while generation")
-        L.log("[-cache]                        Cache everything even if an utterance has just a single permutation")
-        L.log("[--export-alexa <OUTFILE>]      Write the resulting json to OUTFILE instead of result.json")
-        L.log("[--export-dialogflow <OUTDIR>]  Write the dialogflow zip file to the OUTDIR")
-        L.log("[-invocation <NAME>]            Define the invocation name for the Alexa export")
-        L.log("[-limit <COUNT>]                While pretty printing the json to the output file limit the utterances count per intent")
-        L.log("[--export-kson <OUTDIR>]        Compiles the kvs file to kson resource files which are required for the runtime")
-        L.log("[-dump]                         Dump out all intents to its own txt file")
-        L.log("[-prettyprint]                  Generate a well formatted json for easier debugging")
-        L.log("<FILE>                          The grammar, kvs or values files to parse")
+        val commands = mapOf(
+            "[-help]" to "Print this help",
+            "[-version]" to "Print the version of this build",
+            "[-count]" to "Count the permutations and print this to the console",
+            "[-stats]" to "Print out some statistics while generation",
+            "[--export-alexa]" to "Write the resulting json to OUTFILE instead of result.json",
+            "[--export-dialogflow]" to "Write the dialogflow zip file to the OUTDIR",
+            "[--export-kson]" to "Compiles the kvs file to kson resource files which are required for the runtime",
+            "[--update-alexa]" to "tba",
+            "[--update-dialogflow]" to "tba",
+            "[-p|--project]" to "tba",
+            "[--create-project]" to "tba",
+            "[--show-projects]" to "tba",
+            "[--show-alexa-token]" to "tba",
+            "[--show-dialogflow-token]" to "tba",
+            "[-dump]" to "Dump out all intents to its own txt file",
+            "[-prettyprint]" to "Generate a well formatted json for easier debugging",
+            "<FILE>" to "The grammar, kvs or values files to parse"
+        )
+        var space = 0
+        commands.keys.forEach { key ->
+            space = space.coerceAtLeast(key.length + 1)
+        }
+        commands.forEach { (key, value) ->
+            L.log("$key${" ".repeat(space - key.length)}$value")
+        }
         L.log()
     }
 

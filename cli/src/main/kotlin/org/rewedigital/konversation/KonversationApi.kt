@@ -74,12 +74,9 @@ class KonversationApi(
     }
 
     // shared fields
-    var invocationName: String? = null
+    var invocationName: String? = null // TODO should be a map for localization
     val inputFiles = mutableListOf<File>()
     var logger: LoggerFacade? = null
-
-    // use cases
-    fun validateInputFiles() {}
 
     fun exportPlain(targetDirectory: File) = intentDb[""]?.let { intents ->
         intents.forEach { intent ->
@@ -101,7 +98,7 @@ class KonversationApi(
     }
 
     fun exportAlexaSchema(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
-        val exporter = AlexaExporter(invocationName ?: throw IllegalArgumentException("invocation name was null"))
+        val exporter = AlexaExporter(requireNotNull(invocationName) { "invocation name was null" })
         val stream = targetDirectory.outputStream()
         exportToStream(stream, prettyPrint, exporter, intents, config)
     }
@@ -143,10 +140,9 @@ class KonversationApi(
     fun authorizeAlexa(serverPort: Int) =
         alexa.login(serverPort)
 
-    fun updateAlexaSchema(refreshToken: String, skillName: String, skillId: String): String? =
+    fun updateAlexaSchema(invocationName: String, skillId: String): String? =
         intentDb[""]?.let { intents ->
-            alexa.loadToken(refreshToken)
-            alexa.uploadSchema(skillName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
+            alexa.uploadSchema(invocationName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
                 var msg: String? = null
                 for (i in 0..600) {
                     Thread.sleep(1000)

@@ -7,7 +7,7 @@ import java.util.*
 
 // TODO remove limit and baseDir
 class AlexaExporter(
-    private val skillName: String,
+    private val invocationName: String,
     private val limit: Int = Int.MAX_VALUE) : Exporter {
 
     private val supportedGenericTypes = arrayOf("any", "number", "ordinal", "color", "de-city", "at-city", "eu-city", "us-city", "gb-city")
@@ -18,7 +18,7 @@ class AlexaExporter(
         printer("{\n" +
                 "  \"interactionModel\": {\n" +
                 "    \"languageModel\": {\n" +
-                "      \"invocationName\": \"$skillName\",\n" +
+                "      \"invocationName\": \"$invocationName\",\n" +
                 "      \"intents\": [\n")
 
         // write out intents
@@ -153,7 +153,7 @@ class AlexaExporter(
         printer("{" +
                 "\"interactionModel\":{" +
                 "\"languageModel\":{" +
-                "\"invocationName\":\"$skillName\"," +
+                "\"invocationName\":\"$invocationName\"," +
                 "\"intents\":[")
 
         // write out intents

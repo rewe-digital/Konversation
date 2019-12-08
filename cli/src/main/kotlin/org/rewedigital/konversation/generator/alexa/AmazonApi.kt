@@ -136,6 +136,7 @@ class AmazonApi(val clientId: String, val clientSecret: String, var refreshToken
     }
 
     fun uploadSchema(invocationName: String, locale: String, intents: List<Intent>, entities: List<Entities>?, skillId: String): String? {
+        require(isLoggedIn) { "Failed to fetch token." + if (refreshToken == null) " No refresh token set!" else "" }
         val json = StringBuilder()
         AlexaExporter(invocationName, Int.MAX_VALUE).minified({ json.append(it) }, intents, entities)
         val response = khttp.put(

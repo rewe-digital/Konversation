@@ -8,3 +8,4 @@ travis_rsa
 publish
 cli-integrations/chocolatey/tools/*.jar
 cli-integrations/chocolatey/*.nupkg
+konversation.yaml

@@ -22,26 +22,21 @@ open class Cli {
     private val api: KonversationApi
     private var countPermutations = false
     private var stats = false
-    private var alexaIntentSchema: File? = null
     private var prettyPrint = false
-    private var ksonDir: File? = null
-    private var dialogflowDir: File? = null
-    private var dumpOnly = false
     private var inspect = false
-    private var amazonSkillId: String? = null
-    private var dialogflowProject: String? = null
+    private var project: KonversationProject? = null
+    private var projectName: String? = null
+    private val projectData
+        get() = requireNotNull(project) { "No project defined" }
+    private var updateAlexa = false
+    private var updateDialogflow = false
+    private var exportAlexa = false
+    private var exportDialogflow = false
+    private var exportDump = false
+    private var exportKson = false
     private var exposeDialogflowToken = false
     private var exposeAlexaToken = false
-    private var amazonRefreshToken: String? = null
-    private var project: KonversationProject? = null
-    private var uploadAlexa = false
-    private var uploadDialogflow = false
-
-    private var invocationName: String = ""
-        get() {
-            require(field.isNotEmpty()) { "Invocation name not set!" }
-            return field
-        }
+    private var outDir = File(".").absoluteFile.parentFile
 
     suspend inline fun <reified T> HttpClient.getOrNull(
         urlString: String,
@@ -57,16 +52,13 @@ open class Cli {
 
     init {
         val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
-        //println("Using settings file: " + settingsFile?.absolutePath)
         api = if (settingsFile?.exists() == true) {
             settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
-            //println("Using refresh token: " + settings.config.alexaRefreshToken?.take(30))
-            amazonRefreshToken = settings.config.alexaRefreshToken
             KonversationApi(
                 settings.config.alexaClientId ?: amazonClientId,
                 settings.config.alexaClientSecret ?: amazonClientSecret,
                 settings.config.dialogflowServiceAccount).also { api ->
-                amazonRefreshToken?.let { token ->
+                settings.config.alexaRefreshToken?.let { token ->
                     api.alexa.loadToken(token)
                 }
             }
@@ -125,55 +117,23 @@ open class Cli {
                             return
                         }
                         "-count" -> countPermutations = true
-                        "--export-alexa" -> if (++argNo < args.size) {
-                            alexaIntentSchema = File(args[argNo])
-                        } else {
-                            throw IllegalArgumentException("Target is missing")
-                        }
-                        "--upload-alexa" -> if (++argNo < args.size) {
-                            amazonSkillId = args[argNo]
-                            uploadAlexa = true
-                        } else {
-                            println("if (${argNo + 1} < ${args.size}) ~> false!")
-                            args.forEachIndexed { i, it ->
-                                println("$i: $it")
-                            }
-                            throw IllegalArgumentException("Skill id is missing")
-                        }
-                        "--export-dialogflow" -> if (++argNo < args.size) {
-                            dialogflowDir = File(args[argNo]).absoluteFile
-                        } else {
-                            throw IllegalArgumentException("Target is missing")
-                        }
-                        "--update-dialogflow" -> if (argNo + 1 < args.size) {
-                            dialogflowProject = args[++argNo]
-                            uploadDialogflow = true
-                        } else {
-                            throw IllegalArgumentException("Arguments missing: service account file and project name is required.")
-                        }
+                        "--export-alexa" -> exportAlexa = true
+                        "--export-dialogflow" -> exportDialogflow = true
+                        "--export-kson" -> exportKson = true
+                        "--update-dialogflow" -> updateDialogflow = true
+                        "--update-alexa" -> updateAlexa = true
                         "--alexa-token",
-                        "--show-alexa-token" -> if (exposeToken && amazonRefreshToken != null) {
+                        "--show-alexa-token" -> if (exposeToken) {
                             exposeAlexaToken = true
                         }
                         "--dialogflow-token",
                         "--show-dialogflow-token" -> if (exposeToken) {
-                            if (api.dialogflowServiceAccount != null) {
-                                exposeDialogflowToken = true
-                            } else {
-                                throw IllegalStateException("Service account not set")
-                            }
-                        }
-                        "--export-kson" -> if (++argNo < args.size) {
-                            ksonDir = File(args[argNo])
-                        } else {
-                            throw IllegalArgumentException("Target directory is missing")
+                            exposeDialogflowToken = true
                         }
                         "-p",
                         "--project" -> if (++argNo < args.size) {
-                            project = settings.projects[args[argNo]]
-                            project?.let {
-                                // TODO use data
-                            } ?: throw IllegalArgumentException("No configuration for project $project found.")
+                            projectName = args[argNo]
+                            project = settings.projects[args[argNo]] ?: throw IllegalArgumentException("No configuration for project $projectName found.")
                         } else {
                             throw IllegalArgumentException("Project name is missing")
                         }
@@ -185,9 +145,10 @@ open class Cli {
                         }
                         "-stats" -> stats = true
                         "-prettyprint" -> prettyPrint = true
-                        "-dump" -> dumpOnly = true
+                        "-dump" -> exportDump = true
                         "-v",
                         "-version" -> L.log("Konversation CLI version $version")
+                        // TODO allow changing the output dir and the output filename
                         else -> throw IllegalArgumentException("Unknown argument \"$arg\".")
                     }
                 }
@@ -198,30 +159,30 @@ open class Cli {
 
             lookForCollisions(api.intentDb)
 
-            ksonDir?.let { dir ->
-                api.exportKson(dir, prettyPrint)
+            if (exportAlexa) {
+                api.invocationName = projectData.alexaInvocations.values.first()
+                api.exportAlexaSchema(File(outDir, "$projectName.json"), prettyPrint)
             }
-            alexaIntentSchema?.let { file ->
-                api.invocationName = invocationName
-                api.exportAlexaSchema(file, prettyPrint)
+            if (exportDialogflow) {
+                api.invocationName = projectData.dialogflowInvocations.values.first()
+                api.exportDialogflow(outDir, prettyPrint)
             }
-            dialogflowDir?.let { dir ->
-                api.invocationName = invocationName
-                api.exportDialogflow(dir, prettyPrint)
+            if (exportKson) {
+                api.exportKson(outDir, prettyPrint)
             }
-            amazonSkillId?.let { skillId ->
-                amazonRefreshToken?.let { refreshToken ->
-                    println("Uploading $invocationName to Alexa...")
-                    api.updateAlexaSchema(refreshToken, invocationName, skillId)
-                } ?: throw IllegalArgumentException("Amazon token not set")
+            if (updateDialogflow) {
+                val invocationName = projectData.dialogflowInvocations.values.first()
+                println("Uploading $invocationName to Dialogflow...")
+                val projectId = requireNotNull(projectData.dialogflow?.projectId) { "No project id set" }
+                api.updateDialogflowProject(projectId, invocationName)
+            }
+            if (updateAlexa) {
+                val invocationName = projectData.alexaInvocations.values.first()
+                println("Uploading $invocationName to Alexa...")
+                api.updateAlexaSchema(invocationName, requireNotNull(projectData.alexa?.skillId) { "No skill id set" })
                 println("Done")
             }
-            dialogflowProject?.let { dialogflowProject ->
-                println("Uploading $invocationName to Dialogflow...")
-                api.updateDialogflowProject(dialogflowProject, invocationName)
-            }
             if (exposeAlexaToken) {
-                api.alexa.loadToken(amazonRefreshToken!!)
                 println("Alexa Token: " + api.alexa.accessToken)
             }
             if (exposeDialogflowToken) {

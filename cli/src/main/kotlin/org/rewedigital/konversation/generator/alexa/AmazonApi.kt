@@ -53,7 +53,9 @@ class AmazonApi(val clientId: String, val clientSecret: String, var refreshToken
                     "refresh_token" to refreshToken,
                     "grant_type" to "refresh_token"))
                 .jsonObject
-                .getString("access_token")
+                .getString("access_token").also {
+                    field = it
+                }
         }
 
     fun login(serverPort: Int): Boolean {

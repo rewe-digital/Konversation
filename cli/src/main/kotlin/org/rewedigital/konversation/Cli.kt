@@ -6,10 +6,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.http.takeFrom
+import kotlinx.serialization.json.Json
 import org.rewedigital.konversation.config.AlexaProject
-import org.rewedigital.konversation.config.Auth
 import org.rewedigital.konversation.config.KonversationConfig
 import org.rewedigital.konversation.config.KonversationProject
+import org.rewedigital.konversation.config.ask.AskCliConfig
+import org.rewedigital.konversation.config.cheapDecrypt
 import org.rewedigital.konversation.generator.alexa.models.Skill
 import java.io.File
 import java.util.*
@@ -141,7 +143,10 @@ open class Cli {
                         "--list-projects",
                         "--projects" -> logProjects()
                         "--create-project" -> {
-                            project = createProject(settings)
+                            project = createProject(settings).also { newProject ->
+                                settings.projects[newProject.invocations.values.first()] = newProject
+                            }
+                            println(Yaml(configuration = YamlConfiguration(encodeDefaults = false)).stringify(KonversationConfig.serializer(), settings))
                         }
                         "-stats" -> stats = true
                         "-prettyprint" -> prettyPrint = true
@@ -192,73 +197,35 @@ open class Cli {
     }
 
     private fun createProject(settings: KonversationConfig): KonversationProject {
-        if (settings.config.alexaRefreshToken == null) {
+        val askCliVendorId = importFromAskCli()
+        if (!api.alexa.isLoggedIn) {
             print("Do you want to connect your Amazon account for the Alexa setup? (yes/no): ")
             if (ask() == true && api.authorizeAlexa(21337)) {
                 println("Login successful!")
             }
         }
-        if (api.alexa.isLoggedIn) {
-            print("Do you want to import an Alexa skill? (yes/no): ")
-            if (ask() == true) {
-                val vendors = api.alexa.fetchVendors()
-                val vendorId = when {
-                    vendors == null -> {
-                        println("Failed to fetch vendors.")
-                        null
-                    }
-                    vendors.size == 1 -> {
-                        println("Using vendor ${vendors.first().name}")
-                        vendors.first().id
-                    }
-                    else -> {
-                        println("WARNING: Your account has access to multiple accounts, please consider using an account with just the required vendors.")
-                        println("Choose from your vendors:")
-                        vendors.forEachIndexed { i, vendor ->
-                            println("${i + 1}) ${vendor.name}")
-                        }
-                        askForIndex("Please select the vendor you want to use: ", vendors.size)?.let { index ->
-                            vendors.getOrNull(index - 1)?.id
-                        }
-                    }
+        return if (api.alexa.isLoggedIn) {
+            val skill = loadSkillData(askCliVendorId)
+            skill?.let {
+                if (settings.config.alexaClientId == api.alexa.clientId) {
+                    KonversationProject(alexa = AlexaProject(skill.skillId), invocations = skill.nameByLocale.toMutableMap())
+                } else {
+                    KonversationProject(alexa = AlexaProject(skill.skillId, api.alexa.refreshToken, api.alexa.clientId, api.alexa.clientSecret), invocations = skill.nameByLocale.toMutableMap())
                 }
-                val skill = vendorId?.let {
-                    val skills = api.alexa.fetchSkills(vendorId)
-                    val publishedSkills = skills.orEmpty().filter { it.stage == "live" }.map { it.skillId }
-                    val sortedSkills = skills.orEmpty().filter {
-                        !(it.skillId in publishedSkills && it.stage == "development")
-                    }.sortedBy {
-                        it.name
-                    }.sortedByDescending {
-                        it.stage
-                    }
-                    sortedSkills.forEachIndexed { i, skill ->
-                        println("${i + 1}) ${skill.name} on Stage ${skill.stage} (${skill.skillId})")
-                    }
-                    askForIndex("Please select the skill you want to import: ", sortedSkills.size)?.let { index ->
-                        sortedSkills.getOrNull(index - 1)
-                    }
+            } ?: throw java.lang.IllegalStateException("No skill selected")
+        } else {
+            var name: String?
+            do {
+                print("Project name: ")
+                name = readLine()
+                if (name == null) {
+                    println("Something went wrong")
+                    break
                 }
-                skill?.let {
-                    println("Importing $skill...")
-                    val test = KonversationConfig(Auth(api.alexa.refreshToken, api.alexa.clientId, api.alexa.clientSecret))
-                    test.projects[skill.name] = KonversationProject(alexa = AlexaProject(skill.skillId), invocations = skill.nameByLocale.toMutableMap())
-                    println(Yaml(configuration = YamlConfiguration(encodeDefaults = false)).stringify(KonversationConfig.serializer(), test))
-                }
-            }
+            } while (name?.isNotBlank() == false)
+            val generalInvocations = readInvocations()
+            KonversationProject(invocations = generalInvocations)
         }
-        var name: String?
-        do {
-            print("Project name: ")
-            name = readLine()
-            if (name == null) {
-                println("Something went wrong")
-                break
-            }
-        } while (name?.isNotBlank() == false)
-        val generalInvocations = readInvocations()
-
-        return KonversationProject()
     }
 
     private fun askForIndex(request: String, maxIndex: Int): Int? {
@@ -272,11 +239,84 @@ open class Cli {
             }
             i = input.toIntOrNull()
             if (i in 1..maxIndex) {
+                i?.let { i-- }
                 break
             }
         }
         return i
     }
+
+    private fun importFromAskCli(): String? =
+        if (settings.config.alexaRefreshToken == null) {
+            val home = System.getProperty("user.home")
+            val askConfigFile = File("$home${File.separator}.ask${File.separator}cli_config")
+            if (askConfigFile.exists()) {
+                print("ASK CLI detected, do you want to use the already saved credentials? (yes/no): ")
+                if (ask() == true) {
+                    api.amazonClientId = AskCliConfig.clientId
+                    api.amazonClientSecret = AskCliConfig.clientSecret
+                    val profiles = Json.nonstrict.parse(AskCliConfig.serializer(), askConfigFile.readText()).profiles
+                    profiles.keys.forEachIndexed { i, profile ->
+                        println("${i + 1}) $profile")
+                    }
+                    askForIndex("Please choose your ask cli profile: ", profiles.size)?.let { index ->
+                        val profile = profiles.values.toList()[index]
+                        api.alexa.loadToken(profile.token.refresh_token)
+                        if (!api.alexa.isLoggedIn) {
+                            throw IllegalStateException("Login failed!")
+                        }
+                        return profile.vendor_id
+                    }
+                }
+            }
+            null
+        } else null
+
+    private fun chooseVendor(): String? {
+        print("Do you want to import an Alexa skill? (yes/no): ")
+        return if (ask() == true) {
+            val vendors = api.alexa.fetchVendors()
+            when {
+                vendors == null -> {
+                    println("Failed to fetch vendors.")
+                    null
+                }
+                vendors.size == 1 -> {
+                    println("Using vendor ${vendors.first().name}")
+                    vendors.first().id
+                }
+                else -> {
+                    println("WARNING: Your account has access to multiple accounts, please consider using an account with just the required vendors.")
+                    println("Choose from your vendors:")
+                    vendors.forEachIndexed { i, vendor ->
+                        println("${i + 1}) ${vendor.name}")
+                    }
+                    askForIndex("Please select the vendor you want to use: ", vendors.size)?.let { index ->
+                        vendors.getOrNull(index)?.id
+                    }
+                }
+            }
+        } else null
+    }
+
+    private fun loadSkillData(defaultVendorId: String?) =
+        (defaultVendorId ?: chooseVendor())?.let { vendorId ->
+            val skills = api.alexa.fetchSkills(vendorId)
+            val publishedSkills = skills.orEmpty().filter { it.stage == "live" }.map { it.skillId }
+            val sortedSkills = skills.orEmpty().filter {
+                !(it.skillId in publishedSkills && it.stage == "development")
+            }.sortedBy {
+                it.name
+            }.sortedByDescending {
+                it.stage
+            }
+            sortedSkills.forEachIndexed { i, skill ->
+                println("${i + 1}) ${skill.name} on Stage ${skill.stage} (${skill.skillId})")
+            }
+            askForIndex("Please select the skill you want to import: ", sortedSkills.size)?.let { index ->
+                sortedSkills.getOrNull(index)
+            }
+        }
 
     private val Skill.name
         get() = nameByLocale.getOrElse("de-DE") { nameByLocale.values.first() }
@@ -486,9 +526,9 @@ open class Cli {
 
         var L: LoggerFacade = DefaultLogger()
         const val version = "1.2.0-beta1"
-        const val amazonClientId = "amzn1.application-oa2-client.c57e86e21f464b0d8166b37ef867abd8"
-        const val amazonClientSecret = "88f6586c4ff2519f6c129402a9d732e0a8baa7d375e29f80010796ac82f06a00"
-        const val exposeToken = false
+        val amazonClientId by lazy { "Zmd3fiI4eGxvTkxLSlpYW1kXUiFxayogJjc7LHU9VFMCUlsVQUcfSEnCtsOnwrjDr8K2wqDCosKhw7jCrsKXw4bDgMKRwprCmMOTw5fDnMKD".cheapDecrypt() }
+        val amazonClientSecret by lazy { "PzJrJiYuL38rREMaHh8IUgFZDHJ6cnl+Lmsxb2hsBFQGUg8REkEdT0jCt8OgwrrCssOowqnCpMKnwqvCrcKXwprCkMOIw4/Cl8KAw5PCiMKNw5/DscO0".cheapDecrypt() }
+        val exposeToken = java.lang.Boolean.parseBoolean("true")
     }
 }
 

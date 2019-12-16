@@ -39,6 +39,7 @@ open class Cli {
     private var exposeDialogflowToken = false
     private var exposeAlexaToken = false
     private var outDir = File(".").absoluteFile.parentFile
+    private var enumFileNamespace: String? = null
 
     suspend inline fun <reified T> HttpClient.getOrNull(
         urlString: String,
@@ -122,6 +123,11 @@ open class Cli {
                         "--export-alexa" -> exportAlexa = true
                         "--export-dialogflow" -> exportDialogflow = true
                         "--export-kson" -> exportKson = true
+                        "--export-enum" -> if (++argNo < args.size) {
+                            enumFileNamespace = args[argNo]
+                        } else {
+                            throw IllegalArgumentException("No package name defined")
+                        }
                         "--update-dialogflow" -> updateDialogflow = true
                         "--update-alexa" -> updateAlexa = true
                         "--alexa-token",
@@ -174,6 +180,9 @@ open class Cli {
             }
             if (exportKson) {
                 api.exportKson(outDir, prettyPrint)
+            }
+            enumFileNamespace?.let { namespace ->
+                api.exportEnum(outDir, namespace)
             }
             if (updateDialogflow) {
                 val invocationName = projectData.dialogflowInvocations.values.first()

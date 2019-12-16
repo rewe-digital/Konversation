@@ -137,6 +137,31 @@ class KonversationApi(
         }
     }
 
+    fun exportEnum(targetDirectory: File, namespace: String) {
+        val enum = StringBuilder()
+            .appendln("package $namespace")
+            .appendln()
+            .appendln("import org.rewedigital.dialog.utils.KonversationEnum")
+            .appendln()
+            .appendln("enum class Konversations(override val alias: String? = null): KonversationEnum {")
+
+        fun String.cleanup() = "([A-Z]*[a-z0-9]*)[.-]?".toRegex()
+            .findAll(this)
+            .joinToString(separator = "") {
+                it.groupValues[1].toLowerCase().capitalize()
+            }
+        intentDb[""]?.filter { it.prompt.isNotEmpty() }?.forEachIterator { intent ->
+            val cleanName = intent.name.cleanup()
+            enum.append("    $cleanName")
+            if (cleanName != intent.name) {
+                enum.append("(\"${intent.name}\")")
+            }
+            enum.appendln(if (hasNext()) "," else "")
+        }
+        enum.append("}")
+        File(targetDirectory, "Konversations.kt").outputStream().use { it.write(enum.toString().toByteArray()) }
+    }
+
     fun authorizeAlexa(serverPort: Int) =
         alexa.login(serverPort)
 

@@ -11,6 +11,11 @@ data class DialogflowConfig(
     var projectId: String? = null,
     var serviceAccount: File? = null
 ) : IOConfig, java.io.Serializable {
+    constructor(dialogflowProject: DialogflowProject?, auth: Auth) : this(
+        invocationNames = dialogflowProject?.invocations.orEmpty().toMutableMap(),
+        projectId = dialogflowProject?.projectId,
+        serviceAccount = dialogflowProject?.serviceAccount ?: auth.dialogflowServiceAccount)
+
     fun fillWith(dialogflowProject: DialogflowProject?, auth: Auth) {
         if (invocationNames.isEmpty())
             invocationNames = dialogflowProject?.invocations ?: invocationNames

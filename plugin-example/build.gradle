@@ -1,9 +1,8 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin'
     id 'org.rewedigital.konversation' version '1.2.0-alpha1'
 }
-
-apply plugin: 'kotlin'
 
 repositories {
     jcenter()
@@ -26,19 +25,11 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
-/*
-konversation {
-//    invocationName = "test"
-    invocationNames.de = "hallo"
-    invocationNames.en = "welt"
-    alexa {
-        //invocationName = "AAA"
-    }
-    dialogflow {
-        //invocationName = "Dia"
-    }
 
-    projects["foo"] = {
-            invocationName = "Hallo"
+konversation {
+    projects{
+        FooBar {
+            invocationNames["de"] = "Hallo"
+        }
     }
-}*/
+}

@@ -13,6 +13,10 @@ data class AlexaConfig(
     var clientId: String? = null,
     var clientSecret: String? = null
 ) : IOConfig, java.io.Serializable {
+    constructor(alexaProject: AlexaProject?, auth: Auth) : this() {
+        fillWith(alexaProject, auth) // TODO refactor
+    }
+
     fun fillWith(alexaProject: AlexaProject?, auth: Auth) {
         if (invocationNames.isEmpty()) {
             invocationNames = alexaProject?.invocations ?: invocationNames

@@ -9,11 +9,13 @@ import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.internal.AbstractTask
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.workers.WorkAction
 import org.rewedigital.konversation.config.AlexaProject
 import org.rewedigital.konversation.config.DialogflowProject
 import org.rewedigital.konversation.config.KonversationConfig
+import org.rewedigital.konversation.tasks.CompileTask
 import org.rewedigital.konversation.tasks.ExportTask
 import org.rewedigital.konversation.tasks.UpdateTask
 import org.slf4j.Logger
@@ -26,19 +28,20 @@ open class KonversationPlugin : Plugin<Project> {
         //kvs.extensions.create("alexa", AlexaTargetExtension::class.java, project)
         //kvs.extensions.create("dialogflow", DialogflowTargetExtension::class.java, project)
 
-        // FIXME
-        //val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-        //val inputDirs = mutableListOf<File>()
-        //javaConvention.sourceSets.forEach { sourceSet ->
-        //    sourceSet.resources.srcDirs("build/konversation/res/${sourceSet.name}/")
-        //    inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
-        //}
+        project.plugins.withId("kotlin") {
+            val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
+            val inputDirs = mutableListOf<File>()
+            javaConvention.sourceSets.forEach { sourceSet ->
+                sourceSet.resources.srcDirs("build/konversation/res/${sourceSet.name}/")
+                inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
+            }
 
-        //val compile = tasks.create("compileKonversation", CompileTask::class.java) { task ->
-        //    task.inputFiles += inputDirs.listFilesByExtension("kvs")
-        //    task.outputDirectories += javaConvention.sourceSets.map { File(buildDir, "konversation/res/${it.name}") }
-        //}
-        //tasks.getByName("processResources").dependsOn += compile
+            val compile = tasks.create("compileKonversation", CompileTask::class.java) { task ->
+                task.inputFiles += inputDirs.listFilesByExtension("kvs")
+                task.outputDirectories += javaConvention.sourceSets.map { File(buildDir, "konversation/res/${it.name}") }
+            }
+            tasks.getByName("processResources").dependsOn += compile
+        }
 
         val testRoot = File("")
         val outdir = File("")

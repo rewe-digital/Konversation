@@ -41,8 +41,8 @@ open class KonversationPlugin : Plugin<Project> {
             tasks.getByName("processResources").dependsOn += compile
         }
 
-        val outdir = File("")
-        val config = Yaml.default.parse(KonversationConfig.serializer(), File(outdir, "konversation.yaml").readText())
+        val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
+        val config = Yaml.default.parse(KonversationConfig.serializer(), settingsFile?.readText().orEmpty())
 
         val exportAll = tasks.create("exportAll", DefaultTask::class.java).groupToKonversation("Export all intent models.")
         val exportAlexa = tasks.create("exportAlexa", DefaultTask::class.java).groupToKonversation("Export all Alexa intent models.")
@@ -90,6 +90,17 @@ open class KonversationPlugin : Plugin<Project> {
                     updateAlexa.dependsOn += updateProjectOnDialogflow
                 }
             }
+        }
+    }
+
+    private fun searchFile(workDir: File, fileName: String): File? {
+        val possibleFile = File(workDir, fileName)
+        return when {
+            possibleFile.exists() ->
+                possibleFile
+            workDir.parentFile != null && workDir.parentFile.absolutePath != workDir.absolutePath ->
+                searchFile(workDir.parentFile, fileName)
+            else -> null
         }
     }
 }

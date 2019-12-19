@@ -1,29 +1,32 @@
 package org.rewedigital.konversation
 
-import org.rewedigital.konversation.config.AlexaProject
 import org.rewedigital.konversation.config.Auth
+import org.rewedigital.konversation.config.KonversationProject
 import java.io.File
 
 data class AlexaConfig(
     override var invocationNames: MutableMap<String, String> = mutableMapOf(),
-    override val inputFiles: MutableList<File> = mutableListOf(),
+    override var inputFiles: MutableList<File> = mutableListOf(),
     override var outputDirectory: File? = null,
     var skillId: String? = null,
     var refreshToken: String? = null,
     var clientId: String? = null,
     var clientSecret: String? = null
 ) : IOConfig, java.io.Serializable {
-    constructor(alexaProject: AlexaProject?, auth: Auth) : this() {
-        fillWith(alexaProject, auth) // TODO refactor
-    }
+    constructor(project: KonversationProject?, auth: Auth) : this(
+        invocationNames = project?.alexa?.invocations.orUse(project?.invocations),
+        skillId = project?.alexa?.skillId,
+        refreshToken = project?.alexa?.refreshToken ?: auth.alexaRefreshToken,
+        clientId = project?.alexa?.clientId ?: auth.alexaClientId,
+        clientSecret = project?.alexa?.clientSecret ?: auth.alexaClientSecret)
 
-    fun fillWith(alexaProject: AlexaProject?, auth: Auth) {
+    fun fillWith(project: KonversationProject?, auth: Auth) {
         if (invocationNames.isEmpty()) {
-            invocationNames = alexaProject?.invocations ?: invocationNames
+            invocationNames = project?.alexa?.invocations.orUse(project?.invocations)
         }
-        skillId = skillId ?: alexaProject?.skillId
-        refreshToken = refreshToken ?: alexaProject?.refreshToken ?: auth.alexaRefreshToken
-        clientId = clientId ?: alexaProject?.clientId ?: auth.alexaClientId
-        clientSecret = clientSecret ?: alexaProject?.clientSecret ?: auth.alexaClientSecret
+        skillId = skillId ?: project?.alexa?.skillId
+        refreshToken = refreshToken ?: project?.alexa?.refreshToken ?: auth.alexaRefreshToken
+        clientId = clientId ?: project?.alexa?.clientId ?: auth.alexaClientId
+        clientSecret = clientSecret ?: project?.alexa?.clientSecret ?: auth.alexaClientSecret
     }
 }

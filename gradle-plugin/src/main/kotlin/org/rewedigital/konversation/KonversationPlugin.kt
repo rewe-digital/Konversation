@@ -29,6 +29,7 @@ open class KonversationPlugin : Plugin<Project> {
             val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
             val inputDirs = mutableListOf<File>()
             javaConvention.sourceSets.forEach { sourceSet ->
+                sourceSet.allJava.srcDirs("build/konversation/gen/")
                 sourceSet.resources.srcDirs("build/konversation/res/${sourceSet.name}/")
                 inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
             }
@@ -67,7 +68,7 @@ open class KonversationPlugin : Plugin<Project> {
                 }
                 project.dialogflow?.let {
                     val exportProjectOnDialogflow = tasks.create("export${gradleName}ForDialogflow", ExportTask::class.java) { task ->
-                        task.config = project.copy(alexa = null)
+                        task.config = project.copy(alexa = null, outputDirectory = project.outputDirectory ?: File(buildDir, "konversation/intent-schemas/"))
                     }.groupToKonversation("Export ${project.name} for Dialogflow.")
                     exportProject.dependsOn += exportProjectOnDialogflow
                     exportAlexa.dependsOn += exportProjectOnDialogflow

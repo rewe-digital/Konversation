@@ -159,6 +159,7 @@ class KonversationApi(
             enum.appendln(if (hasNext()) "," else "")
         }
         enum.append("}")
+        targetDirectory.mkdirs()
         File(targetDirectory, "Konversations.kt").outputStream().use { it.write(enum.toString().toByteArray()) }
     }
 

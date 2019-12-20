@@ -17,7 +17,7 @@ abstract class ExportAlexaAction : WorkAction<KonversationProjectParameters> {
         val api = KonversationApi()
         api.inputFiles += project.inputFiles
         api.inputFiles += project.alexa?.inputFiles.orEmpty()
-        api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateAlexaAction::class.java))
+        api.logger = createLoggingFacade(logger)
         api.invocationName = requireNotNull(project.invocationNames.values.firstOrNull() ?: project.alexa?.invocationNames?.values?.firstOrNull()) { "Invocation name not found" }
         val target = File(project.outputDirectory, api.invocationName?.replace(' ', '-')?.toLowerCase() + ".json")
         logger.lifecycle("Exporting ${api.invocationName} to ${target.absolutePath}...")

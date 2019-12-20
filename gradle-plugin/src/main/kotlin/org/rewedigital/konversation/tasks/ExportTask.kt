@@ -13,11 +13,11 @@ open class ExportTask @Inject constructor(private var workerExecutor: WorkerExec
     var config: GradleProject? = null
 
     @TaskAction
-    fun provision() = when {
-        config?.dialogflow != null -> workerExecutor.noIsolation().submit(ExportDialogflowAction::class.java) {
+    fun provision() = when (taskIdentity.name.substringAfterLast("For")) {
+        "Dialogflow" -> workerExecutor.noIsolation().submit(ExportDialogflowAction::class.java) {
             it.project.set(config)
         }
-        config?.alexa != null -> workerExecutor.noIsolation().submit(ExportAlexaAction::class.java) {
+        "Alexa" -> workerExecutor.noIsolation().submit(ExportAlexaAction::class.java) {
             it.project.set(config)
         }
         else -> throw IllegalArgumentException("Config error: Nothing to deploy")

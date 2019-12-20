@@ -116,7 +116,7 @@ class KonversationApi(
     }
 
     fun exportDialogflow(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
-        val invocationName = this.invocationName ?: throw IllegalArgumentException("invocation name was null")
+        val invocationName = requireNotNull(this.invocationName) { "invocation name was null" }
         val exporter = DialogflowExporter(invocationName)
         val stream = File(targetDirectory, "${invocationName.replace(' ', '-').toLowerCase()}.zip").outputStream()
         if (prettyPrint) {

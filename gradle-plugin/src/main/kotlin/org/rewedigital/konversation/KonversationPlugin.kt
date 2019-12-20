@@ -57,18 +57,22 @@ open class KonversationPlugin : Plugin<Project> {
 
         projectContainer.all { project ->
             project.applyConfig(config)
+            if (project.outputDirectory == null) {
+                project.outputDirectory = File(buildDir, "konversation/intent-schemas/")
+                project.outputDirectory?.mkdirs()
+            }
             val gradleName = project.name.split(' ', '-').joinToString(separator = "") { word -> word.capitalize() }
             tasks.create("export$gradleName", DefaultTask::class.java).groupToKonversation("Export the ${project.name} project for all platforms.").also { exportProject ->
                 project.alexa?.let {
                     val exportProjectOnAlexa = tasks.create("export${gradleName}ForAlexa", ExportTask::class.java) { task ->
-                        task.config = project.copy(dialogflow = null)
+                        task.config = project
                     }.groupToKonversation("Export ${project.name} for Alexa.")
                     exportProject.dependsOn += exportProjectOnAlexa
                     exportAlexa.dependsOn += exportProjectOnAlexa
                 }
                 project.dialogflow?.let {
                     val exportProjectOnDialogflow = tasks.create("export${gradleName}ForDialogflow", ExportTask::class.java) { task ->
-                        task.config = project.copy(alexa = null, outputDirectory = project.outputDirectory ?: File(buildDir, "konversation/intent-schemas/"))
+                        task.config = project
                     }.groupToKonversation("Export ${project.name} for Dialogflow.")
                     exportProject.dependsOn += exportProjectOnDialogflow
                     exportAlexa.dependsOn += exportProjectOnDialogflow

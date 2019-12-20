@@ -17,9 +17,10 @@ abstract class ExportDialogflowAction : WorkAction<KonversationProjectParameters
         api.inputFiles += project.inputFiles
         api.inputFiles += project.dialogflow?.inputFiles.orEmpty()
         api.logger = createLoggingFacade(LoggerFactory.getLogger(UpdateDialogflowAction::class.java))
-        api.invocationName = project.invocationNames.values.firstOrNull() ?: project.dialogflow?.invocationNames?.values?.firstOrNull() ?: throw java.lang.IllegalArgumentException("Invationname not found")
-        logger.lifecycle("Exporting ${api.invocationName} to ${project.outputDirectory}...")
-        api.exportDialogflow(project.outputDirectory!!, true)
+        api.invocationName = requireNotNull(project.invocationNames.values.firstOrNull() ?: project.dialogflow?.invocationNames?.values?.firstOrNull()) { "Invocation name not found" }
+        val outDir = requireNotNull(project.dialogflow?.outputDirectory ?: project.outputDirectory) { "Output directory not set" }
+        logger.lifecycle("Exporting ${api.invocationName} to $outDir...")
+        api.exportDialogflow(outDir, true)
         logger.info("Export finished")
     }
 }

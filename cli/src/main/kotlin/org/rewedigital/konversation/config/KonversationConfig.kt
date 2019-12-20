@@ -1,10 +1,12 @@
 package org.rewedigital.konversation.config
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class KonversationConfig(
-    val config: Auth = Auth(),
+    @SerialName("config")
+    val auth: Auth = Auth(),
     val projects: MutableMap<String, KonversationProject> = mutableMapOf()
 ) {
     constructor(config: Auth = Auth(), vararg projects: Pair<String, KonversationProject>) : this(config, projects.toMap().toMutableMap())
@@ -14,15 +16,15 @@ data class KonversationConfig(
             project.alexa?.let { alexa ->
                 project.alexa = AlexaProject(
                     skillId = alexa.skillId,
-                    clientId = alexa.clientId ?: config.alexaClientId,
-                    clientSecret = alexa.clientSecret ?: config.alexaClientSecret,
-                    refreshToken = alexa.refreshToken ?: config.alexaRefreshToken,
+                    clientId = alexa.clientId ?: auth.alexaClientId,
+                    clientSecret = alexa.clientSecret ?: auth.alexaClientSecret,
+                    refreshToken = alexa.refreshToken ?: auth.alexaRefreshToken,
                     invocations = if (alexa.invocations.isEmpty()) project.invocations else alexa.invocations)
             }
             project.dialogflow?.let { dialogflow ->
                 project.dialogflow = DialogflowProject(
                     projectId = dialogflow.projectId,
-                    serviceAccount = dialogflow.serviceAccount ?: config.dialogflowServiceAccount,
+                    serviceAccount = dialogflow.serviceAccount ?: auth.dialogflowServiceAccount,
                     invocations = if (dialogflow.invocations.isEmpty()) project.invocations else dialogflow.invocations)
             }
         }
@@ -34,15 +36,15 @@ data class KonversationConfig(
                 alexa = project.alexa?.let { alexa ->
                     AlexaProject(
                         skillId = alexa.skillId,
-                        clientId = alexa.clientId ?: config.alexaClientId,
-                        clientSecret = alexa.clientSecret ?: config.alexaClientSecret,
-                        refreshToken = alexa.refreshToken ?: config.alexaRefreshToken,
+                        clientId = alexa.clientId ?: auth.alexaClientId,
+                        clientSecret = alexa.clientSecret ?: auth.alexaClientSecret,
+                        refreshToken = alexa.refreshToken ?: auth.alexaRefreshToken,
                         invocations = if (alexa.invocations.isEmpty()) project.invocations else alexa.invocations)
                 },
                 dialogflow = project.dialogflow?.let { dialogflow ->
                     DialogflowProject(
                         projectId = dialogflow.projectId,
-                        serviceAccount = dialogflow.serviceAccount ?: config.dialogflowServiceAccount,
+                        serviceAccount = dialogflow.serviceAccount ?: auth.dialogflowServiceAccount,
                         invocations = if (dialogflow.invocations.isEmpty()) project.invocations else dialogflow.invocations)
                 },
                 invocations = project.invocations)

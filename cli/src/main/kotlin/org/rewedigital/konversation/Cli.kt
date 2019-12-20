@@ -58,10 +58,10 @@ open class Cli {
         api = if (settingsFile?.exists() == true) {
             settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
             KonversationApi(
-                settings.config.alexaClientId ?: amazonClientId,
-                settings.config.alexaClientSecret ?: amazonClientSecret,
-                settings.config.dialogflowServiceAccount).also { api ->
-                settings.config.alexaRefreshToken?.let { token ->
+                settings.auth.alexaClientId ?: amazonClientId,
+                settings.auth.alexaClientSecret ?: amazonClientSecret,
+                settings.auth.dialogflowServiceAccount).also { api ->
+                settings.auth.alexaRefreshToken?.let { token ->
                     api.alexa.loadToken(token)
                 }
             }
@@ -216,7 +216,7 @@ open class Cli {
         return if (api.alexa.isLoggedIn) {
             val skill = loadSkillData(askCliVendorId)
             skill?.let {
-                if (settings.config.alexaClientId == api.alexa.clientId) {
+                if (settings.auth.alexaClientId == api.alexa.clientId) {
                     KonversationProject(alexa = AlexaProject(skill.skillId), invocations = skill.nameByLocale.toMutableMap())
                 } else {
                     KonversationProject(alexa = AlexaProject(skill.skillId, api.alexa.refreshToken, api.alexa.clientId, api.alexa.clientSecret), invocations = skill.nameByLocale.toMutableMap())
@@ -256,7 +256,7 @@ open class Cli {
     }
 
     private fun importFromAskCli(): String? =
-        if (settings.config.alexaRefreshToken == null) {
+        if (settings.auth.alexaRefreshToken == null) {
             val home = System.getProperty("user.home")
             val askConfigFile = File("$home${File.separator}.ask${File.separator}cli_config")
             if (askConfigFile.exists()) {

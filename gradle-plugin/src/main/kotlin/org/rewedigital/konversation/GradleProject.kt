@@ -11,16 +11,16 @@ data class GradleProject(
     override var inputFiles: MutableList<File> = mutableListOf(),
     override var outputDirectory: File? = null) : IOConfig, java.io.Serializable {
 
-    fun fillWith(config: KonversationConfig) = config.projects[name]?.let { defaults ->
+    fun applyConfig(config: KonversationConfig) = config.projects[name]?.let { defaults ->
         if (alexa == null) {
-            alexa = AlexaConfig(defaults, config.config)
+            alexa = AlexaConfig(defaults, config.auth)
         } else {
-            alexa?.fillWith(defaults, config.config)
+            alexa?.fillWith(defaults, config.auth)
         }
         if (dialogflow == null) {
-            dialogflow = DialogflowConfig(defaults, config.config)
+            dialogflow = DialogflowConfig(defaults, config.auth)
         } else {
-            dialogflow?.fillWith(defaults, config.config)
+            dialogflow?.fillWith(defaults, config.auth)
         }
     }
 

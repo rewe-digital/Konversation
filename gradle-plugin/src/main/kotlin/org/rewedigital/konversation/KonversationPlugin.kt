@@ -56,7 +56,7 @@ open class KonversationPlugin : Plugin<Project> {
         updateAll.dependsOn += updateDialogflow
 
         projectContainer.all { project ->
-            project.fillWith(config)
+            project.applyConfig(config)
             val gradleName = project.name.split(' ', '-').joinToString(separator = "") { word -> word.capitalize() }
             tasks.create("export$gradleName", DefaultTask::class.java).groupToKonversation("Export the ${project.name} project for all platforms.").also { exportProject ->
                 project.alexa?.let {

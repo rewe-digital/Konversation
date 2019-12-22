@@ -34,6 +34,9 @@ open class KonversationPlugin : Plugin<Project> {
                 inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
             }
 
+            val exportKson = tasks.create("exportKson", ExportTask::class.java) { task ->
+                task.settings = kvs
+            }
             val exportEnum = tasks.create("exportKonversationEnum", ExportTask::class.java) { task ->
                 task.settings = kvs
             }
@@ -61,21 +64,23 @@ open class KonversationPlugin : Plugin<Project> {
         projectContainer.all { project ->
             project.applyConfig(config)
             if (project.outputDirectory == null) {
-                project.outputDirectory = File(buildDir, "konversation/intent-schemas/")
-                project.outputDirectory?.mkdirs()
+                project.outputDirectory = kvs.intentSchemaDirectory
+                File(project.outputDirectory).mkdirs()
             }
             val gradleName = project.name.split(' ', '-').joinToString(separator = "") { word -> word.capitalize() }
             tasks.create("export$gradleName", DefaultTask::class.java).groupToKonversation("Export the ${project.name} project for all platforms.").also { exportProject ->
                 project.alexa?.let {
                     val exportProjectOnAlexa = tasks.create("export${gradleName}ForAlexa", ExportTask::class.java) { task ->
-                        task.project = project
+                        task.project = project.name
+                        task.settings = kvs
                     }.groupToKonversation("Export ${project.name} for Alexa.")
                     exportProject.dependsOn += exportProjectOnAlexa
                     exportAlexa.dependsOn += exportProjectOnAlexa
                 }
                 project.dialogflow?.let {
                     val exportProjectOnDialogflow = tasks.create("export${gradleName}ForDialogflow", ExportTask::class.java) { task ->
-                        task.project = project
+                        task.project = project.name
+                        task.settings = kvs
                     }.groupToKonversation("Export ${project.name} for Dialogflow.")
                     exportProject.dependsOn += exportProjectOnDialogflow
                     exportAlexa.dependsOn += exportProjectOnDialogflow
@@ -84,14 +89,16 @@ open class KonversationPlugin : Plugin<Project> {
             tasks.create("update$gradleName", DefaultTask::class.java).groupToKonversation("Update the ${project.name} project on all platforms.").also { updateProject ->
                 project.alexa?.let {
                     val updateProjectOnAlexa = tasks.create("update${gradleName}OnAlexa", UpdateTask::class.java) { task ->
-                        task.config = project.copy(dialogflow = null)
+                        task.project = project.name
+                        task.settings = kvs
                     }.groupToKonversation("Update ${project.name} on Alexa.")
                     updateProject.dependsOn += updateProjectOnAlexa
                     updateAlexa.dependsOn += updateProjectOnAlexa
                 }
                 project.dialogflow?.let {
                     val updateProjectOnDialogflow = tasks.create("update${gradleName}OnDialogflow", UpdateTask::class.java) { task ->
-                        task.config = project.copy(alexa = null)
+                        task.project = project.name
+                        task.settings = kvs
                     }.groupToKonversation("Update ${project.name} on Dialogflow.")
                     updateProject.dependsOn += updateProjectOnDialogflow
                     updateAlexa.dependsOn += updateProjectOnDialogflow
@@ -148,5 +155,5 @@ fun <T> ExtensionAware.getExtension(name: String): T? = try {
 @Suppress("UNCHECKED_CAST")
 private fun <T> Project.getExtension(name: String): T = extensions.getByName(name) as T
 
-val WorkAction<KonversationProjectParameters>.project
+val WorkAction<KonversationProjectParameters>.project: GradleProject
     get() = parameters.project.get()

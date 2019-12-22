@@ -2,12 +2,11 @@ package org.rewedigital.konversation
 
 import org.rewedigital.konversation.config.Auth
 import org.rewedigital.konversation.config.KonversationProject
-import java.io.File
 
 data class AlexaConfig(
     override var invocationNames: MutableMap<String, String> = mutableMapOf(),
-    override var inputFiles: MutableList<File> = mutableListOf(),
-    override var outputDirectory: File? = null,
+    override var inputFiles: MutableList<String> = mutableListOf(),
+    override var outputDirectory: String? = null,
     var skillId: String? = null,
     var refreshToken: String? = null,
     var clientId: String? = null,

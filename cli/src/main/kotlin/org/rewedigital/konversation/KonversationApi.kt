@@ -17,8 +17,8 @@ class KonversationApi(
     var amazonClientSecret: String? = null,
     var dialogflowServiceAccount: File? = null) {
 
-    val dialogflow: DialogflowApi by lazy { DialogflowApi(dialogflowServiceAccount.orThrow("Google service account not set")) }
-    val alexa: AmazonApi by lazy { AmazonApi(amazonClientId.orThrow("Amazon client id not set"), amazonClientSecret.orThrow("Amazon client secret not set")) }
+    val dialogflow: DialogflowApi by lazy { DialogflowApi(requireNotNull(dialogflowServiceAccount) { "Google service account not set" }) }
+    val alexa: AmazonApi by lazy { AmazonApi(requireNotNull(amazonClientId) { "Amazon client id not set" }, requireNotNull(amazonClientSecret) { "Amazon client secret not set" }) }
 
     private var inputFileCount = 0
 
@@ -128,10 +128,16 @@ class KonversationApi(
     }
 
     fun exportKson(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
-        val targetDir = File(targetDirectory.absolutePath + File.separator + "konversation".join("-", config))
         intents.forEach { intent ->
             val exporter = KsonExporter(intent.name)
+
+            val start = intent.sourceFile.path.indexOf("src" + File.separator) + 4
+            val end = intent.sourceFile.path.indexOf(File.separatorChar, start)
+            val sourceSet = intent.sourceFile.path.substring(start, end)
+            //cli.parseArgs(arrayOf("--export-kson", project.buildDir.path + "/konversation/res/$sourceSet/"
+            val targetDir = File(targetDirectory.absolutePath, sourceSet)
             targetDir.mkdirs()
+
             val stream = File(targetDir, "${intent.name}.kson").outputStream()
             exportToStream(stream, prettyPrint, exporter, intents, config)
         }
@@ -190,5 +196,4 @@ class KonversationApi(
     }
 
     private fun parseFile(file: File) = Parser(file)
-    private fun <T> T?.orThrow(msg: String): T = this ?: throw java.lang.IllegalArgumentException(msg)
 }

@@ -107,7 +107,7 @@ class Parser(input: File) {
                     if (intents.find { it.name.equals(line, true) } != null) {
                         printErr("Intent \"$line\" already defined. Appending new parts. You have been warned.")
                     } else {
-                        lastIntent = Intent(line).also {
+                        lastIntent = Intent(line, sourceFile = input).also {
                             intents.add(it)
                         }
                     }
@@ -120,7 +120,7 @@ class Parser(input: File) {
                         printErr("Intent \"${lastIntent?.name}\" already defined. Appending new parts. You have been warned.")
                         knownIntent.annotations += nextIntentAnnotations
                     } else {
-                        lastIntent = Intent(lastIntentName, annotations = nextIntentAnnotations.toMutableMap()).also {
+                        lastIntent = Intent(lastIntentName, annotations = nextIntentAnnotations.toMutableMap(), sourceFile = input).also {
                             intents.add(it)
                         }
                     }

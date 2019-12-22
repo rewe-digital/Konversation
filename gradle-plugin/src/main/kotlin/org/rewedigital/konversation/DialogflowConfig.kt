@@ -6,8 +6,8 @@ import java.io.File
 
 data class DialogflowConfig(
     override var invocationNames: MutableMap<String, String> = mutableMapOf(),
-    override var inputFiles: MutableList<File> = mutableListOf(),
-    override var outputDirectory: File? = null,
+    override var inputFiles: MutableList<String> = mutableListOf(),
+    override var outputDirectory: String? = null,
     var projectId: String? = null,
     var serviceAccount: File? = null
 ) : IOConfig, java.io.Serializable {

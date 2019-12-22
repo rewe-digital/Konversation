@@ -1,6 +1,7 @@
 package org.rewedigital.konversation
 
 import org.rewedigital.konversation.parser.Utterance
+import java.io.File
 
 typealias Prompt = MutableList<Part>
 
@@ -25,4 +26,5 @@ data class Intent(
     /** The suggestions what the user can say next when using this intent. */
     val suggestions: MutableList<String> = mutableListOf(),
     /** The extras e.g. for UI Elements, for future usage. */
-    val extras: MutableMap<String, Any> = mutableMapOf())
+    val extras: MutableMap<String, Any> = mutableMapOf(),
+    val sourceFile: File)

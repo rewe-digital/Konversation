@@ -1,11 +1,9 @@
 package org.rewedigital.konversation
 
-import java.io.File
-
 interface IOConfig {
     var invocationNames: MutableMap<String, String>
-    var inputFiles: MutableList<File>
-    var outputDirectory: File?
+    var inputFiles: MutableList<String>
+    var outputDirectory: String?
 }
 
 fun MutableMap<String, String>?.orUse(invocations: MutableMap<String, String>?) =

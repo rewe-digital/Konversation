@@ -11,16 +11,16 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-reflect:${rootProject.ext.versions.kotlin}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:${rootProject.ext.versions.kotlin}"
     expectedBy project(":runtime-shared")
     expectedBy project(":shared")
-    compile project(":shared")
-    testCompile "junit:junit:4.12"
-    testCompile "org.jetbrains.kotlin:kotlin-test"
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+    implementation project(":shared")
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.8.0'
-    compile 'com.squareup.moshi:moshi-kotlin:1.8.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.8.0'
 }
 
 sourceSets {

@@ -13,12 +13,12 @@ repositories {
 }
 
 dependencies {
-    compile 'org.jetbrains.kotlin:kotlin-stdlib-js'
-    compile 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
     expectedBy project(':runtime-shared')
     expectedBy project(':shared')
-    testCompile 'org.jetbrains.kotlin:kotlin-test-js'
-    testCompile "junit:junit:4.12"
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-js'
+    testImplementation "junit:junit:4.12"
 }
 
 compileKotlin2Js {

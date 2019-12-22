@@ -12,7 +12,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.workers.WorkAction
 import org.rewedigital.konversation.config.KonversationConfig
-import org.rewedigital.konversation.tasks.CompileTask
 import org.rewedigital.konversation.tasks.ExportTask
 import org.rewedigital.konversation.tasks.UpdateTask
 import org.slf4j.Logger
@@ -22,11 +21,11 @@ open class KonversationPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
 
         val kvs = extensions.create("konversation", KonversationExtension::class.java, project)
-        val projectContainer = project.container(GradleProject::class.java) { name -> GradleProject(name) }
+        val projectContainer = container(GradleProject::class.java) { name -> GradleProject(name) }
         kvs.extensions.add("projects", projectContainer)
 
-        project.plugins.withId("kotlin") {
-            val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
+        plugins.withId("kotlin") {
+            val javaConvention = convention.getPlugin(JavaPluginConvention::class.java)
             val inputDirs = mutableListOf<File>()
             javaConvention.sourceSets.forEach { sourceSet ->
                 sourceSet.allJava.srcDirs("build/konversation/gen/${sourceSet.name}/")
@@ -40,11 +39,7 @@ open class KonversationPlugin : Plugin<Project> {
             val exportEnum = tasks.create("exportKonversationEnum", ExportTask::class.java) { task ->
                 task.settings = kvs
             }
-            val compile = tasks.create("compileKonversation", CompileTask::class.java) { task ->
-                task.inputFiles += inputDirs.listFilesByExtension("kvs")
-                task.outputDirectories += javaConvention.sourceSets.map { File(buildDir, "konversation/res/${it.name}") }
-            }
-            tasks.getByName("processResources").dependsOn += compile
+            tasks.getByName("processResources").dependsOn += exportKson
         }
 
         val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
@@ -118,19 +113,6 @@ open class KonversationPlugin : Plugin<Project> {
         }
     }
 }
-
-private fun Iterable<File>.listFilesByExtension(vararg extensions: String) =
-    flatMap { dir ->
-        if (dir.exists()) {
-            dir.listFiles { _, name ->
-                extensions.any { extension ->
-                    name.endsWith(".$extension")
-                }
-            }?.toList() ?: emptyList()
-        } else {
-            emptyList()
-        }
-    }
 
 fun createLoggingFacade(logger: Logger) = object : LoggerFacade {
     override fun log(msg: String) = logger.info(msg)

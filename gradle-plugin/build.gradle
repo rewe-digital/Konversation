@@ -19,7 +19,7 @@ dependencies {
     implementation(localGroovy())
     compileOnly project(":cli")
     embed project(':cli')
-    compile "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }
 
 pluginBundle {

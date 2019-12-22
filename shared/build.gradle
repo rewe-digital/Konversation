@@ -8,11 +8,11 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:${rootProject.ext.versions.kotlin}"
-    compile "org.jetbrains.kotlin:kotlin-reflect"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:${rootProject.ext.versions.kotlin}"
-    testCompile "org.jetbrains.kotlin:kotlin-test-common:${rootProject.ext.versions.kotlin}"
-    //compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-common:${rootProject.ext.versions.kotlin}"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common:${rootProject.ext.versions.kotlin}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-common:${rootProject.ext.versions.kotlin}"
+    //implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2'
 }
 
 sourceSets {

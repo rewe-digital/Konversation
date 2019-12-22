@@ -9,9 +9,13 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile project(':runtime-jvm')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    // just for testing the konversation enum
+    implementation('org.rewedigital.voice.dialog:konversation-plugin:1.0.3') {
+        transitive = false
+    }
+    implementation project(':runtime-jvm')
 }
 
 sourceSets {
@@ -27,6 +31,7 @@ compileTestKotlin {
 }
 
 konversation {
+    enumPackageName = "org.rewedigital.example"
     projects{
         FooBar {
             invocationNames["de"] = "Hallo"

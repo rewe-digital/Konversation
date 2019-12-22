@@ -10,8 +10,8 @@ abstract class ExportAlexaAction : BaseAction() {
         api.inputFiles += project.alexa?.inputFiles.orEmpty().map(::File)
         api.invocationName = requireNotNull(project.invocationNames.values.firstOrNull() ?: project.alexa?.invocationNames?.values?.firstOrNull()) { "Invocation name not found" }
         val target = File(project.outputDirectory, api.invocationName?.replace(' ', '-')?.toLowerCase() + ".json")
-        logger.lifecycle("Exporting ${api.invocationName} to ${target.absolutePath}...")
+        logger.debug("Exporting ${api.invocationName} to ${target.absolutePath}...")
         api.exportAlexaSchema(target, true)
-        logger.info("Export finished")
+        logger.debug("Export finished")
     }
 }

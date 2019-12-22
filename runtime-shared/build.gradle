@@ -11,11 +11,11 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common"
-    compile "org.jetbrains.kotlin:kotlin-reflect"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common"
-    testCompile "org.jetbrains.kotlin:kotlin-test-common"
-    compile project(":shared")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-common"
+    implementation project(":shared")
 }
 
 apply from: '../docu.gradle'

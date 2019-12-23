@@ -12,6 +12,8 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.workers.WorkAction
 import org.rewedigital.konversation.config.KonversationConfig
+import org.rewedigital.konversation.tasks.ExportAlexaTask
+import org.rewedigital.konversation.tasks.ExportDialogflowTask
 import org.rewedigital.konversation.tasks.ExportTask
 import org.rewedigital.konversation.tasks.UpdateTask
 import org.slf4j.Logger
@@ -36,7 +38,7 @@ open class KonversationPlugin : Plugin<Project> {
             val exportKson = tasks.create("exportKson", ExportTask::class.java) { task ->
                 task.settings = kvs
             }
-            val exportEnum = tasks.create("exportKonversationEnum", ExportTask::class.java) { task ->
+            tasks.create("exportKonversationEnum", ExportTask::class.java) { task ->
                 task.settings = kvs
             }
             tasks.getByName("processResources").dependsOn += exportKson
@@ -60,25 +62,25 @@ open class KonversationPlugin : Plugin<Project> {
             project.applyConfig(config)
             if (project.outputDirectory == null) {
                 project.outputDirectory = kvs.intentSchemaDirectory
-                File(project.outputDirectory).mkdirs()
+                File(kvs.intentSchemaDirectory).mkdirs()
             }
             val gradleName = project.name.split(' ', '-').joinToString(separator = "") { word -> word.capitalize() }
             tasks.create("export$gradleName", DefaultTask::class.java).groupToKonversation("Export the ${project.name} project for all platforms.").also { exportProject ->
                 project.alexa?.let {
-                    val exportProjectOnAlexa = tasks.create("export${gradleName}ForAlexa", ExportTask::class.java) { task ->
-                        task.project = project.name
+                    val exportProjectOnAlexa = tasks.create("export${gradleName}ForAlexa", ExportAlexaTask::class.java) { task ->
+                        task.projectName = project.name
                         task.settings = kvs
                     }.groupToKonversation("Export ${project.name} for Alexa.")
                     exportProject.dependsOn += exportProjectOnAlexa
                     exportAlexa.dependsOn += exportProjectOnAlexa
                 }
                 project.dialogflow?.let {
-                    val exportProjectOnDialogflow = tasks.create("export${gradleName}ForDialogflow", ExportTask::class.java) { task ->
-                        task.project = project.name
+                    val exportProjectOnDialogflow = tasks.create("export${gradleName}ForDialogflow", ExportDialogflowTask::class.java) { task ->
+                        task.projectName = project.name
                         task.settings = kvs
                     }.groupToKonversation("Export ${project.name} for Dialogflow.")
                     exportProject.dependsOn += exportProjectOnDialogflow
-                    exportAlexa.dependsOn += exportProjectOnDialogflow
+                    exportDialogflow.dependsOn += exportProjectOnDialogflow
                 }
             }
             tasks.create("update$gradleName", DefaultTask::class.java).groupToKonversation("Update the ${project.name} project on all platforms.").also { updateProject ->

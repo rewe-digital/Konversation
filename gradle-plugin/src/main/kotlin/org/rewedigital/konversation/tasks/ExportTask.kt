@@ -5,8 +5,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.KonversationExtension
 import org.rewedigital.konversation.parser.Utterance
-import org.rewedigital.konversation.tasks.actions.ExportAlexaAction
-import org.rewedigital.konversation.tasks.actions.ExportDialogflowAction
 import org.rewedigital.konversation.tasks.actions.ExportEnumAction
 import org.rewedigital.konversation.tasks.actions.ExportKsonAction
 import javax.inject.Inject
@@ -20,12 +18,6 @@ open class ExportTask @Inject constructor(private var workerExecutor: WorkerExec
     fun provision() = settings?.let { settings ->
         Utterance.cacheDir = settings.cacheDir
         when {
-            taskName.endsWith("Dialogflow") -> workerExecutor.noIsolation().submit(ExportDialogflowAction::class.java) {
-                it.project.set(settings.projects[project])
-            }
-            taskName.endsWith("Alexa") -> workerExecutor.noIsolation().submit(ExportAlexaAction::class.java) {
-                it.project.set(settings.projects[project])
-            }
             taskName == "exportKonversationEnum" -> workerExecutor.noIsolation().submit(ExportEnumAction::class.java) {
                 it.inputFiles.set(settings.inputFiles)
                 it.outputDir.set(requireNotNull(settings.enumFile?.parent) { "Enum file must be set" })

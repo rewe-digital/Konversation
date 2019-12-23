@@ -2,6 +2,7 @@ package org.rewedigital.konversation.tasks.actions
 
 import org.gradle.api.logging.Logger
 import org.gradle.workers.WorkAction
+import org.rewedigital.konversation.GradleProject
 import org.rewedigital.konversation.KonversationApi
 import org.rewedigital.konversation.KonversationProjectParameters
 import org.rewedigital.konversation.createLoggingFacade
@@ -18,4 +19,11 @@ abstract class BaseAction : WorkAction<KonversationProjectParameters> {
         get() = File(parameters.outputDir.get())
     protected val inputFiles
         get() = parameters.inputFiles.get().map(::File)
+
+    protected val actionOutputDir
+        get() = File(parameters.outputDir.get())
+    protected val actionInputFiles
+        get() = parameters.inputFiles.get().map(::File)
+    protected val actionProject: GradleProject
+        get() = parameters.project.get()
 }

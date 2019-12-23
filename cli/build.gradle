@@ -15,23 +15,23 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
-    compile 'khttp:khttp:1.0.0'
-    compile 'com.google.apis:google-api-services-oauth2:v1-rev154-1.25.0'
-    compile 'org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0'
-    compile 'com.charleskorn.kaml:kaml:0.15.0'
-    compile "io.ktor:ktor-client-okhttp:1.2.6"
-    compile "io.ktor:ktor-client-json:1.2.6"
-    compile "io.ktor:ktor-client-gson:1.2.6"
-    compile "io.ktor:ktor-client-logging:1.2.6"
-    compile project(':shared')
-    testCompile project(':shared')
-    compile project(':runtime-jvm')
-    testCompile "junit:junit:4.12"
-    testCompile "org.jetbrains.kotlin:kotlin-test"
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
+    implementation 'khttp:khttp:1.0.0'
+    implementation 'com.google.apis:google-api-services-oauth2:v1-rev154-1.25.0'
+    api 'org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0'
+    api 'com.charleskorn.kaml:kaml:0.15.0'
+    implementation "io.ktor:ktor-client-okhttp:1.2.6"
+    implementation "io.ktor:ktor-client-json:1.2.6"
+    implementation "io.ktor:ktor-client-gson:1.2.6"
+    implementation "io.ktor:ktor-client-logging:1.2.6"
+    implementation project(':shared')
+    testImplementation project(':shared')
+    implementation project(':runtime-jvm')
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
 }
 
 sourceSets {
@@ -49,8 +49,7 @@ compileTestKotlin {
 
 task fatJar(type: Jar) {
     manifest.attributes 'Main-Class': 'org.rewedigital.konversation.Cli'
-    archiveName "konversation.jar"
-    baseName = project.name
+    archiveFileName = "konversation.jar"
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }

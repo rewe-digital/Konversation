@@ -24,7 +24,7 @@ abstract class ExportDialogflowAction : BaseAction(), DialogflowSetupProvider {
 
 internal interface DialogflowSetupProvider : TaskSetupProvider {
     fun getInvocationName(project: GradleProject) =
-        requireNotNull(project.invocationNames.values.firstOrNull() ?: project.dialogflow?.invocationNames?.values?.firstOrNull()) { "Invocation name not found" }
+        requireNotNull(project.dialogflow?.invocationNames?.values?.firstOrNull() ?: project.invocationNames.values.firstOrNull()) { "Invocation name not found" }
 
     override fun getInputFiles(project: GradleProject) =
         project.inputFiles.map(::File) + project.dialogflow?.inputFiles.orEmpty().map(::File)

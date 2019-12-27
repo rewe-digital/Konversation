@@ -24,7 +24,7 @@ abstract class ExportAlexaAction : BaseAction(), AlexaSetupProvider {
 
 internal interface AlexaSetupProvider : TaskSetupProvider {
     fun getInvocationName(project: GradleProject) =
-        requireNotNull(project.invocationNames.values.firstOrNull() ?: project.alexa?.invocationNames?.values?.firstOrNull()) { "Invocation name not found" }
+        requireNotNull(project.alexa?.invocationNames?.values?.firstOrNull() ?: project.invocationNames.values.firstOrNull()) { "Invocation name not found" }
 
     override fun getInputFiles(project: GradleProject) =
         project.inputFiles.map(::File) + project.alexa?.inputFiles.orEmpty().map(::File)

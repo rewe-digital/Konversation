@@ -85,20 +85,20 @@ open class KonversationPlugin : Plugin<Project> {
             }
             tasks.create("update$gradleName", DefaultTask::class.java).groupToKonversation("Update the ${project.name} project on all platforms.").also { updateProject ->
                 project.alexa?.let {
-                    val updateProjectOnAlexa = tasks.create("update${gradleName}OnAlexa", UpdateTask::class.java) { task ->
-                        task.project = project.name
+                    val updateProjectOnAlexa = tasks.create("update${gradleName}OnAlexa", UpdateAlexaTask::class.java) { task ->
+                        task.projectName = project.name
                         task.settings = kvs
                     }.groupToKonversation("Update ${project.name} on Alexa.")
                     updateProject.dependsOn += updateProjectOnAlexa
                     updateAlexa.dependsOn += updateProjectOnAlexa
                 }
                 project.dialogflow?.let {
-                    val updateProjectOnDialogflow = tasks.create("update${gradleName}OnDialogflow", UpdateTask::class.java) { task ->
-                        task.project = project.name
+                    val updateProjectOnDialogflow = tasks.create("update${gradleName}OnDialogflow", UpdateDialogflowTask::class.java) { task ->
+                        task.projectName = project.name
                         task.settings = kvs
                     }.groupToKonversation("Update ${project.name} on Dialogflow.")
                     updateProject.dependsOn += updateProjectOnDialogflow
-                    updateAlexa.dependsOn += updateProjectOnDialogflow
+                    updateDialogflow.dependsOn += updateProjectOnDialogflow
                 }
             }
         }

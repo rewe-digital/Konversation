@@ -8,7 +8,7 @@ import org.rewedigital.konversation.tasks.actions.BaseAction
 import java.io.File
 import javax.inject.Inject
 
-abstract class ExportAlexaTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractExportTask(workerExecutor, ExportAlexaAction::class.java), AlexaSetupProvider
+abstract class ExportAlexaTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractProjectExportingTask(workerExecutor, ExportAlexaAction::class.java), AlexaSetupProvider
 
 abstract class ExportAlexaAction : BaseAction(), AlexaSetupProvider {
     @Suppress("UnstableApiUsage")
@@ -33,7 +33,7 @@ internal interface AlexaSetupProvider : TaskSetupProvider {
         File(project.outputDirectory, getInvocationName(project).replace(' ', '-').toLowerCase() + ".json")
     )
 
-    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String) {
-        actionParameters.project.set(extensionSettings.projects[projectName])
+    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {
+        actionParameters.project.set(extensionSettings.projects[requireNotNull(projectName) { "Project name must not be null" }])
     }
 }

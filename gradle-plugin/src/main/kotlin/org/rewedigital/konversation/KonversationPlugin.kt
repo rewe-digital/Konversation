@@ -12,10 +12,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.workers.WorkAction
 import org.rewedigital.konversation.config.KonversationConfig
-import org.rewedigital.konversation.tasks.ExportAlexaTask
-import org.rewedigital.konversation.tasks.ExportDialogflowTask
-import org.rewedigital.konversation.tasks.ExportTask
-import org.rewedigital.konversation.tasks.UpdateTask
+import org.rewedigital.konversation.tasks.*
 import org.slf4j.Logger
 import java.io.File
 
@@ -35,11 +32,14 @@ open class KonversationPlugin : Plugin<Project> {
                 inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
             }
 
-            val exportKson = tasks.create("exportKson", ExportTask::class.java) { task ->
+            val exportKson = tasks.create("exportKson", ExportKsonTask::class.java) { task ->
                 task.settings = kvs
+                task.outputDirectory = kvs.ksonDir?.let(::File)
             }
-            tasks.create("exportKonversationEnum", ExportTask::class.java) { task ->
+            tasks.create("exportKonversationEnum", ExportKonversationEnumTask::class.java) { task ->
                 task.settings = kvs
+                task.outputDirectory = kvs.enumTargetDir
+                task.enumPackageName = kvs.enumPackageName
             }
             tasks.getByName("processResources").dependsOn += exportKson
         }

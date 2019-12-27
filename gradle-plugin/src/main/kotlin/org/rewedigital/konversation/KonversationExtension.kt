@@ -10,8 +10,8 @@ abstract class KonversationExtension(project: Project) : ExtensionAware {
     var cacheDir = buildDir.path + "/konversation/cache"
     var intentSchemaDirectory = buildDir.path + "/konversation/intent-schemas/"
     var enumPackageName: String = "org.rewedigital.konversation"
-    var enumFile: File? = null
-        get() = field ?: File(buildDir, "konversation/gen/main/" + enumPackageName.replace(".", "/") + "/Konversations.kt")
+    var enumTargetDir: File? = null
+        get() = field ?: File(buildDir, "konversation/gen/main/")
     var ksonDir: String? = null
         get() = field ?: buildDir.path + "/konversation/res/"
     val projects: Map<String, GradleProject>

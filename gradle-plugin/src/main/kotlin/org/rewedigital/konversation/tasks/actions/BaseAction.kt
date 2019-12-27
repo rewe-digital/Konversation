@@ -2,10 +2,7 @@ package org.rewedigital.konversation.tasks.actions
 
 import org.gradle.api.logging.Logger
 import org.gradle.workers.WorkAction
-import org.rewedigital.konversation.GradleProject
-import org.rewedigital.konversation.KonversationApi
-import org.rewedigital.konversation.KonversationProjectParameters
-import org.rewedigital.konversation.createLoggingFacade
+import org.rewedigital.konversation.*
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -15,15 +12,14 @@ abstract class BaseAction : WorkAction<KonversationProjectParameters> {
     protected val api = KonversationApi().apply {
         logger = createLoggingFacade(this@BaseAction.logger)
     }
-    protected val outputDir
-        get() = File(parameters.outputDir.get())
-    protected val inputFiles
-        get() = parameters.inputFiles.get().map(::File)
-
     protected val actionOutputDir
         get() = File(parameters.outputDir.get())
     protected val actionInputFiles
         get() = parameters.inputFiles.get().map(::File)
     protected val actionProject: GradleProject
         get() = parameters.project.get()
+    protected val KonversationExtension.inputFiles
+        get() = projects.flatMap { (_, project) ->
+            project.inputFiles + project.dialogflow?.inputFiles.orEmpty() + project.alexa?.inputFiles.orEmpty()
+        }
 }

@@ -8,7 +8,7 @@ import org.rewedigital.konversation.tasks.actions.BaseAction
 import java.io.File
 import javax.inject.Inject
 
-abstract class ExportDialogflowTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractExportTask(workerExecutor, ExportDialogflowAction::class.java), DialogflowSetupProvider
+abstract class ExportDialogflowTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractProjectExportingTask(workerExecutor, ExportDialogflowAction::class.java), DialogflowSetupProvider
 
 abstract class ExportDialogflowAction : BaseAction(), DialogflowSetupProvider {
     @Suppress("UnstableApiUsage")
@@ -33,7 +33,7 @@ internal interface DialogflowSetupProvider : TaskSetupProvider {
         File(project.outputDirectory, getInvocationName(project).replace(' ', '-').toLowerCase() + ".zip")
     )
 
-    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String) {
-        actionParameters.project.set(extensionSettings.projects[projectName])
+    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {
+        actionParameters.project.set(extensionSettings.projects[requireNotNull(projectName) { "Project name must not be null" }])
     }
 }

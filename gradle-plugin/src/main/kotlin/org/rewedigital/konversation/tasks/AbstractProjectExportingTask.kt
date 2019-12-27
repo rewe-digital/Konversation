@@ -13,36 +13,38 @@ import javax.inject.Inject
 
 @CacheableTask
 @Suppress("UnstableApiUsage")
-abstract class AbstractExportTask @Inject constructor(
+abstract class AbstractProjectExportingTask @Inject constructor(
     private var workerExecutor: WorkerExecutor,
     private val workClass: Class<out WorkAction<KonversationProjectParameters>>) : DefaultTask(), TaskSetupProvider {
 
+    @Input
+    var projectName: String? = null
+        set(value) {
+            field = requireNotNull(value) { "Project name must not be null" }
+            settings?.projects?.get(projectName)?.let(::setParameters)
+        }
     @Internal
     var settings: KonversationExtension? = null
         set(value) {
             field = requireNotNull(value) { "Settings must not be null" }
+            value.projects[projectName]?.let(::setParameters)
             // This static field will be overwritten multiple times with the same value
             Utterance.cacheDir = value.cacheDir
         }
     @InputFiles
     var inputFiles: List<File> = emptyList()
-    @OutputDirectory
-    var outputDirectory: File? = null
+    @OutputFiles
+    var outputFiles: List<File> = emptyList()
 
     @TaskAction
     fun executeTask() {
         workerExecutor.noIsolation().submit(workClass) {
-            setupParameters(it, requireNotNull(settings) { "Settings must not be null" }, null)
+            setupParameters(it, requireNotNull(settings) { "Settings must not be null" }, projectName)
         }
     }
 
-    override fun getInputFiles(project: GradleProject) =
-        project.inputFiles.map(::File) + project.dialogflow?.inputFiles.orEmpty().map(::File) + project.alexa?.inputFiles.orEmpty().map(::File)
-
-    override fun getOutputFiles(project: GradleProject) = emptyList<File>()
-
-    protected val KonversationExtension.inputFiles
-        get() = projects.flatMap { (_, project) ->
-            project.inputFiles + project.dialogflow?.inputFiles.orEmpty() + project.alexa?.inputFiles.orEmpty()
-        }.toHashSet().toList()
+    private fun setParameters(project: GradleProject) {
+        inputFiles = getInputFiles(project)
+        outputFiles = getOutputFiles(project)
+    }
 }

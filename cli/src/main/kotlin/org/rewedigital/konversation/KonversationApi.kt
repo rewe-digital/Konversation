@@ -134,7 +134,6 @@ class KonversationApi(
             val start = intent.sourceFile.path.indexOf("src" + File.separator) + 4
             val end = intent.sourceFile.path.indexOf(File.separatorChar, start)
             val sourceSet = intent.sourceFile.path.substring(start, end)
-            //cli.parseArgs(arrayOf("--export-kson", project.buildDir.path + "/konversation/res/$sourceSet/"
             val targetDir = File(targetDirectory.absolutePath, sourceSet)
             targetDir.mkdirs()
 
@@ -165,8 +164,9 @@ class KonversationApi(
             enum.appendln(if (hasNext()) "," else "")
         }
         enum.append("}")
-        targetDirectory.mkdirs()
-        File(targetDirectory, "Konversations.kt").outputStream().use { it.write(enum.toString().toByteArray()) }
+        val outFile = File(targetDirectory, namespace.replace(".", "/") + "/Konversations.kt")
+        outFile.parentFile.mkdirs()
+        outFile.outputStream().use { it.write(enum.toString().toByteArray()) }
     }
 
     fun authorizeAlexa(serverPort: Int) =

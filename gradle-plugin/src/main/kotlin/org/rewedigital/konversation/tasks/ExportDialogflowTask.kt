@@ -4,13 +4,12 @@ import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.GradleProject
 import org.rewedigital.konversation.KonversationExtension
 import org.rewedigital.konversation.KonversationProjectParameters
-import org.rewedigital.konversation.tasks.actions.BaseAction
 import java.io.File
 import javax.inject.Inject
 
 abstract class ExportDialogflowTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractProjectExportingTask(workerExecutor, ExportDialogflowAction::class.java), DialogflowSetupProvider
 
-abstract class ExportDialogflowAction : BaseAction(), DialogflowSetupProvider {
+abstract class ExportDialogflowAction : AbstractAction(), DialogflowSetupProvider {
     @Suppress("UnstableApiUsage")
     override fun execute() {
         api.inputFiles.addAll(getInputFiles(actionProject))

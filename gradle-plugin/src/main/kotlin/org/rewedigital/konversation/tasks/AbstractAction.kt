@@ -1,4 +1,4 @@
-package org.rewedigital.konversation.tasks.actions
+package org.rewedigital.konversation.tasks
 
 import org.gradle.api.logging.Logger
 import org.gradle.workers.WorkAction
@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 @Suppress("UnstableApiUsage")
-abstract class BaseAction : WorkAction<KonversationProjectParameters> {
+abstract class AbstractAction : WorkAction<KonversationProjectParameters>, TaskSetupProvider {
     protected val logger = LoggerFactory.getLogger(this.javaClass) as Logger
     protected val api = KonversationApi().apply {
-        logger = createLoggingFacade(this@BaseAction.logger)
+        logger = createLoggingFacade(this@AbstractAction.logger)
     }
     protected val actionOutputDir
         get() = File(parameters.outputDir.get())

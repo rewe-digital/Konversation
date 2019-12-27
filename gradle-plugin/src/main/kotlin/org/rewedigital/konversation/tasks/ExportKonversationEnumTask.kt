@@ -4,7 +4,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.KonversationExtension
 import org.rewedigital.konversation.KonversationProjectParameters
-import org.rewedigital.konversation.tasks.actions.BaseAction
 import javax.inject.Inject
 
 abstract class ExportKonversationEnumTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractExportTask(workerExecutor, ExportKonversationEnumAction::class.java) {
@@ -17,7 +16,7 @@ abstract class ExportKonversationEnumTask @Inject constructor(workerExecutor: Wo
     }
 }
 
-abstract class ExportKonversationEnumAction : BaseAction() {
+abstract class ExportKonversationEnumAction : AbstractAction() {
     @Suppress("UnstableApiUsage")
     override fun execute() {
         api.inputFiles.addAll(actionInputFiles)

@@ -3,7 +3,6 @@ package org.rewedigital.konversation.tasks
 import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.GradleProject
 import org.rewedigital.konversation.project
-import org.rewedigital.konversation.tasks.actions.BaseAction
 import java.io.File
 import javax.inject.Inject
 
@@ -11,7 +10,7 @@ abstract class UpdateDialogflowTask @Inject constructor(workerExecutor: WorkerEx
     override fun getOutputFiles(project: GradleProject) = emptyList<File>()
 }
 
-abstract class UpdateDialogflowAction : BaseAction(), DialogflowSetupProvider {
+abstract class UpdateDialogflowAction : AbstractAction(), DialogflowSetupProvider {
     @Suppress("UnstableApiUsage")
     override fun execute() {
         api.inputFiles.addAll(getInputFiles(actionProject))

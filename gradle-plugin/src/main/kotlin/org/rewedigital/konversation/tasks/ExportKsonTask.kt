@@ -3,7 +3,6 @@ package org.rewedigital.konversation.tasks
 import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.KonversationExtension
 import org.rewedigital.konversation.KonversationProjectParameters
-import org.rewedigital.konversation.tasks.actions.BaseAction
 import javax.inject.Inject
 
 abstract class ExportKsonTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractExportTask(workerExecutor, ExportKsonAction::class.java) {
@@ -13,7 +12,7 @@ abstract class ExportKsonTask @Inject constructor(workerExecutor: WorkerExecutor
     }
 }
 
-abstract class ExportKsonAction : BaseAction() {
+abstract class ExportKsonAction : AbstractAction() {
     @Suppress("UnstableApiUsage")
     override fun execute() {
         api.inputFiles.addAll(actionInputFiles)

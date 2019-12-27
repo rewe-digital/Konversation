@@ -4,13 +4,12 @@ import org.gradle.workers.WorkerExecutor
 import org.rewedigital.konversation.GradleProject
 import org.rewedigital.konversation.KonversationExtension
 import org.rewedigital.konversation.KonversationProjectParameters
-import org.rewedigital.konversation.tasks.actions.BaseAction
 import java.io.File
 import javax.inject.Inject
 
 abstract class ExportAlexaTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractProjectExportingTask(workerExecutor, ExportAlexaAction::class.java), AlexaSetupProvider
 
-abstract class ExportAlexaAction : BaseAction(), AlexaSetupProvider {
+abstract class ExportAlexaAction : AbstractAction(), AlexaSetupProvider {
     @Suppress("UnstableApiUsage")
     override fun execute() {
         api.inputFiles.addAll(getInputFiles(actionProject))

@@ -2,8 +2,10 @@ package org.rewedigital.konversation.tasks
 
 import org.gradle.api.tasks.Input
 import org.gradle.workers.WorkerExecutor
+import org.rewedigital.konversation.GradleProject
 import org.rewedigital.konversation.KonversationExtension
 import org.rewedigital.konversation.KonversationProjectParameters
+import java.io.File
 import javax.inject.Inject
 
 abstract class ExportKonversationEnumTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractExportTask(workerExecutor, ExportKonversationEnumAction::class.java) {
@@ -25,4 +27,10 @@ abstract class ExportKonversationEnumAction : AbstractAction() {
         api.exportEnum(actionOutputDir, packageName)
         logger.debug("Export finished")
     }
+
+    override fun getInputFiles(project: GradleProject) = emptyList<File>()
+
+    override fun getOutputFiles(project: GradleProject) = emptyList<File>()
+
+    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {}
 }

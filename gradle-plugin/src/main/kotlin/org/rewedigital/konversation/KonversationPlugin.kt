@@ -27,8 +27,6 @@ open class KonversationPlugin : Plugin<Project> {
             val javaConvention = convention.getPlugin(JavaPluginConvention::class.java)
             val inputDirs = mutableListOf<File>()
             javaConvention.sourceSets.forEach { sourceSet ->
-                sourceSet.allJava.srcDirs("build/konversation/gen/${sourceSet.name}/")
-                sourceSet.resources.srcDirs("build/konversation/res/${sourceSet.name}/")
                 inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
             }
 
@@ -36,12 +34,29 @@ open class KonversationPlugin : Plugin<Project> {
                 task.settings = kvs
                 task.outputDirectory = kvs.ksonDir?.let(::File)
             }
-            tasks.create("exportKonversationEnum", ExportKonversationEnumTask::class.java) { task ->
+            val exportEnum = tasks.create("exportKonversationEnum", ExportKonversationEnumTask::class.java) { task ->
                 task.settings = kvs
                 task.outputDirectory = kvs.enumTargetDir
                 task.enumPackageName = kvs.enumPackageName
             }
-            tasks.getByName("processResources").dependsOn += exportKson
+
+            gradle.projectsEvaluated {
+                if (kvs.generateEnum) {
+                    tasks.getByName("processResources").dependsOn += exportEnum
+                }
+                if (kvs.generateKson) {
+                    tasks.getByName("processResources").dependsOn += exportKson
+                }
+                javaConvention.sourceSets.forEach { sourceSet ->
+                    if (kvs.generateEnum) {
+                        sourceSet.allJava.srcDirs("build/konversation/gen/${sourceSet.name}/")
+                    }
+                    if (kvs.generateKson) {
+                        sourceSet.resources.srcDirs("build/konversation/res/${sourceSet.name}/")
+                        tasks.getByName("processResources").dependsOn += exportKson
+                    }
+                }
+            }
         }
 
         val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")

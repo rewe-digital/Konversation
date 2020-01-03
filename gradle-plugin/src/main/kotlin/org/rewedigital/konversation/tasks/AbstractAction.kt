@@ -15,7 +15,7 @@ abstract class AbstractAction : WorkAction<KonversationProjectParameters>, TaskS
     protected val actionOutputDir
         get() = File(parameters.outputDir.get())
     protected val actionInputFiles
-        get() = parameters.inputFiles.get().map(::File)
+        get() = parameters.inputFiles.get().resolveFiles()
     protected val actionProject: GradleProject
         get() = parameters.project.get()
     protected val KonversationExtension.inputFiles

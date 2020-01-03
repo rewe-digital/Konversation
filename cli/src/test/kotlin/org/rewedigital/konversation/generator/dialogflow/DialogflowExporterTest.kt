@@ -6,6 +6,7 @@ import org.rewedigital.konversation.Entity
 import org.rewedigital.konversation.parser.Utterance
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.zip.ZipInputStream
 import kotlin.test.assertEquals
 
@@ -22,7 +23,7 @@ class DialogflowExporterTest {
     @Test
     fun `Verify intent without utterances`() {
         val output = ZipHelper()
-        DialogflowExporter("test").minified(output, listOf(Intent("Foo")), null)
+        DialogflowExporter("test").minified(output, listOf(Intent("Foo", sourceFile = File("Foo"))), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
         assertEquals("""{"version":"1.0.0"}""", output.files["package.json"], "package.json has an unexpected content")
         assertEquals(expectedExtendedIntentMinified, output.files["intents/Foo.json"].replaceTimestamp())
@@ -35,7 +36,8 @@ class DialogflowExporterTest {
         val intent = Intent(name = "Foo",
             utterances = mutableListOf(
                 Utterance("aaa", "aaa"),
-                Utterance("bbb", "bbb")))
+                Utterance("bbb", "bbb")),
+            sourceFile = File("Foo"))
         DialogflowExporter("test").minified(output, listOf(intent), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
         assertEquals("""{"version":"1.0.0"}""", output.files["package.json"], "package.json has an unexpected content")
@@ -53,7 +55,8 @@ class DialogflowExporterTest {
             prompt = mutableListOf(
                 PartImpl(mutableListOf("hi"), PartType.Text)
             ),
-            suggestions = mutableListOf("Foo", "Bar"))
+            suggestions = mutableListOf("Foo", "Bar"),
+            sourceFile = File("Foo"))
         DialogflowExporter("test").minified(output, listOf(intent), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
         assertEquals("""{"version":"1.0.0"}""", output.files["package.json"], "package.json has an unexpected content")
@@ -71,7 +74,8 @@ class DialogflowExporterTest {
             prompt = mutableListOf(
                 PartImpl(mutableListOf("hi"), PartType.Text)
             ),
-            suggestions = mutableListOf("Foo", "Bar"))
+            suggestions = mutableListOf("Foo", "Bar"),
+            sourceFile = File("Foo"))
         DialogflowExporter("test").prettyPrinted(output, listOf(intent), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
         assertEquals("{\n  \"version\": \"1.0.0\"\n}", output.files["package.json"], "package.json has an unexpected content")
@@ -88,7 +92,8 @@ class DialogflowExporterTest {
             prompt = mutableListOf(
                 PartImpl(mutableListOf("hi"), PartType.Text)
             ),
-            suggestions = mutableListOf("Foo", "Bar"))
+            suggestions = mutableListOf("Foo", "Bar"),
+            sourceFile = File("Foo"))
         DialogflowExporter("test").prettyPrinted(output, listOf(intent), null)
         assertEquals(3, output.files.size, "Expect expect 3 files")
         assertEquals("{\n  \"version\": \"1.0.0\"\n}", output.files["package.json"], "package.json has an unexpected content")
@@ -105,7 +110,8 @@ class DialogflowExporterTest {
             prompt = mutableListOf(
                 PartImpl(mutableListOf("hi"), PartType.Text)
             ),
-            suggestions = mutableListOf("Foo", "Bar"))
+            suggestions = mutableListOf("Foo", "Bar"),
+            sourceFile = File("Foo"))
         val typeA = Entities("TypeA", listOf(Entity("master1", null, emptyList())))
         val typeB = Entities("TypeB", listOf(Entity("master2", "key", listOf("foobar"))))
         val typeC = Entities("TypeC", listOf(Entity("master3", null, listOf("foo", "bar")), Entity("master4", null, emptyList())))
@@ -132,7 +138,8 @@ class DialogflowExporterTest {
             prompt = mutableListOf(
                 PartImpl(mutableListOf("hi"), PartType.Text)
             ),
-            suggestions = mutableListOf("Foo", "Bar"))
+            suggestions = mutableListOf("Foo", "Bar"),
+            sourceFile = File("Foo"))
         val typeA = Entities("TypeA", listOf(Entity("master1", null, emptyList())))
         val typeB = Entities("TypeB", listOf(Entity("master2", "key", listOf("foobar"))))
         val typeC = Entities("TypeC", listOf(Entity("master3", null, listOf("foo", "bar")), Entity("master4", null, emptyList())))
@@ -157,11 +164,13 @@ class DialogflowExporterTest {
         val fallbackTestWithEvent = Intent(
             name = "FallbackTestWithEvent",
             utterances = mutableListOf(Utterance("Test", "Test")),
-            annotations = mutableMapOf("Fallback" to emptyList(), "Events" to listOf("Works")))
+            annotations = mutableMapOf("Fallback" to emptyList(), "Events" to listOf("Works")),
+            sourceFile = File("FallbackTestWithEvent"))
         val listElementsWithMultipleEvents = Intent(
             name = "ListElementsWithMultipleEvents",
             utterances = mutableListOf(Utterance("I like {{colors:color}}", "I like {color}")),
-            annotations = mutableMapOf("ListParameters" to listOf("colors"), "Events" to listOf("Works", "Fine")))
+            annotations = mutableMapOf("ListParameters" to listOf("colors"), "Events" to listOf("Works", "Fine")),
+            sourceFile = File("ListElementsWithMultipleEvents"))
         DialogflowExporter("test").apply {
             prettyPrinted(prettyPrinted, listOf(fallbackTestWithEvent, listElementsWithMultipleEvents), emptyList())
             minified(minified, listOf(fallbackTestWithEvent, listElementsWithMultipleEvents), emptyList())

@@ -37,7 +37,7 @@ abstract class AbstractExportTask @Inject constructor(
     }
 
     override fun getInputFiles(project: GradleProject) =
-        project.inputFiles.map(::File) + project.dialogflow?.inputFiles.orEmpty().map(::File) + project.alexa?.inputFiles.orEmpty().map(::File)
+        project.inputFiles.resolveFiles() + project.dialogflow?.inputFiles.orEmpty().resolveFiles() + project.alexa?.inputFiles.orEmpty().resolveFiles()
 
     override fun getOutputFiles(project: GradleProject) = emptyList<File>()
 

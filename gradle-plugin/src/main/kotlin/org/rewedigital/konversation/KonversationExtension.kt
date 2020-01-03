@@ -12,6 +12,7 @@ abstract class KonversationExtension(project: Project) : ExtensionAware {
     var enumPackageName: String = "org.rewedigital.konversation"
     var enumTargetDir: File? = null
         get() = field ?: File(buildDir, "konversation/gen/main/")
+    var attentionalNonExportedFiles = mutableListOf<String>()
     var ksonDir: String? = null
         get() = field ?: buildDir.path + "/konversation/res/"
     val projects: Map<String, GradleProject>

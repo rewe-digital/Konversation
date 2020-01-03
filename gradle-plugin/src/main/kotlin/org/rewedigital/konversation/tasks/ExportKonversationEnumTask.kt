@@ -15,6 +15,9 @@ abstract class ExportKonversationEnumTask @Inject constructor(workerExecutor: Wo
     override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {
         actionParameters.outputDir.set(extensionSettings.enumTargetDir?.path)
         actionParameters.enumPackageName.set(extensionSettings.enumPackageName)
+        actionParameters.inputFiles.set(extensionSettings.projects.values.flatMap { project ->
+            project.inputFiles + extensionSettings.attentionalNonExportedFiles + project.dialogflow?.inputFiles.orEmpty() + project.alexa?.inputFiles.orEmpty()
+        }.toHashSet().toList())
     }
 }
 
@@ -32,5 +35,9 @@ abstract class ExportKonversationEnumAction : AbstractAction() {
 
     override fun getOutputFiles(project: GradleProject) = emptyList<File>()
 
-    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {}
+    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {
+        actionParameters.inputFiles.set(extensionSettings.projects.values.flatMap { project ->
+            project.inputFiles + extensionSettings.attentionalNonExportedFiles + project.dialogflow?.inputFiles.orEmpty() + project.alexa?.inputFiles.orEmpty()
+        }.toHashSet().toList())
+    }
 }

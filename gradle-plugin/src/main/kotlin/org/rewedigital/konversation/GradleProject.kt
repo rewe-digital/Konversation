@@ -5,8 +5,8 @@ import org.rewedigital.konversation.config.KonversationConfig
 data class GradleProject(
     val name: String,
     override var invocationNames: MutableMap<String, String> = mutableMapOf(),
-    var alexa: AlexaConfig? = null,
-    var dialogflow: DialogflowConfig? = null,
+    var alexa: AlexaConfig? = AlexaConfig(),
+    var dialogflow: DialogflowConfig? = DialogflowConfig(),
     override var inputFiles: MutableList<String> = mutableListOf(),
     override var outputDirectory: String? = null) : IOConfig, java.io.Serializable {
 

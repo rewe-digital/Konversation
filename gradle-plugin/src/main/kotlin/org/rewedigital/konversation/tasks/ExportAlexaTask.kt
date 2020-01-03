@@ -26,7 +26,7 @@ internal interface AlexaSetupProvider : TaskSetupProvider {
         requireNotNull(project.alexa?.invocationNames?.values?.firstOrNull() ?: project.invocationNames.values.firstOrNull()) { "Invocation name not found" }
 
     override fun getInputFiles(project: GradleProject) =
-        project.inputFiles.map(::File) + project.alexa?.inputFiles.orEmpty().map(::File)
+        project.inputFiles.resolveFiles() + project.alexa?.inputFiles.orEmpty().resolveFiles()
 
     override fun getOutputFiles(project: GradleProject) = listOf(
         File(project.outputDirectory, getInvocationName(project).replace(' ', '-').toLowerCase() + ".json")

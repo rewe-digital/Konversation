@@ -10,4 +10,20 @@ interface TaskSetupProvider {
     fun getInputFiles(project: GradleProject): List<File>
     fun getOutputFiles(project: GradleProject): List<File>
     fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?)
+
+    fun List<String>.resolveFiles(): List<File> = flatMap { path ->
+        val file = File(path)
+        when {
+            path.contains('*') && file.parentFile.exists() -> {
+                val matcher = file.name.replace(".", "\\.").replace("*", ".*?").toRegex()
+                file.parentFile.listFiles { _, name ->
+                    matcher.matches(name)
+                }.orEmpty().toList()
+            }
+            file.exists() ->
+                listOf(file)
+            else ->
+                throw IllegalArgumentException("Input file \"$path\" not found!")
+        }
+    }
 }

@@ -2,22 +2,18 @@ package org.rewedigital.konversation.tasks
 
 import org.gradle.api.tasks.Input
 import org.gradle.workers.WorkerExecutor
-import org.rewedigital.konversation.GradleProject
 import org.rewedigital.konversation.KonversationExtension
 import org.rewedigital.konversation.KonversationProjectParameters
-import java.io.File
 import javax.inject.Inject
 
 abstract class ExportKonversationEnumTask @Inject constructor(workerExecutor: WorkerExecutor) : AbstractExportTask(workerExecutor, ExportKonversationEnumAction::class.java) {
     @Input
     var enumPackageName: String? = null
 
-    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {
+    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension) {
+        actionParameters.inputFiles.set(requireNotNull(settings) { "Settings must not be null" }.inputFiles)
         actionParameters.outputDir.set(extensionSettings.enumTargetDir?.path)
         actionParameters.enumPackageName.set(extensionSettings.enumPackageName)
-        actionParameters.inputFiles.set(extensionSettings.projects.values.flatMap { project ->
-            project.inputFiles + extensionSettings.attentionalNonExportedFiles + project.dialogflow?.inputFiles.orEmpty() + project.alexa?.inputFiles.orEmpty()
-        }.toHashSet().toList())
     }
 }
 
@@ -29,15 +25,5 @@ abstract class ExportKonversationEnumAction : AbstractAction() {
         logger.debug("Exporting Enum to $actionOutputDir for package name $packageName...")
         api.exportEnum(actionOutputDir, packageName)
         logger.debug("Export finished")
-    }
-
-    override fun getInputFiles(project: GradleProject) = emptyList<File>()
-
-    override fun getOutputFiles(project: GradleProject) = emptyList<File>()
-
-    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {
-        actionParameters.inputFiles.set(extensionSettings.projects.values.flatMap { project ->
-            project.inputFiles + extensionSettings.attentionalNonExportedFiles + project.dialogflow?.inputFiles.orEmpty() + project.alexa?.inputFiles.orEmpty()
-        }.toHashSet().toList())
     }
 }

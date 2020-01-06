@@ -12,7 +12,7 @@ abstract class ExportAlexaTask @Inject constructor(workerExecutor: WorkerExecuto
 abstract class ExportAlexaAction : AbstractAction(), AlexaSetupProvider {
     @Suppress("UnstableApiUsage")
     override fun execute() {
-        api.inputFiles.addAll(getInputFiles(actionProject))
+        api.inputFiles.addAll(actionInputFiles)
         api.invocationName = getInvocationName(actionProject)
         val target = getOutputFiles(actionProject).first()
         logger.debug("Exporting ${api.invocationName} to ${target.absolutePath}...")
@@ -26,13 +26,14 @@ internal interface AlexaSetupProvider : TaskSetupProvider {
         requireNotNull(project.alexa?.invocationNames?.values?.firstOrNull() ?: project.invocationNames.values.firstOrNull()) { "Invocation name not found" }
 
     override fun getInputFiles(project: GradleProject) =
-        project.inputFiles.resolveFiles() + project.alexa?.inputFiles.orEmpty().resolveFiles()
+        project.inputFiles + project.alexa?.inputFiles.orEmpty()
 
     override fun getOutputFiles(project: GradleProject) = listOf(
         File(project.outputDirectory, getInvocationName(project).replace(' ', '-').toLowerCase() + ".json")
     )
 
-    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?) {
-        actionParameters.project.set(extensionSettings.projects[requireNotNull(projectName) { "Project name must not be null" }])
+    override fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, project: GradleProject) {
+        actionParameters.project.set(project)
+        actionParameters.inputFiles.set(getInputFiles(project).resolveFiles(extensionSettings.sourceSets))
     }
 }

@@ -15,7 +15,7 @@ import javax.inject.Inject
 @Suppress("UnstableApiUsage")
 abstract class AbstractExportTask @Inject constructor(
     private var workerExecutor: WorkerExecutor,
-    private val workClass: Class<out WorkAction<KonversationProjectParameters>>) : DefaultTask(), TaskSetupProvider {
+    private val workClass: Class<out WorkAction<KonversationProjectParameters>>) : DefaultTask() {
 
     @Internal
     var settings: KonversationExtension? = null
@@ -24,25 +24,47 @@ abstract class AbstractExportTask @Inject constructor(
             // This static field will be overwritten multiple times with the same value
             Utterance.cacheDir = value.cacheDir
         }
+    @Internal
+    var project: GradleProject? = null
     @InputFiles
     var inputFiles: List<File> = emptyList()
+        get() = settings?.inputFiles ?: field
     @OutputDirectory
     var outputDirectory: File? = null
 
     @TaskAction
     fun executeTask() {
-        workerExecutor.noIsolation().submit(workClass) {
-            setupParameters(it, requireNotNull(settings) { "Settings must not be null" }, null)
+        workerExecutor.noIsolation().submit(workClass) { actionParameters ->
+            setupParameters(actionParameters, requireNotNull(settings) { "Settings must not be null" })
         }
     }
 
-    override fun getInputFiles(project: GradleProject) =
-        project.inputFiles.resolveFiles() + project.dialogflow?.inputFiles.orEmpty().resolveFiles() + project.alexa?.inputFiles.orEmpty().resolveFiles()
-
-    override fun getOutputFiles(project: GradleProject) = emptyList<File>()
+    abstract fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension)
 
     protected val KonversationExtension.inputFiles
-        get() = projects.flatMap { (_, project) ->
+        get() = (projects.flatMap { (_, project) ->
             project.inputFiles + project.dialogflow?.inputFiles.orEmpty() + project.alexa?.inputFiles.orEmpty()
-        }.toHashSet().toList()
+        } + attentionalNonExportedFiles).toHashSet().resolveFiles(sourceSets)
+
+    private fun Iterable<String>.resolveFiles(sourceSets: List<File>) = flatMap { path ->
+        sourceSets.flatMap { baseDir ->
+            val file = File(baseDir, path)
+            when {
+                path.contains('*') && file.parentFile.exists() -> {
+                    val matcher = file.name.replace(".", "\\.").replace("*", ".*?").toRegex()
+                    file.parentFile.listFiles { _, name ->
+                        matcher.matches(name)
+                    }.orEmpty().toList()
+                }
+                file.exists() ->
+                    listOf(file)
+                else ->
+                    emptyList()
+            }
+        }.also { result ->
+            if (result.isEmpty()) {
+                throw IllegalArgumentException("Input file \"$path\" not found in any source set (${sourceSets.joinToString { it.absolutePath }})!")
+            }
+        }
+    }
 }

@@ -25,9 +25,8 @@ open class KonversationPlugin : Plugin<Project> {
 
         plugins.withId("kotlin") {
             val javaConvention = convention.getPlugin(JavaPluginConvention::class.java)
-            val inputDirs = mutableListOf<File>()
-            javaConvention.sourceSets.forEach { sourceSet ->
-                inputDirs += File(projectDir, "src/${sourceSet.name}/konversation")
+            kvs.sourceSets = javaConvention.sourceSets.map { sourceSet ->
+                File(project.projectDir, "src/${sourceSet.name}/konversation")
             }
 
             val exportKson = tasks.create("exportKson", ExportKsonTask::class.java) { task ->
@@ -42,18 +41,17 @@ open class KonversationPlugin : Plugin<Project> {
 
             gradle.projectsEvaluated {
                 if (kvs.generateEnum) {
-                    tasks.getByName("processResources").dependsOn += exportEnum
+                    tasks.getByName("compileKotlin").dependsOn += exportEnum
                 }
                 if (kvs.generateKson) {
-                    tasks.getByName("processResources").dependsOn += exportKson
+                    tasks.getByName("compileKotlin").dependsOn += exportKson
                 }
                 javaConvention.sourceSets.forEach { sourceSet ->
                     if (kvs.generateEnum) {
-                        sourceSet.allJava.srcDirs("build/konversation/gen/${sourceSet.name}/")
+                        sourceSet.java.srcDirs("build/konversation/gen/${sourceSet.name}/")
                     }
                     if (kvs.generateKson) {
                         sourceSet.resources.srcDirs("build/konversation/res/${sourceSet.name}/")
-                        tasks.getByName("processResources").dependsOn += exportKson
                     }
                 }
             }
@@ -83,16 +81,16 @@ open class KonversationPlugin : Plugin<Project> {
             tasks.create("export$gradleName", DefaultTask::class.java).groupToKonversation("Export the ${project.name} project for all platforms.").also { exportProject ->
                 project.alexa?.let {
                     val exportProjectOnAlexa = tasks.create("export${gradleName}ForAlexa", ExportAlexaTask::class.java) { task ->
-                        task.projectName = project.name
                         task.settings = kvs
+                        task.project = project
                     }.groupToKonversation("Export ${project.name} for Alexa.")
                     exportProject.dependsOn += exportProjectOnAlexa
                     exportAlexa.dependsOn += exportProjectOnAlexa
                 }
                 project.dialogflow?.let {
                     val exportProjectOnDialogflow = tasks.create("export${gradleName}ForDialogflow", ExportDialogflowTask::class.java) { task ->
-                        task.projectName = project.name
                         task.settings = kvs
+                        task.project = project
                     }.groupToKonversation("Export ${project.name} for Dialogflow.")
                     exportProject.dependsOn += exportProjectOnDialogflow
                     exportDialogflow.dependsOn += exportProjectOnDialogflow
@@ -101,16 +99,16 @@ open class KonversationPlugin : Plugin<Project> {
             tasks.create("update$gradleName", DefaultTask::class.java).groupToKonversation("Update the ${project.name} project on all platforms.").also { updateProject ->
                 project.alexa?.let {
                     val updateProjectOnAlexa = tasks.create("update${gradleName}OnAlexa", UpdateAlexaTask::class.java) { task ->
-                        task.projectName = project.name
                         task.settings = kvs
+                        task.project = project
                     }.groupToKonversation("Update ${project.name} on Alexa.")
                     updateProject.dependsOn += updateProjectOnAlexa
                     updateAlexa.dependsOn += updateProjectOnAlexa
                 }
                 project.dialogflow?.let {
                     val updateProjectOnDialogflow = tasks.create("update${gradleName}OnDialogflow", UpdateDialogflowTask::class.java) { task ->
-                        task.projectName = project.name
                         task.settings = kvs
+                        task.project = project
                     }.groupToKonversation("Update ${project.name} on Dialogflow.")
                     updateProject.dependsOn += updateProjectOnDialogflow
                     updateDialogflow.dependsOn += updateProjectOnDialogflow

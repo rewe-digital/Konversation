@@ -13,7 +13,7 @@ abstract class UpdateAlexaTask @Inject constructor(workerExecutor: WorkerExecuto
 abstract class UpdateAlexaAction : AbstractAction(), AlexaSetupProvider {
     @Suppress("UnstableApiUsage")
     override fun execute() {
-        api.inputFiles.addAll(getInputFiles(actionProject))
+        api.inputFiles.addAll(actionInputFiles)
         api.invocationName = getInvocationName(actionProject)
         logger.lifecycle("Uploading ${api.invocationName} to Alexa...")
         logger.debug("token=${project.alexa?.refreshToken?.shorted}, skill:${project.alexa?.skillId?.shorted}, invocation:${api.invocationName}, clientId=${project.alexa?.clientId?.shorted}, clientSecret=${project.alexa?.clientSecret?.shorted}")

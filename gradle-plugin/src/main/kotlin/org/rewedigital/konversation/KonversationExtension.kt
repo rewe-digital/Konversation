@@ -6,6 +6,7 @@ import org.gradle.api.plugins.ExtensionAware
 import java.io.File
 
 abstract class KonversationExtension(project: Project) : ExtensionAware {
+    var sourceSets: List<File> = emptyList()
     private val buildDir = project.buildDir
     var cacheDir = buildDir.path + "/konversation/cache"
     var intentSchemaDirectory = buildDir.path + "/konversation/intent-schemas/"

@@ -7,23 +7,29 @@ import java.io.File
 
 // abstraction layer for simpler way to define the input and output files of the task
 interface TaskSetupProvider {
-    fun getInputFiles(project: GradleProject): List<File>
+    fun getInputFiles(project: GradleProject): List<String>
     fun getOutputFiles(project: GradleProject): List<File>
-    fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, projectName: String?)
+    fun setupParameters(actionParameters: KonversationProjectParameters, extensionSettings: KonversationExtension, project: GradleProject)
 
-    fun List<String>.resolveFiles(): List<File> = flatMap { path ->
-        val file = File(path)
-        when {
-            path.contains('*') && file.parentFile.exists() -> {
-                val matcher = file.name.replace(".", "\\.").replace("*", ".*?").toRegex()
-                file.parentFile.listFiles { _, name ->
-                    matcher.matches(name)
-                }.orEmpty().toList()
+    fun Iterable<String>.resolveFiles(sourceSets: List<File>) = flatMap { path ->
+        sourceSets.flatMap { baseDir ->
+            val file = File(baseDir, path)
+            when {
+                path.contains('*') && file.parentFile.exists() -> {
+                    val matcher = file.name.replace(".", "\\.").replace("*", ".*?").toRegex()
+                    file.parentFile.listFiles { _, name ->
+                        matcher.matches(name)
+                    }.orEmpty().toList()
+                }
+                file.exists() ->
+                    listOf(file)
+                else ->
+                    emptyList()
             }
-            file.exists() ->
-                listOf(file)
-            else ->
-                throw IllegalArgumentException("Input file \"$path\" not found!")
+        }.also { result ->
+            if (result.isEmpty()) {
+                throw IllegalArgumentException("Input file \"$path\" not found in any source set (${sourceSets.joinToString { it.absolutePath }})!")
+            }
         }
     }
 }

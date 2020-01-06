@@ -17,34 +17,26 @@ abstract class AbstractProjectExportingTask @Inject constructor(
     private var workerExecutor: WorkerExecutor,
     private val workClass: Class<out WorkAction<KonversationProjectParameters>>) : DefaultTask(), TaskSetupProvider {
 
-    @Input
-    var projectName: String? = null
-        set(value) {
-            field = requireNotNull(value) { "Project name must not be null" }
-            settings?.projects?.get(projectName)?.let(::setParameters)
-        }
     @Internal
     var settings: KonversationExtension? = null
         set(value) {
             field = requireNotNull(value) { "Settings must not be null" }
-            value.projects[projectName]?.let(::setParameters)
             // This static field will be overwritten multiple times with the same value
             Utterance.cacheDir = value.cacheDir
         }
+    @Internal
+    var project: GradleProject? = null
     @InputFiles
-    var inputFiles: List<File> = emptyList()
+    val inputFiles: List<File> = emptyList()
+        get() = project?.let(::getInputFiles)?.resolveFiles(settings?.sourceSets ?: error("Foo")) ?: field
     @OutputFiles
-    var outputFiles: List<File> = emptyList()
+    val outputFiles: List<File> = emptyList()
+        get() = project?.let(::getOutputFiles) ?: field
 
     @TaskAction
     fun executeTask() {
         workerExecutor.noIsolation().submit(workClass) {
-            setupParameters(it, requireNotNull(settings) { "Settings must not be null" }, projectName)
+            setupParameters(it, requireNotNull(settings) { "Settings must not be null" }, requireNotNull(project) { "Project must not be null" })
         }
-    }
-
-    private fun setParameters(project: GradleProject) {
-        inputFiles = getInputFiles(project)
-        outputFiles = getOutputFiles(project)
     }
 }

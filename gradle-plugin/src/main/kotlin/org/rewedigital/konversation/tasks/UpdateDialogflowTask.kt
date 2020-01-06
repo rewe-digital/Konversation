@@ -13,7 +13,7 @@ abstract class UpdateDialogflowTask @Inject constructor(workerExecutor: WorkerEx
 abstract class UpdateDialogflowAction : AbstractAction(), DialogflowSetupProvider {
     @Suppress("UnstableApiUsage")
     override fun execute() {
-        api.inputFiles.addAll(getInputFiles(actionProject))
+        api.inputFiles.addAll(actionInputFiles)
         api.invocationName = getInvocationName(actionProject)
         logger.lifecycle("Uploading ${api.invocationName} to Dialogflow...")
         logger.debug("serviceAccount=${project.dialogflow?.serviceAccount}, project:${project.dialogflow?.projectId}, invocation:${api.invocationName}}")

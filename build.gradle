@@ -3,7 +3,7 @@ ext {
     versions.cli = '1.1.0-rc9'
     versions.runtime_jvm = '1.0.1'
     versions.runtime_js = '1.0.3'
-    versions.gradle_plugin = '1.2.0-alpha1'
+    versions.gradle_plugin = '2.0.0-beta1'
     versions.kotlin = '1.3.61'
     versions.dokka = '0.9.17'
 }

@@ -1,4 +1,4 @@
-# Konversation [![Build Status][travis-image]][travis-url] [![Code Coverage][codecov-img]][codecov-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
+# Konversation [![Build Status][travis-image]][travis-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
 
 Konversation is a tool to generate rich and diversified responses to the user of a voice application. You can support multiple platforms
 and different output devices at once, as watches, speaker, smart displays and TVs. Multiple languages are also supported.   
@@ -224,7 +224,7 @@ The sources of the gradle plugin the preferec way to create the kson files, with
 
 The MIT license (MIT)
 
-Copyright (c) 2018 REWE Digital GmbH
+Copyright (c) 2018-2020 REWE Digital GmbH
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the

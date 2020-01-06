@@ -165,7 +165,7 @@ In version 1.2 provisioning will follow, that will allow you to integrate konver
 The runtime has 3 modules: a shared module for base classes which are used in the cli and each one module for JVM and JavaScript usage. So you can use Konveration in JVM languages like Kotlin and Java and JavaScript languages like ECMAScript or TypeScript.
 To keep the JS interface as simple as possible there is also a small facade to use the runtime in a more natural way without using the kotlin classes.  
 
-### Gradle plugin [![latest version is 1.0.0][gradle-badge-url]][gradle-plugin-url]
+### Gradle plugin [![latest version is 1.0.0][gradle-badge-url]][gradle-plugin-url] [![latest version is 2.0.0-beta1][gradle-badge-beta-url]][gradle-plugin-beta-url]
 The gradle plugin create some hooks into the gradle build to create the required kson files for the runtime and add them to your resources directory. So you don't need to use the cli if you are using gradle as build system.
 
 ## Roadmap
@@ -175,16 +175,17 @@ The gradle plugin create some hooks into the gradle build to create the required
 - Repompts
 - Voice only blocks
 
-### Version 1.1 ![release candidate][rc-badge-url]
+### Version 1.1 ![release candidate][released-badge-url]
 - Dialogflow exporter
 - Annotations (for fallbacks, list parameters, platform specific renamings, ...)
 
-### Version 1.2 ![testing][testing-badge-url]
+### Version 2.0 ![testing][beta-badge-url]
 - Provisioning
 - Refactoring of the cli (to make it easier to use for the gradle plugin)
 - Extensions of the gradle plugin to configure the credentials and multiple targets
+- Breaking changes for the gradle plugin and CLI
 
-### Version 1.3 ![planned][planned-badge-url]
+### Version 2.1 ![planned][planned-badge-url]
 - Contextual fallback support
 
 ### IntelliJ Plugin ![work in progress][wip-badge-url]
@@ -212,9 +213,12 @@ You want to contribute? Please check the [open issues][issues] and feel free to 
 [cli-readme]: https://github.com/rewe-digital-incubator/Konversation/blob/master/cli/readme.md
 [gradle-badge-url]: https://img.shields.io/badge/gradle--plugin-1.0.0-blue
 [gradle-plugin-url]: https://plugins.gradle.org/plugin/org.rewedigital.konversation
+[gradle-badge-beta-url]: https://img.shields.io/badge/unstable-2.0.0--beta1-orange
+[gradle-plugin-beta-url]: https://plugins.gradle.org/plugin/org.rewedigital.konversation
 [released-badge-url]: https://img.shields.io/badge/status-released-green
 [rc-badge-url]: https://img.shields.io/badge/status-release%20candiate-yellow
 [testing-badge-url]: https://img.shields.io/badge/status-testing-orange
+[beta-badge-url]: https://img.shields.io/badge/status-beta-orange
 [wip-badge-url]: https://img.shields.io/badge/status-in%20early%20development-red
 [planned-badge-url]: https://img.shields.io/badge/status-planned-red
 [Dialog]: https://github.com/rewe-digital-incubator/dialog

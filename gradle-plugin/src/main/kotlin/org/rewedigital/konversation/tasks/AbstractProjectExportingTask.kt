@@ -27,6 +27,7 @@ abstract class AbstractProjectExportingTask @Inject constructor(
     @Internal
     var project: GradleProject? = null
     @InputFiles
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     val inputFiles: List<File> = emptyList()
         get() = project?.let(::getInputFiles)?.resolveFiles(settings?.sourceSets ?: error("Foo")) ?: field
     @OutputFiles

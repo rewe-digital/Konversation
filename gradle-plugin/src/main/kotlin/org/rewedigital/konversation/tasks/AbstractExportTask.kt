@@ -27,6 +27,7 @@ abstract class AbstractExportTask @Inject constructor(
     @Internal
     var project: GradleProject? = null
     @InputFiles
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     var inputFiles: List<File> = emptyList()
         get() = settings?.inputFiles ?: field
     @OutputDirectory

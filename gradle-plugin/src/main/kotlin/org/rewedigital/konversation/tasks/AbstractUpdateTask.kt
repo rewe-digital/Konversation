@@ -1,6 +1,7 @@
 package org.rewedigital.konversation.tasks
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkerExecutor
@@ -16,14 +17,18 @@ abstract class AbstractUpdateTask @Inject constructor(
     private var workerExecutor: WorkerExecutor,
     private val workClass: Class<out WorkAction<KonversationProjectParameters>>) : DefaultTask(), TaskSetupProvider {
 
-   var settings: KonversationExtension? = null
-       set(value) {
-           field = requireNotNull(value) { "Settings must not be null" }
-           // This static field will be overwritten multiple times with the same value
-           Utterance.cacheDir = value.cacheDir
-       }
+    @Internal
+    var settings: KonversationExtension? = null
+        set(value) {
+            field = requireNotNull(value) { "Settings must not be null" }
+            // This static field will be overwritten multiple times with the same value
+            Utterance.cacheDir = value.cacheDir
+        }
+    @Internal
     var project: GradleProject? = null
+    @Internal
     var inputFiles: List<File> = emptyList()
+    @Internal
     var outputFiles: List<File> = emptyList()
 
     @TaskAction

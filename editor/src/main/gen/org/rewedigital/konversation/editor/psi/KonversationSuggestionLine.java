@@ -11,5 +11,4 @@ public interface KonversationSuggestionLine extends PsiElement {
 
     @NotNull
     List<KonversationSuggestionBlock> getSuggestionBlockList();
-
 }

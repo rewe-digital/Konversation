@@ -36,5 +36,4 @@ public class KonversationUtterancesBlockImpl extends ASTWrapperPsiElement implem
     public List<KonversationUtteranceLine> getUtteranceLineList() {
         return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationUtteranceLine.class);
     }
-
 }

@@ -1,23 +1,23 @@
 // This is a generated file. Not intended for manual editing.
 package org.rewedigital.konversation.editor.impl;
 
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
-import org.rewedigital.konversation.editor.psi.KonversationIntentName;
-import org.rewedigital.konversation.editor.psi.KonversationIntentNameChars;
+import org.rewedigital.konversation.editor.psi.KonversationLine;
+import org.rewedigital.konversation.editor.psi.KonversationReprompt;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
-import org.rewedigital.konversation.editor.psi.impl.KonversationNamedElementImpl;
 
-public class KonversationIntentNameImpl extends KonversationNamedElementImpl implements KonversationIntentName {
+public class KonversationRepromptImpl extends ASTWrapperPsiElement implements KonversationReprompt {
 
-    public KonversationIntentNameImpl(@NotNull ASTNode node) {
+    public KonversationRepromptImpl(@NotNull ASTNode node) {
         super(node);
     }
 
     public void accept(@NotNull KonversationVisitor visitor) {
-        visitor.visitIntentName(this);
+        visitor.visitReprompt(this);
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
@@ -30,7 +30,7 @@ public class KonversationIntentNameImpl extends KonversationNamedElementImpl imp
 
     @Override
     @NotNull
-    public KonversationIntentNameChars getIntentNameChars() {
-        return findNotNullChildByClass(KonversationIntentNameChars.class);
+    public KonversationLine getLine() {
+        return findNotNullChildByClass(KonversationLine.class);
     }
 }

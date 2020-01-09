@@ -36,5 +36,4 @@ public class KonversationSuggestionLineImpl extends ASTWrapperPsiElement impleme
     public List<KonversationSuggestionBlock> getSuggestionBlockList() {
         return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationSuggestionBlock.class);
     }
-
 }

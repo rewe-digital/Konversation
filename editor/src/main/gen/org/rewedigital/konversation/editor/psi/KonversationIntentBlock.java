@@ -4,17 +4,16 @@ package org.rewedigital.konversation.editor.psi;
 import com.intellij.psi.PsiElement;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public interface KonversationIntentBlock extends PsiElement {
 
     @NotNull
     KonversationIntentDeclaration getIntentDeclaration();
 
-    @Nullable
+    @NotNull
     KonversationPromptBlock getPromptBlock();
 
-    @Nullable
+    @NotNull
     KonversationRepromptBlock getRepromptBlock();
 
     @NotNull
@@ -22,5 +21,4 @@ public interface KonversationIntentBlock extends PsiElement {
 
     @NotNull
     KonversationUtterancesBlock getUtterancesBlock();
-
 }

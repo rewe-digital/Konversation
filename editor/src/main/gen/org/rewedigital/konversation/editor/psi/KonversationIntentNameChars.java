@@ -3,10 +3,6 @@ package org.rewedigital.konversation.editor.psi;
 
 import com.intellij.psi.PsiElement;
 
-import org.jetbrains.annotations.NotNull;
+public interface KonversationIntentNameChars extends PsiElement {
 
-public interface KonversationUtterence extends PsiElement {
-
-  @NotNull
-  KonversationLine getLine();
 }

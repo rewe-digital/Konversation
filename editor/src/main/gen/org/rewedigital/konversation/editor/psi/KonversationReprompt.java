@@ -5,8 +5,8 @@ import com.intellij.psi.PsiElement;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface KonversationSuggestionBlock extends PsiElement {
+public interface KonversationReprompt extends PsiElement {
 
     @NotNull
-    KonversationSuggestion getSuggestion();
+    KonversationLine getLine();
 }

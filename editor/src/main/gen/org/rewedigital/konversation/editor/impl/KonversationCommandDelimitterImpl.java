@@ -5,7 +5,6 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,9 +12,7 @@ import org.rewedigital.konversation.editor.psi.KonversationCommandDelimitter;
 import org.rewedigital.konversation.editor.psi.KonversationComment;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
-import java.util.List;
-
-import static org.rewedigital.konversation.editor.psi.KonversationTypes.LINEBREAK;
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.WHITE_SPACE;
 
 public class KonversationCommandDelimitterImpl extends ASTWrapperPsiElement implements KonversationCommandDelimitter {
 
@@ -36,15 +33,14 @@ public class KonversationCommandDelimitterImpl extends ASTWrapperPsiElement impl
     }
 
     @Override
-    @NotNull
-    public List<KonversationComment> getCommentList() {
-        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationComment.class);
+    @Nullable
+    public KonversationComment getComment() {
+        return findChildByClass(KonversationComment.class);
     }
 
     @Override
-    @Nullable
-    public PsiElement getLineBreak() {
-        return findChildByType(LINEBREAK);
+    @NotNull
+    public PsiElement getWhiteSpace() {
+        return findNotNullChildByType(WHITE_SPACE);
     }
-
 }

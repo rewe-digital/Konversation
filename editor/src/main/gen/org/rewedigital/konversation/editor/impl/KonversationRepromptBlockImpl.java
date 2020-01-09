@@ -8,20 +8,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.rewedigital.konversation.editor.psi.KonversationCommandDelimitter;
+import org.rewedigital.konversation.editor.psi.KonversationRepromptBlock;
+import org.rewedigital.konversation.editor.psi.KonversationRepromptLine;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
-import org.rewedigital.konversation.editor.psi.KonversationVoiceBlock;
-import org.rewedigital.konversation.editor.psi.KonversationVoicePrompt;
 
 import java.util.List;
 
-public class KonversationVoiceBlockImpl extends ASTWrapperPsiElement implements KonversationVoiceBlock {
+public class KonversationRepromptBlockImpl extends ASTWrapperPsiElement implements KonversationRepromptBlock {
 
-    public KonversationVoiceBlockImpl(@NotNull ASTNode node) {
+    public KonversationRepromptBlockImpl(@NotNull ASTNode node) {
         super(node);
     }
 
     public void accept(@NotNull KonversationVisitor visitor) {
-        visitor.visitVoiceBlock(this);
+        visitor.visitRepromptBlock(this);
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
@@ -34,13 +34,13 @@ public class KonversationVoiceBlockImpl extends ASTWrapperPsiElement implements 
 
     @Override
     @NotNull
-    public List<KonversationVoicePrompt> getVoicePromptList() {
-        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationVoicePrompt.class);
+    public List<KonversationCommandDelimitter> getCommandDelimitterList() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationCommandDelimitter.class);
     }
 
     @Override
     @NotNull
-    public List<KonversationCommandDelimitter> getCommandDelimitterList() {
-        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationCommandDelimitter.class);
+    public List<KonversationRepromptLine> getRepromptLineList() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationRepromptLine.class);
     }
 }

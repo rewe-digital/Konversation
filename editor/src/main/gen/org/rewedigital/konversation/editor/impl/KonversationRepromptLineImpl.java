@@ -3,22 +3,24 @@ package org.rewedigital.konversation.editor.impl;
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
-import org.rewedigital.konversation.editor.psi.KonversationCommandDelimitter;
-import org.rewedigital.konversation.editor.psi.KonversationUtteranceLine;
-import org.rewedigital.konversation.editor.psi.KonversationUtterence;
+import org.rewedigital.konversation.editor.psi.KonversationReprompt;
+import org.rewedigital.konversation.editor.psi.KonversationRepromptLine;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
-public class KonversationUtteranceLineImpl extends ASTWrapperPsiElement implements KonversationUtteranceLine {
+import static org.rewedigital.konversation.editor.psi.KonversationTypes.REPROMPT_MARKER;
 
-    public KonversationUtteranceLineImpl(@NotNull ASTNode node) {
+public class KonversationRepromptLineImpl extends ASTWrapperPsiElement implements KonversationRepromptLine {
+
+    public KonversationRepromptLineImpl(@NotNull ASTNode node) {
         super(node);
     }
 
     public void accept(@NotNull KonversationVisitor visitor) {
-        visitor.visitUtteranceLine(this);
+        visitor.visitRepromptLine(this);
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
@@ -31,13 +33,13 @@ public class KonversationUtteranceLineImpl extends ASTWrapperPsiElement implemen
 
     @Override
     @NotNull
-    public KonversationCommandDelimitter getCommandDelimitter() {
-        return findNotNullChildByClass(KonversationCommandDelimitter.class);
+    public KonversationReprompt getReprompt() {
+        return findNotNullChildByClass(KonversationReprompt.class);
     }
 
     @Override
     @NotNull
-    public KonversationUtterence getUtterence() {
-        return findNotNullChildByClass(KonversationUtterence.class);
+    public PsiElement getRepromptMarker() {
+        return findNotNullChildByType(REPROMPT_MARKER);
     }
 }

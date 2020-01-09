@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface KonversationUtterancesBlock extends PsiElement {
 
-    @NotNull
-    List<KonversationUtteranceLine> getUtteranceLineList();
-
+  @NotNull
+  List<KonversationUtteranceLine> getUtteranceLineList();
 }

@@ -7,11 +7,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface KonversationTextBlock extends PsiElement {
-
-    @NotNull
-    List<KonversationTextPrompt> getTextPromptList();
+public interface KonversationRepromptBlock extends PsiElement {
 
     @NotNull
     List<KonversationCommandDelimitter> getCommandDelimitterList();
+
+    @NotNull
+    List<KonversationRepromptLine> getRepromptLineList();
 }

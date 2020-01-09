@@ -5,9 +5,10 @@ import com.intellij.psi.PsiElement;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public interface KonversationComment extends PsiElement {
 
-    @NotNull
-    KonversationLine getLine();
-
+  @NotNull
+  List<KonversationLine> getLineList();
 }

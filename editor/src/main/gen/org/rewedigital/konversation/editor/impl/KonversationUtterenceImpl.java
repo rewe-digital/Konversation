@@ -33,5 +33,4 @@ public class KonversationUtterenceImpl extends ASTWrapperPsiElement implements K
     public KonversationLine getLine() {
         return findNotNullChildByClass(KonversationLine.class);
     }
-
 }

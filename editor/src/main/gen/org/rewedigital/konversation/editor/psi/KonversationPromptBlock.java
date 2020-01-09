@@ -10,9 +10,5 @@ import java.util.List;
 public interface KonversationPromptBlock extends PsiElement {
 
     @NotNull
-    List<KonversationBlockDelimitter> getBlockDelimitterList();
-
-    @NotNull
     List<KonversationBlockPart> getBlockPartList();
-
 }

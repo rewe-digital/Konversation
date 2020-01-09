@@ -5,9 +5,8 @@ import com.intellij.psi.PsiElement;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface KonversationBlockDelimitter extends PsiElement {
+public interface KonversationConcatLineBreak extends PsiElement {
 
     @NotNull
     KonversationCommandDelimitter getCommandDelimitter();
-
 }

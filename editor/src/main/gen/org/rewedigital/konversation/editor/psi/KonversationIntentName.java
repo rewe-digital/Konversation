@@ -29,5 +29,4 @@ public interface KonversationIntentName extends KonversationNamedElement {
 
     @Nullable
     PsiElement getNameIdentifier();
-
 }

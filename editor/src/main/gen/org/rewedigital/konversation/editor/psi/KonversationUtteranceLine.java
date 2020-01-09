@@ -7,10 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface KonversationUtteranceLine extends PsiElement {
 
-    @NotNull
-    KonversationCommandDelimitter getCommandDelimitter();
+  @NotNull
+  KonversationCommandDelimitter getCommandDelimitter();
 
-    @NotNull
-    KonversationUtterence getUtterence();
-
+  @NotNull
+  KonversationUtterence getUtterence();
 }

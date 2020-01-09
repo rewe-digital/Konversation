@@ -25,29 +25,32 @@ import static org.rewedigital.konversation.editor.psi.KonversationTypes.*;
 EOL=\R
 WHITE_SPACE=\s+
 
-STRING=[^\r\n:!+~\[\]-]+
-SPECIALCHAR=[:!+~\[\]-]
-LINEBREAK=[\r\n]+
+STRING=[^\r\n:!+~\[\]?@/#-]+
+REPROMPT_MARKER=\?[1-3]
+WHITE_SPACE=[ \t\n\x0B\f\r]+
 
 %%
 <YYINITIAL> {
-  {WHITE_SPACE}      { return WHITE_SPACE; }
+  {WHITE_SPACE}          { return WHITE_SPACE; }
 
-  ":"                { return COLON; }
-  "!"                { return UTTERANCE; }
-  "-"                { return BLOCK; }
-  "~"                { return VOICE_ONLY_BLOCK; }
-  "+"                { return BLOCK_CONCAT; }
-  "{"                { return LEFT_BRACE; }
-  "}"                { return RIGHT_BRACE; }
-  "["                { return SUGGESTION_START; }
-  "]"                { return SUGGESTION_END; }
-  "$"                { return VARIABLE_DOLLAR; }
-  "%"                { return VARIABLE_PERCENT; }
+  "@"                    { return ANNOTATION; }
+  ":"                    { return COLON; }
+  "!"                    { return UTTERANCE; }
+  "-"                    { return BLOCK; }
+  "~"                    { return VOICE_ONLY_BLOCK; }
+  "+"                    { return BLOCK_CONCAT; }
+  "{"                    { return LEFT_BRACE; }
+  "}"                    { return RIGHT_BRACE; }
+  "["                    { return SUGGESTION_START; }
+  "]"                    { return SUGGESTION_END; }
+  "$"                    { return VARIABLE_DOLLAR; }
+  "%"                    { return VARIABLE_PERCENT; }
+  "#"                    { return SHARP_COMMENT; }
+  "//"                   { return SLASH_COMMENT; }
 
-  {STRING}           { return STRING; }
-  {SPECIALCHAR}      { return SPECIALCHAR; }
-  {LINEBREAK}        { return LINEBREAK; }
+  {STRING}               { return STRING; }
+  {REPROMPT_MARKER}      { return REPROMPT_MARKER; }
+  {WHITE_SPACE}          { return WHITE_SPACE; }
 
 }
 

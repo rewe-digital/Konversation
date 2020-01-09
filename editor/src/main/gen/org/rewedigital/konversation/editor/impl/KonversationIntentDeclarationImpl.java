@@ -4,21 +4,25 @@ package org.rewedigital.konversation.editor.impl;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.util.PsiTreeUtil;
 
 import org.jetbrains.annotations.NotNull;
+import org.rewedigital.konversation.editor.psi.KonversationAnnotations;
 import org.rewedigital.konversation.editor.psi.KonversationCommandDelimitter;
-import org.rewedigital.konversation.editor.psi.KonversationUtteranceLine;
-import org.rewedigital.konversation.editor.psi.KonversationUtterence;
+import org.rewedigital.konversation.editor.psi.KonversationIntentDeclaration;
+import org.rewedigital.konversation.editor.psi.KonversationIntentName;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
-public class KonversationUtteranceLineImpl extends ASTWrapperPsiElement implements KonversationUtteranceLine {
+import java.util.List;
 
-    public KonversationUtteranceLineImpl(@NotNull ASTNode node) {
+public class KonversationIntentDeclarationImpl extends ASTWrapperPsiElement implements KonversationIntentDeclaration {
+
+    public KonversationIntentDeclarationImpl(@NotNull ASTNode node) {
         super(node);
     }
 
     public void accept(@NotNull KonversationVisitor visitor) {
-        visitor.visitUtteranceLine(this);
+        visitor.visitIntentDeclaration(this);
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
@@ -31,13 +35,19 @@ public class KonversationUtteranceLineImpl extends ASTWrapperPsiElement implemen
 
     @Override
     @NotNull
+    public List<KonversationAnnotations> getAnnotationsList() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationAnnotations.class);
+    }
+
+    @Override
+    @NotNull
     public KonversationCommandDelimitter getCommandDelimitter() {
         return findNotNullChildByClass(KonversationCommandDelimitter.class);
     }
 
     @Override
     @NotNull
-    public KonversationUtterence getUtterence() {
-        return findNotNullChildByClass(KonversationUtterence.class);
+    public KonversationIntentName getIntentName() {
+        return findNotNullChildByClass(KonversationIntentName.class);
     }
 }

@@ -6,18 +6,17 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
-import org.rewedigital.konversation.editor.psi.KonversationLine;
-import org.rewedigital.konversation.editor.psi.KonversationOutput;
+import org.rewedigital.konversation.editor.psi.KonversationIntentNameChars;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
-public class KonversationOutputImpl extends ASTWrapperPsiElement implements KonversationOutput {
+public class KonversationIntentNameCharsImpl extends ASTWrapperPsiElement implements KonversationIntentNameChars {
 
-    public KonversationOutputImpl(@NotNull ASTNode node) {
+    public KonversationIntentNameCharsImpl(@NotNull ASTNode node) {
         super(node);
     }
 
     public void accept(@NotNull KonversationVisitor visitor) {
-        visitor.visitOutput(this);
+        visitor.visitIntentNameChars(this);
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
@@ -27,11 +26,4 @@ public class KonversationOutputImpl extends ASTWrapperPsiElement implements Konv
             super.accept(visitor);
         }
     }
-
-    @Override
-    @NotNull
-    public KonversationLine getLine() {
-        return findNotNullChildByClass(KonversationLine.class);
-    }
-
 }

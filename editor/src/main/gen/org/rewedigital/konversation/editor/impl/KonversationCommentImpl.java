@@ -4,11 +4,14 @@ package org.rewedigital.konversation.editor.impl;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.util.PsiTreeUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.rewedigital.konversation.editor.psi.KonversationComment;
 import org.rewedigital.konversation.editor.psi.KonversationLine;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
+
+import java.util.List;
 
 public class KonversationCommentImpl extends ASTWrapperPsiElement implements KonversationComment {
 
@@ -30,8 +33,7 @@ public class KonversationCommentImpl extends ASTWrapperPsiElement implements Kon
 
     @Override
     @NotNull
-    public KonversationLine getLine() {
-        return findNotNullChildByClass(KonversationLine.class);
+    public List<KonversationLine> getLineList() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationLine.class);
     }
-
 }

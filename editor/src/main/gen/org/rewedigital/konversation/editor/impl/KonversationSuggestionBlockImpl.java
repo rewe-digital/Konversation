@@ -33,5 +33,4 @@ public class KonversationSuggestionBlockImpl extends ASTWrapperPsiElement implem
     public KonversationSuggestion getSuggestion() {
         return findNotNullChildByClass(KonversationSuggestion.class);
     }
-
 }

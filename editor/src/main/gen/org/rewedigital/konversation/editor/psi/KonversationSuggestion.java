@@ -9,5 +9,4 @@ public interface KonversationSuggestion extends PsiElement {
 
     @NotNull
     KonversationLine getLine();
-
 }

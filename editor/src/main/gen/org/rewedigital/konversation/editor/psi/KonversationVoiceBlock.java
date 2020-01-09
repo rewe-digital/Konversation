@@ -9,10 +9,9 @@ import java.util.List;
 
 public interface KonversationVoiceBlock extends PsiElement {
 
-    @NotNull
-    List<KonversationCommandDelimitter> getCommandDelimitterList();
+  @NotNull
+  List<KonversationVoicePrompt> getVoicePromptList();
 
-    @NotNull
-    List<KonversationOutput> getOutputList();
-
+  @NotNull
+  List<KonversationCommandDelimitter> getCommandDelimitterList();
 }

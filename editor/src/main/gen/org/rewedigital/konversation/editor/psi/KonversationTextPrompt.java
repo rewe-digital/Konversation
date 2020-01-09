@@ -5,9 +5,8 @@ import com.intellij.psi.PsiElement;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface KonversationOutput extends PsiElement {
+public interface KonversationTextPrompt extends PsiElement {
 
     @NotNull
     KonversationLine getLine();
-
 }

@@ -7,11 +7,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface KonversationTextBlock extends PsiElement {
+public interface KonversationIntentDeclaration extends PsiElement {
 
     @NotNull
-    List<KonversationTextPrompt> getTextPromptList();
+    List<KonversationAnnotations> getAnnotationsList();
 
     @NotNull
-    List<KonversationCommandDelimitter> getCommandDelimitterList();
+    KonversationCommandDelimitter getCommandDelimitter();
+
+    @NotNull
+    KonversationIntentName getIntentName();
 }

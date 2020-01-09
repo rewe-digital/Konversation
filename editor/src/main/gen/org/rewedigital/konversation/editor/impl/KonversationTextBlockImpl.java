@@ -8,8 +8,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.rewedigital.konversation.editor.psi.KonversationCommandDelimitter;
-import org.rewedigital.konversation.editor.psi.KonversationOutput;
 import org.rewedigital.konversation.editor.psi.KonversationTextBlock;
+import org.rewedigital.konversation.editor.psi.KonversationTextPrompt;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
 import java.util.List;
@@ -34,14 +34,13 @@ public class KonversationTextBlockImpl extends ASTWrapperPsiElement implements K
 
     @Override
     @NotNull
-    public List<KonversationCommandDelimitter> getCommandDelimitterList() {
-        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationCommandDelimitter.class);
+    public List<KonversationTextPrompt> getTextPromptList() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationTextPrompt.class);
     }
 
     @Override
     @NotNull
-    public List<KonversationOutput> getOutputList() {
-        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationOutput.class);
+    public List<KonversationCommandDelimitter> getCommandDelimitterList() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, KonversationCommandDelimitter.class);
     }
-
 }

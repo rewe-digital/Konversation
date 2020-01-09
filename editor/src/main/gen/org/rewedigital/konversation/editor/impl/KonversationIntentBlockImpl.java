@@ -6,7 +6,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.rewedigital.konversation.editor.psi.KonversationIntentBlock;
 import org.rewedigital.konversation.editor.psi.KonversationIntentDeclaration;
 import org.rewedigital.konversation.editor.psi.KonversationPromptBlock;
@@ -40,15 +39,15 @@ public class KonversationIntentBlockImpl extends ASTWrapperPsiElement implements
     }
 
     @Override
-    @Nullable
+    @NotNull
     public KonversationPromptBlock getPromptBlock() {
-        return findChildByClass(KonversationPromptBlock.class);
+        return findNotNullChildByClass(KonversationPromptBlock.class);
     }
 
     @Override
-    @Nullable
+    @NotNull
     public KonversationRepromptBlock getRepromptBlock() {
-        return findChildByClass(KonversationRepromptBlock.class);
+        return findNotNullChildByClass(KonversationRepromptBlock.class);
     }
 
     @Override
@@ -62,5 +61,4 @@ public class KonversationIntentBlockImpl extends ASTWrapperPsiElement implements
     public KonversationUtterancesBlock getUtterancesBlock() {
         return findNotNullChildByClass(KonversationUtterancesBlock.class);
     }
-
 }

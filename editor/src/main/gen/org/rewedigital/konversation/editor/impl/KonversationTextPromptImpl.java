@@ -6,18 +6,18 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 
 import org.jetbrains.annotations.NotNull;
-import org.rewedigital.konversation.editor.psi.KonversationBlockDelimitter;
-import org.rewedigital.konversation.editor.psi.KonversationCommandDelimitter;
+import org.rewedigital.konversation.editor.psi.KonversationLine;
+import org.rewedigital.konversation.editor.psi.KonversationTextPrompt;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 
-public class KonversationBlockDelimitterImpl extends ASTWrapperPsiElement implements KonversationBlockDelimitter {
+public class KonversationTextPromptImpl extends ASTWrapperPsiElement implements KonversationTextPrompt {
 
-    public KonversationBlockDelimitterImpl(@NotNull ASTNode node) {
+    public KonversationTextPromptImpl(@NotNull ASTNode node) {
         super(node);
     }
 
     public void accept(@NotNull KonversationVisitor visitor) {
-        visitor.visitBlockDelimitter(this);
+        visitor.visitTextPrompt(this);
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
@@ -30,8 +30,7 @@ public class KonversationBlockDelimitterImpl extends ASTWrapperPsiElement implem
 
     @Override
     @NotNull
-    public KonversationCommandDelimitter getCommandDelimitter() {
-        return findNotNullChildByClass(KonversationCommandDelimitter.class);
+    public KonversationLine getLine() {
+        return findNotNullChildByClass(KonversationLine.class);
     }
-
 }

@@ -5,13 +5,11 @@ import com.intellij.psi.PsiElement;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-public interface KonversationTextBlock extends PsiElement {
+public interface KonversationRepromptLine extends PsiElement {
 
     @NotNull
-    List<KonversationTextPrompt> getTextPromptList();
+    KonversationReprompt getReprompt();
 
     @NotNull
-    List<KonversationCommandDelimitter> getCommandDelimitterList();
+    PsiElement getRepromptMarker();
 }

@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.rewedigital.konversation.editor.psi.KonversationBlockPart;
+import org.rewedigital.konversation.editor.psi.KonversationCommandDelimitter;
+import org.rewedigital.konversation.editor.psi.KonversationConcatLine;
+import org.rewedigital.konversation.editor.psi.KonversationConcatLineBreak;
 import org.rewedigital.konversation.editor.psi.KonversationTextBlock;
 import org.rewedigital.konversation.editor.psi.KonversationVisitor;
 import org.rewedigital.konversation.editor.psi.KonversationVoiceBlock;
@@ -32,6 +35,24 @@ public class KonversationBlockPartImpl extends ASTWrapperPsiElement implements K
 
     @Override
     @Nullable
+    public KonversationCommandDelimitter getCommandDelimitter() {
+        return findChildByClass(KonversationCommandDelimitter.class);
+    }
+
+    @Override
+    @Nullable
+    public KonversationConcatLine getConcatLine() {
+        return findChildByClass(KonversationConcatLine.class);
+    }
+
+    @Override
+    @Nullable
+    public KonversationConcatLineBreak getConcatLineBreak() {
+        return findChildByClass(KonversationConcatLineBreak.class);
+    }
+
+    @Override
+    @Nullable
     public KonversationTextBlock getTextBlock() {
         return findChildByClass(KonversationTextBlock.class);
     }
@@ -41,5 +62,4 @@ public class KonversationBlockPartImpl extends ASTWrapperPsiElement implements K
     public KonversationVoiceBlock getVoiceBlock() {
         return findChildByClass(KonversationVoiceBlock.class);
     }
-
 }

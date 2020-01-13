@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 @Suppress("UnstableApiUsage")
-abstract class AbstractAction : WorkAction<KonversationProjectParameters>, TaskSetupProvider {
+abstract class AbstractAction : WorkAction<KonversationProjectParameters> {
     protected val logger = LoggerFactory.getLogger(this.javaClass) as Logger
     protected val api = KonversationApi().apply {
         logger = createLoggingFacade(this@AbstractAction.logger)

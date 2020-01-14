@@ -534,7 +534,7 @@ open class Cli {
         }
 
         var L: LoggerFacade = DefaultLogger()
-        const val version = "1.2.0-beta1"
+        const val version = "2.0.0-beta1"
         val amazonClientId by lazy { "Zmd3fiI4eGxvTkxLSlpYW1kXUiFxayogJjc7LHU9VFMCUlsVQUcfSEnCtsOnwrjDr8K2wqDCosKhw7jCrsKXw4bDgMKRwprCmMOTw5fDnMKD".cheapDecrypt() }
         val amazonClientSecret by lazy { "PzJrJiYuL38rREMaHh8IUgFZDHJ6cnl+Lmsxb2hsBFQGUg8REkEdT0jCt8OgwrrCssOowqnCpMKnwqvCrcKXwprCkMOIw4/Cl8KAw5PCiMKNw5/DscO0".cheapDecrypt() }
         val exposeToken = java.lang.Boolean.parseBoolean("true")

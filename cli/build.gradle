@@ -50,7 +50,7 @@ compileTestKotlin {
 task fatJar(type: Jar) {
     manifest.attributes 'Main-Class': 'org.rewedigital.konversation.Cli'
     archiveFileName = "konversation.jar"
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 mainClassName = 'org.rewedigital.konversation.Cli'

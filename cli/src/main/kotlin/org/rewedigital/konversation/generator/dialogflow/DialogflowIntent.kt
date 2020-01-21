@@ -46,7 +46,7 @@ data class DialogflowIntent(
   "lastUpdate": $lastUpdate,
   "fallbackIntent": $fallbackIntent,
   "events": [""")
-        printer(events.joinToString(separator = ",") { "\n    \"$it\"" })
+        printer(events.joinToString(separator = ",") { "\n    {\n      \"name\": \"$it\"\n    }" })
         if (events.isNotEmpty()) printer("\n  ")
         printer("]\n}")
     }
@@ -58,7 +58,7 @@ data class DialogflowIntent(
             if (hasNext()) printer(",")
         }
         printer("""],"priority":$priority,"webhookUsed":$webhookUsed,"webhookForSlotFilling":$webhookForSlotFilling,"lastUpdate":$lastUpdate,"fallbackIntent":$fallbackIntent,"events":[""")
-        printer(events.joinToString(separator = ",") { "\"$it\"" })
+        printer(events.joinToString(separator = ",") { "{\"name\":\"$it\"}" })
         printer("]}")
     }
 }

@@ -12,7 +12,7 @@ import org.rewedigital.konversation.parser.Parser
 import java.io.File
 import java.io.FileOutputStream
 
-class KonversationApi(
+open class KonversationApi(
     var amazonClientId: String? = null,
     var amazonClientSecret: String? = null,
     var dialogflowServiceAccount: File? = null) {
@@ -22,7 +22,7 @@ class KonversationApi(
 
     private var inputFileCount = 0
 
-    val intentDb by lazy { cache.first }
+    open val intentDb by lazy { cache.first }
     private val entityDb by lazy { cache.second }
 
     private val cache: Pair<Map<String, List<Intent>>, Map<String, List<Entities>>> by lazy {
@@ -75,7 +75,8 @@ class KonversationApi(
 
     // shared fields
     var invocationName: String? = null // TODO should be a map for localization
-    val inputFiles = mutableListOf<File>()
+    // open for testing
+    open val inputFiles = mutableListOf<File>()
     var logger: LoggerFacade? = null
 
     fun exportPlain(targetDirectory: File) = intentDb[""]?.let { intents ->
@@ -97,9 +98,9 @@ class KonversationApi(
         }
     }
 
-    fun exportAlexaSchema(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
+    fun exportAlexaSchema(targetFile: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
         val exporter = AlexaExporter(requireNotNull(invocationName) { "invocation name was null" })
-        val stream = targetDirectory.outputStream()
+        val stream = targetFile.outputStream()
         exportToStream(stream, prettyPrint, exporter, intents, config)
     }
 
@@ -115,10 +116,10 @@ class KonversationApi(
         stream.close()
     }
 
-    fun exportDialogflow(targetDirectory: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
+    fun exportDialogflow(targetFile: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
         val invocationName = requireNotNull(this.invocationName) { "invocation name was null" }
         val exporter = DialogflowExporter(invocationName)
-        val stream = File(targetDirectory, "${invocationName.replace(' ', '-').toLowerCase()}.zip").outputStream()
+        val stream = targetFile.outputStream()
         if (prettyPrint) {
             exporter.prettyPrinted(stream, intents, entityDb[config])
         } else {
@@ -169,9 +170,9 @@ class KonversationApi(
     fun authorizeAlexa(serverPort: Int) =
         alexa.login(serverPort)
 
-    fun updateAlexaSchema(invocationName: String, skillId: String): String? =
+    fun updateAlexaSchema(skillId: String): String? =
         intentDb[""]?.let { intents ->
-            alexa.uploadSchema(invocationName, "de-DE", intents, entityDb[""], skillId)?.let { location ->
+            alexa.uploadSchema(requireNotNull(invocationName) { "invocationName must not be null" }, "de-DE", intents, entityDb[""], skillId)?.let { location ->
                 var msg: String? = null
                 for (i in 0..600) {
                     Thread.sleep(1000)
@@ -186,9 +187,9 @@ class KonversationApi(
             }
         }
 
-    fun updateDialogflowProject(project: String, invocationName: String) {
+    fun updateDialogflowProject(project: String) {
         intentDb[""]?.let { intents ->
-            dialogflow.uploadIntents(invocationName, project, intents, entityDb[""])
+            dialogflow.uploadIntents(requireNotNull(invocationName) { "invocationName must not be null" }, project, intents, entityDb[""])
         }
     }
 

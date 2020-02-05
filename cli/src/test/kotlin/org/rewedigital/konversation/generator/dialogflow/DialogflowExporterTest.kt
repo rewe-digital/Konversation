@@ -570,7 +570,9 @@ class DialogflowExporterTest {
               "lastUpdate": 4711,
               "fallbackIntent": true,
               "events": [
-                "Works"
+                {
+                  "name": "Works"
+                }
               ]
             }
         """.trimIndent()
@@ -612,8 +614,12 @@ class DialogflowExporterTest {
               "lastUpdate": 4711,
               "fallbackIntent": false,
               "events": [
-                "Works",
-                "Fine"
+                {
+                  "name": "Works"
+                },
+                {
+                  "name": "Fine"
+                }
               ]
             }""".trimIndent()
         private val expectedUsersaysFallbackAndEvent = """

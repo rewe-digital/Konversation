@@ -1,108 +1,100 @@
 package org.rewedigital.konversation
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import org.junit.Test
+import org.rewedigital.konversation.config.AlexaProject
+import org.rewedigital.konversation.config.DialogflowProject
+import org.rewedigital.konversation.config.KonversationConfig
+import org.rewedigital.konversation.config.KonversationProject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
 import java.text.DecimalFormat
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class CliTest {
 
     @Test
     fun `No args will show help`() {
-        val sut = CliTestHelper.getOutput()
+        val sut = CliTestHelper().getOutput()
+        assertNoException(sut)
         assertEquals(sut.output, "Missing arguments! Please specify at least the kvs or grammar file you want to process.\n\n$helpOutput\n\n")
-        assertEquals(-1, sut.exitCode)
     }
 
     @Test
     fun `Help is working`() {
-        val sut = CliTestHelper.getOutput("help")
+        val sut = CliTestHelper().getOutput("-help")
+        assertNoException(sut)
         assertEquals(sut.output, "$helpOutput\n\n")
-        assertNull(sut.exitCode)
     }
 
     @Test
-    fun `Check processing of grammar files`() {
-        val testOutputFile = "test.out"
-        val expectedOutputPath = "$pathPrefix/help-expected-alexa-result-minified.json"
-        val expectedOutputFile = File(expectedOutputPath).absoluteFile
-        val outputFile = File(testOutputFile).absoluteFile
-        try {
-            val sut = CliTestHelper.getOutput("$pathPrefix/help.grammar", "--export-alexa", testOutputFile, "-invocation", "test")
-            assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n")
-            assertNull(sut.exitCode, message = "Execution should be successful")
-            assertTrue(outputFile.exists(), message = "Output file should be created")
-            assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
-            assertEquals(expectedOutputFile.readText(), outputFile.readText())
-        } finally {
-            outputFile.apply {
-                if (exists()) deleteOnExit()
-            }
-        }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun `Check handling of missing invocation name`() {
-        val sut = CliTestHelper.getOutput("$pathPrefix/help.grammar", "--export-alexa", "test.out")
-        //assertEquals("Parsing of 1 file finished. Found 1 intent.\n" +
-        //        "Invocation name is missing! Please specify the invocation name with the parameter -invocation <name>.\n", sut.output)
-        //assertEquals(-1, sut.exitCode)
+    fun `Check invocation of exportAlexa`() {
+        val sut = CliTestHelper().getOutput("$resPath/help.grammar", "--export-alexa", "-p", "alexaOnly")
+        assertNoException(sut)
+        assertEquals(listOf(File("$resPath/help.grammar").absoluteFile), sut.api.inputFiles, "Expected input file was missing")
+        verify { sut.api setProperty "invocationName" value "alexa" }
+        verify { sut.api invoke "exportAlexaSchema" withArguments listOf(File("alexaOnly.json").absoluteFile, false) }
     }
 
     @Test
-    fun `Check processing of konversation files`() {
-        val testOutputFile = "test.out"
-        val expectedOutputPath = "$pathPrefix/help-expected-alexa-result-minified.json"
-        val expectedOutputFile = File(expectedOutputPath).absoluteFile
-        val outputFile = File(testOutputFile).absoluteFile
-        try {
-            val sut = CliTestHelper.getOutput("$pathPrefix/help.kvs", "--export-alexa", testOutputFile, "-invocation", "test")
-            assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n")
-            assertNull(sut.exitCode, message = "Execution should be successful")
-            assertTrue(outputFile.exists(), message = "Output file should be created")
-            assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
-            assertEquals(outputFile.readText(), expectedOutputFile.readText())
-        } finally {
-            outputFile.apply {
-                if (exists()) deleteOnExit()
-            }
-        }
+    fun `Check invocation of exportDialogflow`() {
+        val sut = CliTestHelper().getOutput("$resPath/help.grammar", "--export-dialogflow", "-p", "dialogflowOnly")
+        assertNoException(sut)
+        assertEquals(listOf(File("$resPath/help.grammar").absoluteFile), sut.api.inputFiles, "Expected input file was missing")
+        verify { sut.api setProperty "invocationName" value "dialogflow" }
+        verify { sut.api invoke "exportDialogflow" withArguments listOf(File("dialogflowOnly.zip").absoluteFile, false) }
+    }
+
+    @Test
+    fun `Check invocation of updateAlexa`() {
+        val sut = CliTestHelper().getOutput("$resPath/help.grammar", "--update-alexa", "-p", "test")
+        assertEquals(listOf(File("$resPath/help.grammar").absoluteFile), sut.api.inputFiles, "Expected input file was missing")
+        verify { sut.api.invocationName = "test" }
+        verify { sut.api.updateAlexaSchema("skill-id") }
+    }
+
+    @Test
+    fun `Check invocation of updateDialogflow`() {
+        val sut = CliTestHelper().getOutput("$resPath/help.grammar", "--update-dialogflow", "-p", "test")
+        assertNoException(sut)
+        verify { sut.api.invocationName = "test" }
+        assertTrue(sut.api.inputFiles.contains(File("$resPath/help.grammar").absoluteFile))
+        verify { sut.api.updateDialogflowProject("project-id") }
+    }
+
+    @Test
+    fun `Check handling of missing profile`() {
+        val sut = CliTestHelper {}.getOutput("$resPath/help.grammar", "--export-alexa")
+        assertNotNull(sut.caughtException, "Exception expected")
+        assertEquals("No project defined", sut.caughtException.message)
+    }
+
+    @Test
+    fun `Check default project handling`() {
+        val sut = CliTestHelper {
+            projects["SomeDefault"] = KonversationProject("foo", "bar", "de" to "Foo Bar")
+        }.getOutput("$resPath/help.grammar", "--export-alexa")
+        assertNoException(sut)
+        verify { sut.api setProperty "invocationName" value "Foo Bar" }
+        assertTrue(sut.output.isNotBlank())
     }
 
     @Test
     fun `Test dump option`() {
-        val testOutputFile = "test.out"
-        val expectedOutputPath = "$pathPrefix/help-expected-alexa-result-minified.json"
-        val expectedOutputFile = File(expectedOutputPath).absoluteFile
-        val outputFile = File(testOutputFile).absoluteFile
-        try {
-            val sut = CliTestHelper.getOutput("$pathPrefix/help.kvs", "-dump")
-            assertEquals(sut.output, "Parsing of 1 file finished. Found 1 intent.\n")
-            assertNull(sut.exitCode, message = "Execution should be successful")
-            assertTrue(outputFile.exists(), message = "Output file should be created")
-            assertTrue(expectedOutputFile.exists(), message = "The reference file must exists")
-            assertEquals(outputFile.readText(), expectedOutputFile.readText())
-        } finally {
-            outputFile.apply {
-                if (exists()) deleteOnExit()
-            }
-        }
+        val sut = CliTestHelper().getOutput("$resPath/help.kvs", "-dump")
+        assertNoException(sut)
+        verify { sut.api.exportPlain(File(".").absoluteFile.parentFile) }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `Test non existing file`() {
-        val sut = CliTestHelper.getOutput("404.kvs")
-        //assertEquals(sut.output, "Input file \"404.kvs\" not found!\n")
-        //assertEquals(-1, sut.exitCode)
-    }
-
-    @Test
+    //@Test
     fun `Test big grammar file`() {
-        val sut = CliTestHelper.getOutput("$pathPrefix/huge.grammar", "-stats", "-count")
+        val sut = CliTestHelper().getOutput("$resPath/huge.grammar", "-stats", "-count")
         assertEquals("""Parsing of 1 file finished. Found 2 intents.
 Test has 1 utterances which have in total 1${separator}000 permutations
 Foo has 0 utterances which have in total 0 permutations
@@ -114,142 +106,111 @@ Intent Test has in total 1${separator}000 utterances:
 Foo has now 0 sample utterances
 Generated in total 1${separator}000 Utterances
 """, sut.output)
-        assertNull(sut.exitCode)
-    }
-
-// This test should be moved to KonversationApiTest
-//    @Test
-//    fun `Test dir processing`() {
-//        val sut = ParseTestCli("$pathPrefix/")
-//        val expectedFiles = listOf(
-//            "$pathPrefix/konversation/help.kvs",
-//            "$pathPrefix/konversation-alexa/help.kvs",
-//            "$pathPrefix/konversation-alexa-de/help.kvs",
-//            "$pathPrefix/konversation-en/help.kvs",
-//            "$pathPrefix/konversation/colors.values")
-//            .map {
-//                File(it).absolutePath
-//            }
-//        assertEquals(4, sut.intentDb.size)
-//        assertEquals(5, sut.files.distinct().size)
-//        assertTrue(expectedFiles.contains(sut.files[0]), "Unexpected file ${sut.files[0]} was processed")
-//        assertTrue(expectedFiles.contains(sut.files[1]), "Unexpected file ${sut.files[1]} was processed")
-//        assertTrue(expectedFiles.contains(sut.files[2]), "Unexpected file ${sut.files[2]} was processed")
-//        assertTrue(expectedFiles.contains(sut.files[3]), "Unexpected file ${sut.files[3]} was processed")
-//        assertTrue(expectedFiles.contains(sut.files[4]), "Unexpected file ${sut.files[4]} was processed")
-//    }
-//
-//    @Test
-//    fun `Konversation directory processing`() {
-//        val outDir = "${rootPath}build/out/kson"
-//        val sut = CliTestHelper.getOutput("$pathPrefix/", "--export-kson", outDir)
-//        assertEquals(sut.output, "Parsing of 5 files finished. Found 1 intent.\n")
-//        assertNull(sut.exitCode)
-//        assertTrue(File("$outDir/konversation/Help.kson").absoluteFile.isFile)
-//        assertTrue(File("$outDir/konversation-alexa/Help.kson").absoluteFile.isFile)
-//        assertTrue(File("$outDir/konversation-alexa-de/Help.kson").absoluteFile.isFile)
-//        assertTrue(File("$outDir/konversation-en/Help.kson").absoluteFile.isFile)
-//    }
-
-    @Test
-    fun `Check for missing args`() {
-        var exception = false
-        try {
-            CliTestHelper.getOutput("./", "--export-alexa")
-        } catch (e: java.lang.IllegalArgumentException) {
-            assertEquals("Target is missing", e.message)
-            exception = true
-        }
-        assertTrue(exception, "Should throw exception")
-        exception = false
-        try {
-            CliTestHelper.getOutput("./", "--export-kson")
-        } catch (e: java.lang.IllegalArgumentException) {
-            assertEquals("Target directory is missing", e.message)
-            exception = true
-        }
-        assertTrue(exception, "Should throw exception")
+        assertNoException(sut)
     }
 
     @Test
     fun `Use multiple input files`() {
-        val prefix = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
-        val sut = CliTestHelper.getOutput("${prefix}src/test/konversation/help.kvs",
-            "$pathPrefix/foo/ExampleIntent.kvs",
+        val sut = CliTestHelper().getOutput("$kvsPath/help.kvs",
+            "$resPath/foo/ExampleIntent.kvs",
+            "-p", "test",
             "--export-alexa",
-            "${prefix}build/out/multiple-input.json",
-            "-invocation",
-            "multi",
             "-prettyprint")
-        assertEquals("Parsing of 2 files finished. Found 2 intents.\n", sut.output)
-        assertNull(sut.exitCode)
+        assertNoException(sut)
+        assertTrue(sut.api.inputFiles.contains(File("$kvsPath/help.kvs").absoluteFile), "Expected input file was missing")
+        assertTrue(sut.api.inputFiles.contains(File("$resPath/foo/ExampleIntent.kvs").absoluteFile), "Expected input file was missing")
+        verify { sut.api setProperty "invocationName" value "test" }
+        verify { sut.api invoke "exportAlexaSchema" withArguments listOf(File("test.json").absoluteFile, true) }
     }
 
-    private class CliTestHelper : Cli() {
-        private var exitCode: Int? = null
+    private fun assertNoException(sut: TestResult) {
+        if (sut.caughtException != null) {
+            throw AssertionError("Execution should be successful", sut.caughtException)
+        }
+    }
 
-        override fun exit(status: Int) {
-            exitCode = status
-            throw ExitException()
+    private class CliTestHelper(
+        settings: KonversationConfig,
+        val api: KonversationApi) : Cli(settings, api) {
+        constructor() : this(mockConfig(), mockApi())
+        constructor(apply: KonversationConfig.() -> Unit) : this(KonversationConfig().apply(apply), mockApi())
+
+        fun getOutput(vararg args: String): TestResult {
+            var caughtException: IllegalArgumentException? = null
+            val outputStream = ByteArrayOutputStream(4096)
+            val out = System.out
+            val err = System.err
+            val log = PrintStream(outputStream)
+            System.setOut(log)
+            System.setErr(log)
+            try {
+                parseArgs(args.toList().toTypedArray())
+            } catch (e: IllegalArgumentException) {
+                L.error(e.message.orEmpty())
+                caughtException = e
+            }
+            System.out.flush()
+            System.err.flush()
+            System.setOut(out)
+            System.setErr(err)
+            return TestResult(outputStream.toString().replace("\r", ""), api, caughtException)
         }
 
-        private class ExitException : RuntimeException()
-
         companion object {
-            fun getOutput(vararg args: String): TestResult {
-                val outputStream = ByteArrayOutputStream(4096)
-                val out = System.out
-                val err = System.err
-                val log = PrintStream(outputStream)
-                System.setOut(log)
-                System.setErr(log)
-                val helper = CliTestHelper()
-                try {
-                    helper.parseArgs(args.toList().toTypedArray())
-                } catch (e: ExitException) {
-                }
-                System.out.flush()
-                System.err.flush()
-                System.setOut(out)
-                System.setErr(err)
-                return TestResult(outputStream.toString().replace("\r", ""), helper.exitCode)
+            private fun mockApi(): KonversationApi {
+                val mock = mockk<KonversationApi>(relaxed = true)
+                val inputFiles = spyk(mutableListOf<File>())
+                every { mock.inputFiles } returns inputFiles
+                every { mock.intentDb } returns spyk(mutableMapOf())
+                return mock
+            }
+
+            private fun mockConfig() = KonversationConfig().apply {
+                projects["test"] = KonversationProject(
+                    alexa = AlexaProject("skill-id"),
+                    dialogflow = DialogflowProject("project-id"),
+                    invocations = mutableMapOf("de" to "test")
+                )
+                projects["alexaOnly"] = KonversationProject(
+                    alexa = AlexaProject("skill-id"),
+                    invocations = mutableMapOf("de" to "alexa")
+                )
+                projects["dialogflowOnly"] = KonversationProject(
+                    dialogflow = DialogflowProject("project-id"),
+                    invocations = mutableMapOf("de" to "dialogflow")
+                )
+                projects["configError"] = KonversationProject(
+                    invocations = mutableMapOf()
+                )
             }
         }
     }
 
-    data class TestResult(val output: String, val exitCode: Int?)
-
-//    private class ParseTestCli(path: String) : Cli() {
-//        val files = mutableListOf<String>()
-//
-//        init {
-//            parseArgs(arrayOf(path, "-dump"))
-//        }
-//
-//        override fun parseFile(file: File): Parser {
-//            files.add(file.absolutePath)
-//            return Parser(file)
-//        }
-//    }
+    data class TestResult(val output: String, val api: KonversationApi, val caughtException: IllegalArgumentException? = null)
 
     companion object {
         private val format = DecimalFormat.getInstance() as DecimalFormat
         val separator = format.decimalFormatSymbols.groupingSeparator
         val rootPath = if (File("").absolutePath.endsWith("cli")) "" else "cli/"
-        val pathPrefix = "${rootPath}src/test/resources"
-        val helpOutput = """Arguments for konversation:
-[-help]                         Print this help
-[-version]                      Print the version of this build
-[-count]                        Count the permutations and print this to the console
-[-stats]                        Print out some statistics while generation
-[-cache]                        Cache everything even if an utterance has just a single permutation
-[--export-alexa <OUTFILE>]      Write the resulting json to OUTFILE instead of result.json
-[--export-dialogflow <OUTDIR>]  Write the dialogflow zip file to the OUTDIR
-[-invocation <NAME>]            Define the invocation name for the Alexa export
-[-limit <COUNT>]                While pretty printing the json to the output file limit the utterances count per intent
-[--export-kson <OUTDIR>]        Compiles the kvs file to kson resource files which are required for the runtime
-[-dump]                         Dump out all intents to its own txt file
-[-prettyprint]                  Generate a well formatted json for easier debugging
-<FILE>                          The grammar, kvs or values files to parse"""
+        val resPath = "${rootPath}src/test/resources"
+        val kvsPath = "${rootPath}src/test/konversation"
+        const val helpOutput = """Arguments for konversation:
+[-help]                   Print this help
+[-version]                Print the version of this build
+[-count]                  Count the permutations and print this to the console
+[-stats]                  Print out some statistics while generation
+[--export-alexa]          Write the resulting json to OUTFILE instead of result.json
+[--export-dialogflow]     Write the dialogflow zip file to the OUTDIR
+[--export-kson]           Compiles the kvs file to kson resource files which are required for the runtime
+[--update-alexa]          tba
+[--update-dialogflow]     tba
+[-p|--project] <project>  tba
+[--create-project]        tba
+[--show-projects]         tba
+[--show-alexa-token]      tba
+[--show-dialogflow-token] tba
+[-dump]                   Dump out all intents to its own txt file
+[-prettyprint]            Generate a well formatted json for easier debugging
+<FILE>                    The grammar, kvs or values files to parse"""
     }
 }

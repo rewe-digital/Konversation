@@ -19,9 +19,9 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.system.exitProcess
 
-open class Cli {
-    private val settings: KonversationConfig
-    private val api: KonversationApi
+open class Cli(
+    private val settings: KonversationConfig,
+    private val api: KonversationApi) {
     private var countPermutations = false
     private var stats = false
     private var prettyPrint = false
@@ -53,42 +53,11 @@ open class Cli {
         null
     }
 
-    init {
-        val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
-        api = if (settingsFile?.exists() == true) {
-            settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
-            KonversationApi(
-                settings.auth.alexaClientId ?: amazonClientId,
-                settings.auth.alexaClientSecret ?: amazonClientSecret,
-                settings.auth.dialogflowServiceAccount).also { api ->
-                settings.auth.alexaRefreshToken?.let { token ->
-                    api.alexa.loadToken(token)
-                }
-            }
-        } else {
-            settings = KonversationConfig()
-            KonversationApi(amazonClientId, amazonClientSecret)
-        }
-        api.logger = L
-    }
-
-    private fun searchFile(workDir: File, fileName: String): File? {
-        val possibleFile = File(workDir, fileName)
-        return when {
-            possibleFile.exists() ->
-                possibleFile
-            workDir.parentFile != null && workDir.parentFile.absolutePath != workDir.absolutePath ->
-                searchFile(workDir.parentFile, fileName)
-            else -> null
-        }
-    }
-
     fun parseArgs(args: Array<String>) {
         if (args.isEmpty()) {
             L.error("Missing arguments! Please specify at least the kvs or grammar file you want to process.")
             L.error()
             help()
-            exit(-1)
         } else {
             if (settings.projects.size == 1) {
                 println("Using default project ${settings.projects.keys.first()}.")
@@ -176,24 +145,30 @@ open class Cli {
             }
             if (exportDialogflow) {
                 api.invocationName = projectData.dialogflowInvocations.values.first()
-                api.exportDialogflow(outDir, prettyPrint)
+                api.exportDialogflow(File(outDir, "$projectName.zip"), prettyPrint)
             }
             if (exportKson) {
                 api.exportKson(outDir, prettyPrint)
+            }
+            if (exportDump) {
+                val outputDirectory = projectName?.let { name ->
+                    File(outDir, name)
+                } ?: outDir
+                api.exportPlain(outputDirectory)
             }
             enumFileNamespace?.let { namespace ->
                 api.exportEnum(outDir, namespace)
             }
             if (updateDialogflow) {
-                val invocationName = projectData.dialogflowInvocations.values.first()
-                println("Uploading $invocationName to Dialogflow...")
+                api.invocationName = projectData.dialogflowInvocations.values.first()
+                println("Uploading ${api.invocationName} to Dialogflow...")
                 val projectId = requireNotNull(projectData.dialogflow?.projectId) { "No project id set" }
-                api.updateDialogflowProject(projectId, invocationName)
+                api.updateDialogflowProject(projectId)
             }
             if (updateAlexa) {
-                val invocationName = projectData.alexaInvocations.values.first()
-                println("Uploading $invocationName to Alexa...")
-                api.updateAlexaSchema(invocationName, requireNotNull(projectData.alexa?.skillId) { "No skill id set" })
+                api.invocationName = projectData.alexaInvocations.values.first()
+                println("Uploading ${api.invocationName} to Alexa...")
+                api.updateAlexaSchema(requireNotNull(projectData.alexa?.skillId) { "No skill id set" })
                 println("Done")
             }
             if (exposeAlexaToken) {
@@ -427,7 +402,7 @@ open class Cli {
             "[--export-kson]" to "Compiles the kvs file to kson resource files which are required for the runtime",
             "[--update-alexa]" to "tba",
             "[--update-dialogflow]" to "tba",
-            "[-p|--project]" to "tba",
+            "[-p|--project] <project>" to "tba",
             "[--create-project]" to "tba",
             "[--show-projects]" to "tba",
             "[--show-alexa-token]" to "tba",
@@ -444,10 +419,6 @@ open class Cli {
             L.log("$key${" ".repeat(space - key.length)}$value")
         }
         L.log()
-    }
-
-    open fun exit(status: Int) {
-        exitProcess(status)
     }
 
     private fun lookForCollisions(intentDb: Map<String, List<Intent>>) {
@@ -523,21 +494,50 @@ open class Cli {
         }
 
     companion object {
+        var L: LoggerFacade = DefaultLogger()
+        const val version = "2.0.0-beta1"
+        val exposeToken = java.lang.Boolean.parseBoolean("true")
+
         @JvmStatic
         fun main(args: Array<String>) {
+            val amazonClientId by lazy { "Zmd3fiI4eGxvTkxLSlpYW1kXUiFxayogJjc7LHU9VFMCUlsVQUcfSEnCtsOnwrjDr8K2wqDCosKhw7jCrsKXw4bDgMKRwprCmMOTw5fDnMKD".cheapDecrypt() }
+            val amazonClientSecret by lazy { "PzJrJiYuL38rREMaHh8IUgFZDHJ6cnl+Lmsxb2hsBFQGUg8REkEdT0jCt8OgwrrCssOowqnCpMKnwqvCrcKXwprCkMOIw4/Cl8KAw5PCiMKNw5/DscO0".cheapDecrypt() }
+            val settings: KonversationConfig
+            val api: KonversationApi
+            val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
+            api = if (settingsFile?.exists() == true) {
+                settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
+                KonversationApi(
+                    settings.auth.alexaClientId ?: amazonClientId,
+                    settings.auth.alexaClientSecret ?: amazonClientSecret,
+                    settings.auth.dialogflowServiceAccount).also { thisApi ->
+                    settings.auth.alexaRefreshToken?.let { token ->
+                        thisApi.alexa.loadToken(token)
+                    }
+                }
+            } else {
+                settings = KonversationConfig()
+                KonversationApi(amazonClientId, amazonClientSecret)
+            }
+            api.logger = L
             try {
-                Cli().parseArgs(args)
+                Cli(settings, api).parseArgs(args)
             } catch (e: java.lang.IllegalArgumentException) {
                 L.error(e.message.orEmpty())
                 exitProcess(-1)
             }
         }
 
-        var L: LoggerFacade = DefaultLogger()
-        const val version = "2.0.0-beta1"
-        val amazonClientId by lazy { "Zmd3fiI4eGxvTkxLSlpYW1kXUiFxayogJjc7LHU9VFMCUlsVQUcfSEnCtsOnwrjDr8K2wqDCosKhw7jCrsKXw4bDgMKRwprCmMOTw5fDnMKD".cheapDecrypt() }
-        val amazonClientSecret by lazy { "PzJrJiYuL38rREMaHh8IUgFZDHJ6cnl+Lmsxb2hsBFQGUg8REkEdT0jCt8OgwrrCssOowqnCpMKnwqvCrcKXwprCkMOIw4/Cl8KAw5PCiMKNw5/DscO0".cheapDecrypt() }
-        val exposeToken = java.lang.Boolean.parseBoolean("true")
+        private fun searchFile(workDir: File, fileName: String): File? {
+            val possibleFile = File(workDir, fileName)
+            return when {
+                possibleFile.exists() ->
+                    possibleFile
+                workDir.parentFile != null && workDir.parentFile.absolutePath != workDir.absolutePath ->
+                    searchFile(workDir.parentFile, fileName)
+                else -> null
+            }
+        }
     }
 }
 

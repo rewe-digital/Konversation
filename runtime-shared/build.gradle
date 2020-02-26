@@ -32,7 +32,7 @@ dokka {
         platforms = ["COMMON"]
     }
     externalDocumentationLink {
-        url = new URL("https://github.com/rewe-digital-incubator/${rootProject.name}/blob/master/docs/shared/")
+        url = new URL("https://github.com/rewe-digital/${rootProject.name}/blob/master/docs/shared/")
         packageListUrl = Paths.get("$rootDir/docs/shared/package-list").toUri().toURL()
     }
 }

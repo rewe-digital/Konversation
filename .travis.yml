@@ -41,34 +41,34 @@ deploy:
     skip_cleanup: true
     on:
       branch: master
-      repo: rewe-digital-incubator/Konversation
+      repo: rewe-digital/Konversation
       tags: true
       condition: $TRAVIS_TAG =~ ^cli-
   - provider: script
     script: .travis/deploy_chocolaty.sh
     on:
       branch: master
-      repo: rewe-digital-incubator/Konversation
+      repo: rewe-digital/Konversation
       tags: true
       condition: $TRAVIS_TAG =~ ^cli-
   - provider: script
     script: ./gradlew runtime-js:publishNpmPackage
     on:
       branch: master
-      repo: rewe-digital-incubator/Konversation
+      repo: rewe-digital/Konversation
       tags: true
       condition: $TRAVIS_TAG =~ ^js-
   - provider: script
     script: ./gradlew runtime-jvm:bintrayUpload
     on:
       branch: master
-      repo: rewe-digital-incubator/Konversation
+      repo: rewe-digital/Konversation
       tags: true
       condition: $TRAVIS_TAG =~ ^jvm-
   - provider: script
     script: ./gradlew gradle-plugin:publishPlugins
     on:
       branch: master
-      repo: rewe-digital-incubator/Konversation
+      repo: rewe-digital/Konversation
       tags: true
       condition: $TRAVIS_TAG =~ ^gradle-

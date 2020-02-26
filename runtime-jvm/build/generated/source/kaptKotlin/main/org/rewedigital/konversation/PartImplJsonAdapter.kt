@@ -4,14 +4,14 @@ package org.rewedigital.konversation
 import com.squareup.moshi.*
 import kotlin.String
 
-internal class PartImplJsonAdapter(moshi: Moshi) : JsonAdapter<PartImpl>() {
+class PartImplJsonAdapter(moshi: Moshi) : JsonAdapter<PartImpl>() {
     private val options: JsonReader.Options = JsonReader.Options.of("variants", "type")
 
     private val mutableListOfStringAdapter: JsonAdapter<MutableList<String>> =
-            moshi.adapter<MutableList<String>>(Types.newParameterizedType(MutableList::class.java, String::class.java), kotlin.collections.emptySet(), "variants")
+        moshi.adapter<MutableList<String>>(Types.newParameterizedType(MutableList::class.java, String::class.java), kotlin.collections.emptySet(), "variants")
 
     private val partTypeAdapter: JsonAdapter<PartType> =
-            moshi.adapter<PartType>(PartType::class.java, kotlin.collections.emptySet(), "type")
+        moshi.adapter<PartType>(PartType::class.java, kotlin.collections.emptySet(), "type")
 
     override fun toString(): String = "GeneratedJsonAdapter(PartImpl)"
 
@@ -31,9 +31,10 @@ internal class PartImplJsonAdapter(moshi: Moshi) : JsonAdapter<PartImpl>() {
             }
         }
         reader.endObject()
-        return PartImpl(
-                variants = variants ?: throw JsonDataException("Required property 'variants' missing at ${reader.path}"),
-                type = type ?: throw JsonDataException("Required property 'type' missing at ${reader.path}"))
+        var result = PartImpl(
+            variants = variants ?: throw JsonDataException("Required property 'variants' missing at ${reader.path}"),
+            type = type ?: throw JsonDataException("Required property 'type' missing at ${reader.path}"))
+        return result
     }
 
     override fun toJson(writer: JsonWriter, value: PartImpl?) {

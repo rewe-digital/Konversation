@@ -2,24 +2,24 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>konversation</id>
-    <version>1.1.0-rc9</version>
-    <packageSourceUrl>https://github.com/rewe-digital-incubator/Konversation/tree/master/cli-integrations/chocolatey</packageSourceUrl>
+    <version>1.1.0</version>
+    <packageSourceUrl>https://github.com/rewe-digital/Konversation/tree/master/cli-integrations/chocolatey</packageSourceUrl>
     <owners>René Kilczan</owners>
     <title>Konversation</title>
     <authors>René Kilczan</authors>
-    <projectUrl>https://github.com/rewe-digital-incubator/Konversation/</projectUrl>
+    <projectUrl>https://github.com/rewe-digital/Konversation/</projectUrl>
     <copyright>2019 REWE Digital GmbH</copyright>
-    <licenseUrl>https://github.com/rewe-digital-incubator/Konversation/blob/master/LICENSE</licenseUrl>
+    <licenseUrl>https://github.com/rewe-digital/Konversation/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <projectSourceUrl>https://github.com/rewe-digital-incubator/Konversation/</projectSourceUrl>
-    <docsUrl>https://github.com/rewe-digital-incubator/Konversation/</docsUrl>
+    <projectSourceUrl>https://github.com/rewe-digital/Konversation/</projectSourceUrl>
+    <docsUrl>https://github.com/rewe-digital/Konversation/</docsUrl>
     <tags>konversation ssml google-home alexa cli</tags>
     <summary>Konversation is a tool to generate rich and diversified responses to the user of a voice application.</summary>
     <description><![CDATA[
 Konversation is a tool to generate rich and diversified responses to the user of a voice application. You can support multiple platforms and different output devices at once, as watches, speaker, smart displays and TVs. Multiple languages are also supported.
 This library can be used in Kotlin, Java, node.js and in the browser. You can define your intent model in ksv files. Which you can export directly to the Alexa Developer console, together with the ASK SDK you can deploy it directly to Amazon if you like.
 ]]></description>
-    <releaseNotes>https://github.com/rewe-digital-incubator/Konversation/releases</releaseNotes>
+    <releaseNotes>https://github.com/rewe-digital/Konversation/releases</releaseNotes>
   </metadata>
   <files>
     <file src="tools/**" target="tools" />

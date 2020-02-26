@@ -1,4 +1,4 @@
-# Command line interface of Konversation [![Build Status][travis-image]][travis-url] ![Latest CLI version is 1.1.0-rc9][cli-ver-img] [![License: MIT][mit-image]][mit-url]
+# Command line interface of Konversation [![Build Status][travis-image]][travis-url] ![Latest CLI version is 1.1.0][cli-ver-img] [![License: MIT][mit-image]][mit-url]
 
 Konversation has its own command line interface, which you can use for generating the kson files for the runtime. You can use it for
 validate the syntax of the input files or to integrate it into your own build system. Keep in mind you can also use the
@@ -83,13 +83,13 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[travis-image]: https://travis-ci.com/rewe-digital-incubator/Konversation.svg?branch=master
-[travis-url]: https://travis-ci.com/rewe-digital-incubator/Konversation
-[codecov-img]: http://codecov.io/github/rewe-digital-incubator/Konversation/coverage.svg?branch=master
-[codecov-url]: http://codecov.io/github/rewe-digital-incubator/Konversation?branch=master
+[travis-image]: https://travis-ci.com/rewe-digital/Konversation.svg?branch=master
+[travis-url]: https://travis-ci.com/rewe-digital/Konversation
+[codecov-img]: http://codecov.io/github/rewe-digital/Konversation/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/rewe-digital/Konversation?branch=master
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
 [Homebrew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
-[releases]: https://github.com/rewe-digital-incubator/Konversation/releases
-[cli-ver-img]: https://img.shields.io/badge/cli-1.1.0--rc9-blue "Latest CLI version is 1.1.0-rc9"
+[releases]: https://github.com/rewe-digital/Konversation/releases
+[cli-ver-img]: https://img.shields.io/badge/cli-1.1.0-blue "Latest CLI version is 1.1.0"

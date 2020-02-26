@@ -1,4 +1,4 @@
-# Konversation [![Build Status][travis-image]][travis-url] [![Code Coverage][codecov-img]][codecov-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
+# Konversation [![Build Status][travis-image]][travis-url] [![License: MIT][mit-image]][mit-url] [![Stars][star-img]][star-url]
 
 Konversation is a tool to generate rich and diversified responses to the user of a voice application. You can support multiple platforms
 and different output devices at once, as watches, speaker, smart displays and TVs. Multiple languages are also supported.   
@@ -12,12 +12,12 @@ Help:                                    // Intent name
 !Help {|me|us|how does this app work}    // Utterance how the user can call this intent
 !How {works|do I use} this App           // more utterances
 -You can use this app to                 // A block for a response within a block
--With this app you can                   // a line will be randomly choosen.
+-With this app you can                   // a line will be randomly chosen.
 +                                        // Concats two blocks without a linebreak
--{read|hear}                             // elements in brackets are alterntives
+-{read|hear}                             // elements in brackets are alternatives
 +
--recipies and offers.
--offers and recipies.
+-recipes and offers.
+-offers and recipes.
 +
 ~Cool isn't it?                          // This sentence should not be displayed just said.
 +
@@ -25,7 +25,7 @@ Help:                                    // Intent name
 ~What should {we|I} do now?
 
 ?1 How can I help you{| now}?            // Reprompts when the user gives no input
-?2 What should {I|we} do now?            // Second repromt used when no input was given again
+?2 What should {I|we} do now?            // Second reprompt used when no input was given again
 [Offers] [Recipes]                       // Suggestions what the user could try (GUI only)
 
 Hello:                                   // Second intent
@@ -62,7 +62,7 @@ This is an example for `build.gradle` file:
 ```
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.31'
-    id 'org.rewedigital.konversation' version '1.0-beta2'
+    id 'org.rewedigital.konversation' version '1.0.0'
 }
 
 apply plugin: 'kotlin'
@@ -74,7 +74,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile "org.rewedigital.voice:konversation-jvm:0.1"
+    compile "org.rewedigital.voice:konversation-jvm:1.0.0"
 }
 
 konversation {
@@ -112,7 +112,7 @@ When you have installed [Chocolatey] just enter in your shell:
 Download the latest cli jar from the [release page][releases] and store it somewhere you like. On **Windows** you need
 to create a file called `konversation.cmd` somewhere in any directory you have in your path variable, the content should be:
 
-    java -jar path/to/your/konveration.jar %1 %2 %3 %4 %5 %6 %7 %8 %9
+    java -jar path/to/your/konveration.jar %*
 
 If you use Linux or Mac create a file called `konversation` in `/usr/local/bin` with this content:
 
@@ -152,8 +152,8 @@ When you have your kson files in your resource directory you can use the runtime
    
 See also the [Output](runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Output.kt) class for more details.
 
-If you use [dialog](https://github.com/rewe-digital-incubator/dialog)'s
-[konversation plugin](https://github.com/rewe-digital-incubator/dialog/konversation-plugin) (a sibling project) you can create a response
+If you use [dialog](https://github.com/rewe-digital/dialog)'s
+[konversation plugin](https://github.com/rewe-digital/dialog/konversation-plugin) (a sibling project) you can create a response
 very easy just with a couple of lines:
 
     override fun handleDialogflowIntent(handler: DialogflowHandler): DialogflowResponseBuilder {
@@ -166,8 +166,8 @@ very easy just with a couple of lines:
             .withGoogleReprompts(konversation)
     }
 
-A more complex example can be found in the [readme](https://github.com/rewe-digital-incubator/dialog/konversation-plugin/readme.md) file
-of the [konversation plugin](https://github.com/rewe-digital-incubator/dialog/konversation-plugin).
+A more complex example can be found in the [readme](https://github.com/rewe-digital/dialog/konversation-plugin/readme.md) file
+of the [konversation plugin](https://github.com/rewe-digital/dialog/konversation-plugin).
 
 ### Node.js
 
@@ -224,7 +224,7 @@ The sources of the gradle plugin the preferec way to create the kson files, with
 
 The MIT license (MIT)
 
-Copyright (c) 2018 REWE Digital GmbH
+Copyright (c) 2018-2020 REWE Digital GmbH
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -239,14 +239,14 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[travis-image]: https://travis-ci.com/rewe-digital-incubator/Konversation.svg?branch=master
-[travis-url]: https://travis-ci.com/rewe-digital-incubator/Konversation
-[codecov-img]: http://codecov.io/github/rewe-digital-incubator/Konversation/coverage.svg?branch=master
-[codecov-url]: http://codecov.io/github/rewe-digital-incubator/Konversation?branch=master
+[travis-image]: https://travis-ci.com/rewe-digital/Konversation.svg?branch=master
+[travis-url]: https://travis-ci.com/rewe-digital/Konversation
+[codecov-img]: http://codecov.io/github/rewe-digital/Konversation/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/rewe-digital/Konversation?branch=master
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
-[star-img]: https://img.shields.io/github/stars/rewe-digital-incubator/Konversation.svg?style=social&label=Star&maxAge=3600
-[star-url]: https://github.com/rewe-digital-incubator/Konversation/stargazers
+[star-img]: https://img.shields.io/github/stars/rewe-digital/Konversation.svg?style=social&label=Star&maxAge=3600
+[star-url]: https://github.com/rewe-digital/Konversation/stargazers
 [Homebrew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
-[releases]: https://github.com/rewe-digital-incubator/Konversation/releases
+[releases]: https://github.com/rewe-digital/Konversation/releases

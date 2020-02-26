@@ -62,7 +62,7 @@ dokka {
         platforms = ["JVM"]
     }
     externalDocumentationLink {
-        url = new URL("https://github.com/rewe-digital-incubator/${rootProject.name}/blob/master/docs/shared/")
+        url = new URL("https://github.com/rewe-digital/${rootProject.name}/blob/master/docs/shared/")
         packageListUrl = Paths.get("$rootDir/docs/shared/package-list").toUri().toURL()
     }
 }
@@ -97,7 +97,7 @@ publishing.publications {
         pom {
             name = 'konversation'
             description = 'Konversation is a tool to generate rich and diversified responses to the user of a voice application.'
-            url = 'https://github.com/rewe-digital-incubator/Konversation'
+            url = 'https://github.com/rewe-digital/Konversation'
             licenses {
                 license {
                     name = 'MIT License'
@@ -113,9 +113,9 @@ publishing.publications {
             }
 
             scm {
-                connection = 'scm:git:git://github.com/rewe-digital-incubator/dialog.git'
-                developerConnection = 'scm:git:git://github.com/rewe-digital-incubator/dialog.git'
-                url = 'https://github.com/rewe-digital-incubator/dialog'
+                connection = 'scm:git:git://github.com/rewe-digital/dialog.git'
+                developerConnection = 'scm:git:git://github.com/rewe-digital/dialog.git'
+                url = 'https://github.com/rewe-digital/dialog'
             }
         }
 
@@ -137,7 +137,7 @@ publish {
     repoName = 'Konversation'
     publishVersion = rootProject.ext.versions.runtime_jvm
     desc = 'Konversation is a tool to generate rich and diversified responses to the user of a voice application.'
-    website = 'https://github.com/rewe-digital-incubator/Konversation'
+    website = 'https://github.com/rewe-digital/Konversation'
     licences = ['MIT']
     bintrayUser = project.properties['bintray.user']
     bintrayKey = project.properties['bintray.apikey']

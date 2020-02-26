@@ -40,14 +40,14 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[travis-image]: https://travis-ci.com/rewe-digital-incubator/Konversation.svg?branch=master
-[travis-url]: https://travis-ci.com/rewe-digital-incubator/Konversation
+[travis-image]: https://travis-ci.com/rewe-digital/Konversation.svg?branch=master
+[travis-url]: https://travis-ci.com/rewe-digital/Konversation
 [npm-image]: https://img.shields.io/npm/v/@rewe-digital/konversation.svg
 [npm-url]: https://npmjs.org/package/@rewe-digital/konversation
 [downloads-image]: https://img.shields.io/npm/dm/@rewe-digital/konversation.svg
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
-[github-url]: https://github.com/rewe-digital-incubator/Konversation
-[cli-readme-url]: https://github.com/rewe-digital-incubator/Konversation/blob/master/cli/readme.md
-[star-img]: https://img.shields.io/github/stars/rewe-digital-incubator/Konversation.svg?style=social&label=Star&maxAge=3600
-[star-url]: https://github.com/rewe-digital-incubator/Konversation/stargazers
+[github-url]: https://github.com/rewe-digital/Konversation
+[cli-readme-url]: https://github.com/rewe-digital/Konversation/blob/master/cli/readme.md
+[star-img]: https://img.shields.io/github/stars/rewe-digital/Konversation.svg?style=social&label=Star&maxAge=3600
+[star-url]: https://github.com/rewe-digital/Konversation/stargazers

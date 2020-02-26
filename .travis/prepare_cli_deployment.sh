@@ -4,7 +4,7 @@ MODULE=`echo ${TAG}|cut -d- -f 1`
 VERSION=`echo ${TAG}|cut -d- -f 2-`
 
 echo "Patching Chocolatey..."
-jarUrl="https://github.com/rewe-digital-incubator/Konversation/releases/download/$TAG/konversation-cli.jar"
+jarUrl="https://github.com/rewe-digital/Konversation/releases/download/$TAG/konversation-cli.jar"
 sha256=`sha256sum publish/konversation-cli.jar | cut -d " " -f 1`
 sed -e "s#jar: .*#jar: $jarUrl#g" -e "s/checksum: .*/checksum: $sha256/g" -i cli-integrations/chocolatey/legal/VERIFICATION.txt
 sed -e "s#<version>.*</version>#<version>$VERSION</version>#g" -i cli-integrations/chocolatey/konversation.nuspec

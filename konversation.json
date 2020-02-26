@@ -1,0 +1,54 @@
+{
+  "auth": {
+    "alexaRefreshToken": "Atzr|IwEBIBIPqFJZXury7-x6DfbCXIH8pcZoqhcloj06hPZvB9s76PH2hSkNN7ufRYaKwdvx9tWlW97Fe_-BVERDDn_uhxllX2VmIj-mYDvKOSDIdogNrc33nJl9wjQ8QkOt8RSt3oIUAr05Wl2X_4aRWnjyJU6kmA1n-fQtPQNZedx-dANcU9yS-a0sAWNEkipt86-j58mnSLyhRqorBk68BQ2hm1H7fllfe-qzyOQmLRictRGKJvm0yByMPL-jqB5EdWKnlliO6jVQjmxiCxpkx4RVYXnebg6WT5eD6GZOpGLt1zS9EK_Yq9m-QIkPmpepmbBgY3siAZxdXuHMJX_dguLfdZTC7xtTdiSMyRl78JI2N5uN-Fq3DeT6cLD05N7a9OhRKZEM274sQ9yDnxHcpBEkYZANO4pzA-riB44I57bnrYXpM5YroEln1-34EVscLwbQgjYpDNc7kzRsXnghtl31L5FggxKD86vdIxldlHJ485cSPdUXlYHktm6iL9w40MT3-n_I5UCgXNQqi0Jhesnm-XqMJ6zoKHA97wOZ9x4wMM33ebIa5S4bNhz9oD5S3jurcw7VysDKHbbNUqM_99uUqvEH",
+    "dialogflowServiceAccount": {
+      "path": "C:\\Users\\rene.kilczan\\Programmierung\\REWE-Voice\\ServiceAccount-Provisionierung-91bc75aef8a5.json"
+    }
+  },
+  "projects": {
+    "test": {
+      "alexa": {
+        "skillId": "amzn1.ask.skill.example"
+      },
+      "dialogflow": {
+        "projectId": "example-project"
+      },
+      "invocations": {
+        "de": "test"
+      }
+    },
+    "rewe markt": {
+      "alexa": {
+        "skillId": "amzn1.ask.skill.c2b9788d-7a97-419d-9236-e440daad0599"
+      },
+      "dialogflow": {
+        "projectId": "rewedigital-assistent-prd-v001"
+      },
+      "invocations": {
+        "de": "rewe"
+      }
+    },
+    "rewe markt demo": {
+      "alexa": {
+        "skillId": "amzn1.ask.skill.b5295b79-d3d1-4839-a71a-946c47fd9be6"
+      },
+      "dialogflow": {
+        "projectId": "rewedigital-assistent-pre-v001"
+      },
+      "invocations": {
+        "de": "rewe demo"
+      }
+    },
+    "rewe rezepte demo": {
+      "alexa": {
+        "skillId": "amzn1.ask.skill.b5295b79-d3d1-4839-a71a-946c47fd9be6"
+      },
+      "dialogflow": {
+        "projectId": "rd-bigdata-voicerdk-pre"
+      },
+      "invocations": {
+        "de": "rewe rezepte demo"
+      }
+    }
+  }
+}

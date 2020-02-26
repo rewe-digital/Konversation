@@ -9,7 +9,7 @@ dokka {
 
     linkMapping {
         dir = "src/main/kotlin"
-        url = "https://github.com/rewe-digital-incubator/${rootProject.name}/blob/master/$moduleName/src/main/kotlin"
+        url = "https://github.com/rewe-digital/${rootProject.name}/blob/master/$moduleName/src/main/kotlin"
         suffix = "#L"
     }
 }

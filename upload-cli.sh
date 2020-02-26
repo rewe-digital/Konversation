@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-repo="rewe-digital-incubator/Konversation"
+repo="rewe-digital/Konversation"
 artifact="konversation-cli.jar"
 artifactMineType="application/jar"
 source="cli/build/libs/konversation.jar"

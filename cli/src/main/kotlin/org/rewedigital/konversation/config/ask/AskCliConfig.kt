@@ -1,9 +1,7 @@
 package org.rewedigital.konversation.config.ask
 
-import kotlinx.serialization.Serializable
 import org.rewedigital.konversation.config.cheapDecrypt
 
-@Serializable
 data class AskCliConfig(
     val profiles: Map<String, Profile>
 ) {

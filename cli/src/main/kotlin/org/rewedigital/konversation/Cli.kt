@@ -1,12 +1,10 @@
 package org.rewedigital.konversation
 
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
+import com.google.gson.Gson
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.http.takeFrom
-import kotlinx.serialization.json.Json
 import org.rewedigital.konversation.config.AlexaProject
 import org.rewedigital.konversation.config.KonversationConfig
 import org.rewedigital.konversation.config.KonversationProject
@@ -121,7 +119,7 @@ open class Cli(
                             project = createProject(settings).also { newProject ->
                                 settings.projects[newProject.invocations.values.first()] = newProject
                             }
-                            println(Yaml(configuration = YamlConfiguration(encodeDefaults = false)).stringify(KonversationConfig.serializer(), settings))
+                            println(Gson().toJson(settings))
                         }
                         "-stats" -> stats = true
                         "-prettyprint" -> prettyPrint = true
@@ -239,7 +237,7 @@ open class Cli(
                 if (ask() == true) {
                     api.amazonClientId = AskCliConfig.clientId
                     api.amazonClientSecret = AskCliConfig.clientSecret
-                    val profiles = Json.nonstrict.parse(AskCliConfig.serializer(), askConfigFile.readText()).profiles
+                    val profiles = Gson().fromJson(askConfigFile.readText(), AskCliConfig::class.java).profiles
                     profiles.keys.forEachIndexed { i, profile ->
                         println("${i + 1}) $profile")
                     }
@@ -504,9 +502,9 @@ open class Cli(
             val amazonClientSecret by lazy { "PzJrJiYuL38rREMaHh8IUgFZDHJ6cnl+Lmsxb2hsBFQGUg8REkEdT0jCt8OgwrrCssOowqnCpMKnwqvCrcKXwprCkMOIw4/Cl8KAw5PCiMKNw5/DscO0".cheapDecrypt() }
             val settings: KonversationConfig
             val api: KonversationApi
-            val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
+            val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.json")
             api = if (settingsFile?.exists() == true) {
-                settings = Yaml.default.parse(KonversationConfig.serializer(), settingsFile.readText())
+                settings = Gson().fromJson(settingsFile.readText(), KonversationConfig::class.java)
                 KonversationApi(
                     settings.auth.alexaClientId ?: amazonClientId,
                     settings.auth.alexaClientSecret ?: amazonClientSecret,

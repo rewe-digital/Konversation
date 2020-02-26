@@ -2,11 +2,10 @@ plugins {
     id 'kotlin-platform-jvm'
     id 'application'
     id 'jacoco'
-    id 'kotlinx-serialization'
 }
 
 group 'org.rewedigital.voice'
-version '1.1.0-rc9'
+version rootProject.ext.versions.cli
 
 repositories {
     jcenter()
@@ -16,16 +15,11 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
     implementation 'khttp:khttp:1.0.0'
     implementation 'com.google.apis:google-api-services-oauth2:v1-rev154-1.25.0'
-    api 'org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0'
-    api 'com.charleskorn.kaml:kaml:0.15.0'
     implementation "io.ktor:ktor-client-okhttp:1.2.6"
     implementation "io.ktor:ktor-client-json:1.2.6"
     implementation "io.ktor:ktor-client-gson:1.2.6"
-    implementation "io.ktor:ktor-client-logging:1.2.6"
     implementation project(':shared')
     testImplementation project(':shared')
     implementation project(':runtime-jvm')

@@ -1,11 +1,6 @@
 package org.rewedigital.konversation.config
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class KonversationConfig(
-    @SerialName("config")
     val auth: Auth = Auth(),
     val projects: MutableMap<String, KonversationProject> = mutableMapOf()
 ) {

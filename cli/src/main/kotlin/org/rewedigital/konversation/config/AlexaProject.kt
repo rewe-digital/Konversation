@@ -1,8 +1,5 @@
 package org.rewedigital.konversation.config
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class AlexaProject(
     val skillId: String,
     val refreshToken: String? = null,

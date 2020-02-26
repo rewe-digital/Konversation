@@ -1,6 +1,6 @@
 ext {
     versions = [:]
-    versions.cli = '1.1.0-rc9'
+    versions.cli = '2.0.0-beta1'
     versions.runtime_jvm = '1.0.1'
     versions.runtime_js = '1.0.3'
     versions.gradle_plugin = '2.0.0-beta2'

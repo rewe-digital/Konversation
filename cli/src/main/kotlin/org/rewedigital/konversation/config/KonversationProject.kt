@@ -1,8 +1,5 @@
 package org.rewedigital.konversation.config
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class KonversationProject(
     var alexa: AlexaProject? = null,
     var dialogflow: DialogflowProject? = null,

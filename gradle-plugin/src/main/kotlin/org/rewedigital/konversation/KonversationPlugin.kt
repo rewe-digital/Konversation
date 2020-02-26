@@ -12,6 +12,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.workers.WorkAction
 import org.rewedigital.konversation.config.KonversationConfig
+import org.rewedigital.konversation.config.cheapDecrypt
 import org.rewedigital.konversation.tasks.*
 import org.slf4j.Logger
 import java.io.File
@@ -59,6 +60,8 @@ open class KonversationPlugin : Plugin<Project> {
 
         val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
         val config = Gson().fromJson(settingsFile?.readText().orEmpty(), KonversationConfig::class.java)
+        config.auth.alexaClientId = config.auth.alexaClientId ?: "Zmd3fiI4eGxvTkxLSlpYW1kXUiFxayogJjc7LHU9VFMCUlsVQUcfSEnCtsOnwrjDr8K2wqDCosKhw7jCrsKXw4bDgMKRwprCmMOTw5fDnMKD".cheapDecrypt()
+        config.auth.alexaClientSecret = config.auth.alexaClientSecret ?: "PzJrJiYuL38rREMaHh8IUgFZDHJ6cnl+Lmsxb2hsBFQGUg8REkEdT0jCt8OgwrrCssOowqnCpMKnwqvCrcKXwprCkMOIw4/Cl8KAw5PCiMKNw5/DscO0".cheapDecrypt()
 
         val exportAll = tasks.create("exportAll", DefaultTask::class.java).groupToKonversation("Export all intent models.")
         val exportAlexa = tasks.create("exportAlexa", DefaultTask::class.java).groupToKonversation("Export all Alexa intent models.")

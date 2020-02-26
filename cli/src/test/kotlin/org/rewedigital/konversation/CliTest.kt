@@ -23,14 +23,20 @@ class CliTest {
     fun `No args will show help`() {
         val sut = CliTestHelper().getOutput()
         assertNoException(sut)
-        assertEquals(sut.output, "Missing arguments! Please specify at least the kvs or grammar file you want to process.\n\n$helpOutput\n\n")
+        assertEquals("Missing arguments! Please specify at least the kvs or grammar file you want to process.\n\n$helpOutput\n\n", sut.output)
     }
 
     @Test
     fun `Help is working`() {
         val sut = CliTestHelper().getOutput("-help")
         assertNoException(sut)
-        assertEquals(sut.output, "$helpOutput\n\n")
+        assertEquals("$helpOutput\n\n", sut.output)
+    }
+
+    @Test
+    fun `Unknown args is working`() {
+        val sut = CliTestHelper().getOutput("foobar")
+        assertEquals("Unknown argument \"foobar\".", sut.caughtException?.message, "Unexpected error message")
     }
 
     @Test
@@ -92,21 +98,11 @@ class CliTest {
         verify { sut.api.exportPlain(File(".").absoluteFile.parentFile) }
     }
 
-    //@Test
-    fun `Test big grammar file`() {
-        val sut = CliTestHelper().getOutput("$resPath/huge.grammar", "-stats", "-count")
-        assertEquals("""Parsing of 1 file finished. Found 2 intents.
-Test has 1 utterances which have in total 1${separator}000 permutations
-Foo has 0 utterances which have in total 0 permutations
-That are in total 1${separator}000 permutations!
-Test has now 1${separator}000 sample utterances
-WARNING: Test has 1${separator}000 utterances, Actions on Google just support up to 1${separator}000!
-Intent Test has in total 1${separator}000 utterances:
- 1${separator}000 utterances for {0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}{0|1|2|3|4|5|6|7|8|9}
-Foo has now 0 sample utterances
-Generated in total 1${separator}000 Utterances
-""", sut.output)
+    @Test
+    fun `Check project dumping`() {
+        val sut = CliTestHelper().getOutput("--show-projects")
         assertNoException(sut)
+        assertEquals(expectedProjects, sut.output, "Expect error message")
     }
 
     @Test
@@ -130,8 +126,8 @@ Generated in total 1${separator}000 Utterances
     }
 
     private class CliTestHelper(
-        settings: KonversationConfig,
-        val api: KonversationApi) : Cli(settings, api) {
+        val settings: KonversationConfig,
+        public val api: KonversationApi) : Cli(settings, api) {
         constructor() : this(mockConfig(), mockApi())
         constructor(apply: KonversationConfig.() -> Unit) : this(KonversationConfig().apply(apply), mockApi())
 
@@ -143,8 +139,9 @@ Generated in total 1${separator}000 Utterances
             val log = PrintStream(outputStream)
             System.setOut(log)
             System.setErr(log)
+            val cli = spyk(this, recordPrivateCalls = true)
             try {
-                parseArgs(args.toList().toTypedArray())
+                cli.parseArgs(args.toList().toTypedArray())
             } catch (e: IllegalArgumentException) {
                 L.error(e.message.orEmpty())
                 caughtException = e
@@ -153,7 +150,7 @@ Generated in total 1${separator}000 Utterances
             System.err.flush()
             System.setOut(out)
             System.setErr(err)
-            return TestResult(outputStream.toString().replace("\r", ""), api, caughtException)
+            return TestResult(outputStream.toString().replace("\r", ""), api, caughtException, settings, cli)
         }
 
         companion object {
@@ -186,7 +183,12 @@ Generated in total 1${separator}000 Utterances
         }
     }
 
-    data class TestResult(val output: String, val api: KonversationApi, val caughtException: IllegalArgumentException? = null)
+    data class TestResult(
+        val output: String,
+        val api: KonversationApi,
+        val caughtException: IllegalArgumentException? = null,
+        val settings: KonversationConfig,
+        val cli: Cli)
 
     companion object {
         private val format = DecimalFormat.getInstance() as DecimalFormat
@@ -212,5 +214,34 @@ Generated in total 1${separator}000 Utterances
 [-dump]                   Dump out all intents to its own txt file
 [-prettyprint]            Generate a well formatted json for easier debugging
 <FILE>                    The grammar, kvs or values files to parse"""
+        private const val expectedProjects = """test
+  Alexa:
+    Invocation (de): test
+    SkillID: skill-id
+  Dialogflow:
+    Invocation (de): test
+    ProjectID: project-id
+alexaOnly
+  Alexa:
+    Invocation (de): alexa
+    SkillID: skill-id
+  Dialogflow:
+    Invocation: (no invocation set)
+    ProjectID: null
+dialogflowOnly
+  Alexa:
+    Invocation: (no invocation set)
+    SkillID: null
+  Dialogflow:
+    Invocation (de): dialogflow
+    ProjectID: project-id
+configError
+  Alexa:
+    Invocation: (no invocation set)
+    SkillID: null
+  Dialogflow:
+    Invocation: (no invocation set)
+    ProjectID: null
+"""
     }
 }

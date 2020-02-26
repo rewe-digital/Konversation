@@ -117,7 +117,9 @@ open class Cli(
                         "--projects" -> logProjects()
                         "--create-project" -> {
                             project = createProject(settings).also { newProject ->
-                                settings.projects[newProject.invocations.values.first()] = newProject
+                                if (newProject.invocations.isNotEmpty()) {
+                                    settings.projects[newProject.invocations.values.first()] = newProject
+                                }
                             }
                             println(Gson().toJson(settings))
                         }
@@ -303,7 +305,7 @@ open class Cli(
     private val Skill.name
         get() = nameByLocale.getOrElse("de-DE") { nameByLocale.values.first() }
 
-    private fun ask() =
+    protected open fun ask() =
         when (readLine()?.toLowerCase()) {
             "y", "yes" -> true
             "n", "no" -> false
@@ -337,8 +339,8 @@ open class Cli(
                     break
                 }
             }
-            if (locale?.isBlank() == true) break
-            translations[locale!!] = invocation!!
+            if (locale.isNullOrBlank()) break
+            translations[locale] = invocation!!
             //println("Accepted $locale: $invocation")
             firstLocale = false
         }

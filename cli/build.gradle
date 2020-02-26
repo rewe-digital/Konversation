@@ -100,3 +100,5 @@ task proguard() {
     }
 }
 proguard.dependsOn("fatJar")
+
+test.finalizedBy(jacocoTestReport)

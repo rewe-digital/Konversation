@@ -19,5 +19,6 @@ buildscript {
         classpath 'com.novoda:bintray-release:0.9'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61"
         classpath "org.jetbrains.kotlin:kotlin-serialization:1.3.61"
+        classpath 'net.sf.proguard:proguard-base:6.2.2'
     }
 }

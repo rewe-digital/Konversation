@@ -44,8 +44,27 @@ compileTestKotlin {
 
 task fatJar(type: Jar) {
     manifest.attributes 'Main-Class': 'org.rewedigital.konversation.Cli'
-    archiveFileName = "konversation.jar"
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    archiveFileName = "konversation-fatjar.jar"
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/proguard/**'
+        exclude 'META-INF/maven/**'
+        exclude 'META-INF/LICENSE*'
+        exclude 'META-INF/NOTICE*'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/services/**'
+        exclude 'WEB-INF/proguard/**'
+        exclude 'okhttp3/internal/publicsuffix/NOTICE'
+        exclude '**/*.kotlin_metadata'
+        exclude '**/*.kotlin_module'
+        exclude '**/*.kotlin_builtins'
+        exclude 'org/apache/commons/codec/language/*.txt'
+        exclude 'org/apache/commons/codec/language/bm/*.txt'
+    }
     with jar
 }
 mainClassName = 'org.rewedigital.konversation.Cli'
@@ -55,3 +74,28 @@ jacocoTestReport.reports {
     xml.enabled true
     html.enabled true
 }
+
+task proguard() {
+    doLast {
+        proguard.Configuration configuration = new proguard.Configuration();
+        // Parse the options specified in the command line arguments.
+        String[] args = ["-injar",
+                         "${project.buildDir}/libs/konversation-fatjar.jar",
+                         "-outjar",
+                         "${project.buildDir}/libs/konversation.jar",
+                         "-libraryjars",
+                         "${System.properties["java.home"]}/lib/rt.jar",
+                         "@${project.projectDir}/src/main/minify.pro"];
+        def parser = new proguard.ConfigurationParser(args, System.getProperties())
+        try {
+            parser.parse(configuration);
+        }
+        finally {
+            parser.close();
+        }
+
+        // Execute ProGuard with these options.
+        new proguard.ProGuard(configuration).execute();
+    }
+}
+proguard.dependsOn("fatJar")

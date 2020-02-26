@@ -2,7 +2,7 @@
 
 package org.rewedigital.konversation
 
-import com.charleskorn.kaml.Yaml
+import com.google.gson.Gson
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -58,7 +58,7 @@ open class KonversationPlugin : Plugin<Project> {
         }
 
         val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
-        val config = Yaml.default.parse(KonversationConfig.serializer(), settingsFile?.readText().orEmpty())
+        val config = Gson().fromJson(settingsFile?.readText().orEmpty(), KonversationConfig::class.java)
 
         val exportAll = tasks.create("exportAll", DefaultTask::class.java).groupToKonversation("Export all intent models.")
         val exportAlexa = tasks.create("exportAlexa", DefaultTask::class.java).groupToKonversation("Export all Alexa intent models.")

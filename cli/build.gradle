@@ -10,23 +10,24 @@ version rootProject.ext.versions.cli
 repositories {
     jcenter()
     mavenCentral()
-    maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url 'https://kotlin.bintray.com/kotlinx' }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'khttp:khttp:1.0.0'
     implementation 'com.google.apis:google-api-services-oauth2:v1-rev154-1.25.0'
-    implementation "io.ktor:ktor-client-okhttp:1.2.6"
-    implementation "io.ktor:ktor-client-json:1.2.6"
-    implementation "io.ktor:ktor-client-gson:1.2.6"
+    implementation 'io.ktor:ktor-client-okhttp:1.2.6'
+    implementation 'io.ktor:ktor-client-json:1.2.6'
+    implementation 'io.ktor:ktor-client-gson:1.2.6'
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation project(':shared')
     testImplementation project(':shared')
     implementation project(':runtime-jvm')
-    testImplementation "junit:junit:4.12"
-    testImplementation "org.jetbrains.kotlin:kotlin-test"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit"
-    testImplementation "io.mockk:mockk:1.9.3"
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+    testImplementation 'io.mockk:mockk:1.9.3'
 }
 
 sourceSets {

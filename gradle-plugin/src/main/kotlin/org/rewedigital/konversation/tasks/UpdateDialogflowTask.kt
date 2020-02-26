@@ -17,7 +17,7 @@ abstract class UpdateDialogflowAction : AbstractAction(), DialogflowSetupProvide
         api.invocationName = getInvocationName(actionProject)
         logger.lifecycle("Uploading ${api.invocationName} to Dialogflow...")
         logger.debug("serviceAccount=${project.dialogflow?.serviceAccount}, project:${project.dialogflow?.projectId}, invocation:${api.invocationName}}")
-        api.updateDialogflowProject(project.dialogflow?.projectId!!, api.invocationName!!)
+        api.updateDialogflowProject(project.dialogflow?.projectId!!)
         logger.lifecycle("Done")
     }
 }

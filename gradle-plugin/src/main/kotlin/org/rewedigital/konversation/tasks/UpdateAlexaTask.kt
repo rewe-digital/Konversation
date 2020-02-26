@@ -17,7 +17,7 @@ abstract class UpdateAlexaAction : AbstractAction(), AlexaSetupProvider {
         api.invocationName = getInvocationName(actionProject)
         logger.lifecycle("Uploading ${api.invocationName} to Alexa...")
         logger.debug("token=${project.alexa?.refreshToken?.shorted}, skill:${project.alexa?.skillId?.shorted}, invocation:${api.invocationName}, clientId=${project.alexa?.clientId?.shorted}, clientSecret=${project.alexa?.clientSecret?.shorted}")
-        api.updateAlexaSchema(api.invocationName!!, project.alexa?.skillId!!)
+        api.updateAlexaSchema(project.alexa?.skillId!!)
         logger.lifecycle("Done")
     }
 

@@ -26,4 +26,4 @@ Holds a static output of a reply.
 
 | Name | Summary |
 |---|---|
-| [plus](plus.md) | `operator fun plus(output: `[`Output`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-output/index.md)`): `[`Output`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-output/index.md) |
+| [plus](plus.md) | `operator fun plus(output: `[`Output`](https://github.com/rewe-digital/konversation/blob/master/docs/shared/org.rewedigital.konversation/-output/index.md)`): `[`Output`](https://github.com/rewe-digital/konversation/blob/master/docs/shared/org.rewedigital.konversation/-output/index.md) |

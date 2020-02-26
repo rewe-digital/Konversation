@@ -152,8 +152,8 @@ When you have your kson files in your resource directory you can use the runtime
    
 See also the [Output](runtime-shared/src/main/kotlin/com/rewedigital/voice/konversation/Output.kt) class for more details.
 
-If you use [dialog](https://github.com/rewe-digital-incubator/dialog)'s
-[konversation plugin](https://github.com/rewe-digital-incubator/dialog/konversation-plugin) (a sibling project) you can create a response
+If you use [dialog](https://github.com/rewe-digital/dialog)'s
+[konversation plugin](https://github.com/rewe-digital/dialog/konversation-plugin) (a sibling project) you can create a response
 very easy just with a couple of lines:
 
     override fun handleDialogflowIntent(handler: DialogflowHandler): DialogflowResponseBuilder {
@@ -166,8 +166,8 @@ very easy just with a couple of lines:
             .withGoogleReprompts(konversation)
     }
 
-A more complex example can be found in the [readme](https://github.com/rewe-digital-incubator/dialog/konversation-plugin/readme.md) file
-of the [konversation plugin](https://github.com/rewe-digital-incubator/dialog/konversation-plugin).
+A more complex example can be found in the [readme](https://github.com/rewe-digital/dialog/konversation-plugin/readme.md) file
+of the [konversation plugin](https://github.com/rewe-digital/dialog/konversation-plugin).
 
 ### Node.js
 
@@ -239,14 +239,14 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[travis-image]: https://travis-ci.com/rewe-digital-incubator/Konversation.svg?branch=master
-[travis-url]: https://travis-ci.com/rewe-digital-incubator/Konversation
-[codecov-img]: http://codecov.io/github/rewe-digital-incubator/Konversation/coverage.svg?branch=master
-[codecov-url]: http://codecov.io/github/rewe-digital-incubator/Konversation?branch=master
+[travis-image]: https://travis-ci.com/rewe-digital/Konversation.svg?branch=master
+[travis-url]: https://travis-ci.com/rewe-digital/Konversation
+[codecov-img]: http://codecov.io/github/rewe-digital/Konversation/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/rewe-digital/Konversation?branch=master
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
-[star-img]: https://img.shields.io/github/stars/rewe-digital-incubator/Konversation.svg?style=social&label=Star&maxAge=3600
-[star-url]: https://github.com/rewe-digital-incubator/Konversation/stargazers
+[star-img]: https://img.shields.io/github/stars/rewe-digital/Konversation.svg?style=social&label=Star&maxAge=3600
+[star-url]: https://github.com/rewe-digital/Konversation/stargazers
 [Homebrew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
-[releases]: https://github.com/rewe-digital-incubator/Konversation/releases
+[releases]: https://github.com/rewe-digital/Konversation/releases

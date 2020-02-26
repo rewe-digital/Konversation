@@ -2,4 +2,4 @@
 
 # toJson
 
-`fun toJson(writer: <ERROR CLASS>, value: `[`PartImpl`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-part-impl/index.md)`?): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)
+`fun toJson(writer: <ERROR CLASS>, value: `[`PartImpl`](https://github.com/rewe-digital/konversation/blob/master/docs/shared/org.rewedigital.konversation/-part-impl/index.md)`?): `[`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html)

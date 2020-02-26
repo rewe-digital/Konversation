@@ -69,7 +69,7 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[travis-image]: https://travis-ci.com/rewe-digital-incubator/Konversation.svg?branch=master
-[travis-url]: https://travis-ci.com/rewe-digital-incubator/Konversation
+[travis-image]: https://travis-ci.com/rewe-digital/Konversation.svg?branch=master
+[travis-url]: https://travis-ci.com/rewe-digital/Konversation
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT

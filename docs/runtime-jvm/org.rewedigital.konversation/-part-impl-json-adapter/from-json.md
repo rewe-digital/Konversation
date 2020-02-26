@@ -2,4 +2,4 @@
 
 # fromJson
 
-`fun fromJson(reader: <ERROR CLASS>): `[`PartImpl`](https://github.com/rewe-digital-incubator/konversation/blob/master/docs/shared/org.rewedigital.konversation/-part-impl/index.md)
+`fun fromJson(reader: <ERROR CLASS>): `[`PartImpl`](https://github.com/rewe-digital/konversation/blob/master/docs/shared/org.rewedigital.konversation/-part-impl/index.md)

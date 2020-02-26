@@ -23,8 +23,8 @@ dependencies {
 }
 
 pluginBundle {
-    website = 'https://rewe-digital-incubator.github.io/Konversation'
-    vcsUrl = 'https://github.com/rewe-digital-incubator/Konversation'
+    website = 'https://rewe-digital.github.io/Konversation'
+    vcsUrl = 'https://github.com/rewe-digital/Konversation'
 
     plugins {
         konversation {

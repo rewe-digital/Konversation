@@ -1,0 +1,21 @@
+{
+  "auth": {
+    "alexaRefreshToken": "sample-refresh-token",
+    "dialogflowServiceAccount": {
+      "path": "konversation.json"
+    }
+  },
+  "projects": {
+    "test": {
+      "alexa": {
+        "skillId": "amzn1.ask.skill.example"
+      },
+      "dialogflow": {
+        "projectId": "example-project"
+      },
+      "invocations": {
+        "de": "test"
+      }
+    }
+  }
+}

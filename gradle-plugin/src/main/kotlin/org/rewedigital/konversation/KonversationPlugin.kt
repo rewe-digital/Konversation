@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 package org.rewedigital.konversation
 
 import com.google.gson.Gson
@@ -58,7 +56,7 @@ open class KonversationPlugin : Plugin<Project> {
             }
         }
 
-        val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.yaml")
+        val settingsFile = searchFile(File(".").absoluteFile.parentFile, "konversation.json")
         val config = Gson().fromJson(settingsFile?.readText().orEmpty(), KonversationConfig::class.java)
         config.auth.alexaClientId = config.auth.alexaClientId ?: "Zmd3fiI4eGxvTkxLSlpYW1kXUiFxayogJjc7LHU9VFMCUlsVQUcfSEnCtsOnwrjDr8K2wqDCosKhw7jCrsKXw4bDgMKRwprCmMOTw5fDnMKD".cheapDecrypt()
         config.auth.alexaClientSecret = config.auth.alexaClientSecret ?: "PzJrJiYuL38rREMaHh8IUgFZDHJ6cnl+Lmsxb2hsBFQGUg8REkEdT0jCt8OgwrrCssOowqnCpMKnwqvCrcKXwprCkMOIw4/Cl8KAw5PCiMKNw5/DscO0".cheapDecrypt()

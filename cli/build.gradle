@@ -36,16 +36,15 @@ sourceSets {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    kotlinOptions.jvmTarget = '1.8'
 }
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = '1.8'
 }
 
 task fatJar(type: Jar) {
     manifest.attributes 'Main-Class': 'org.rewedigital.konversation.Cli'
-    archiveFileName = "konversation-fatjar.jar"
+    archiveFileName = 'konversation-fatjar.jar'
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     } {
@@ -99,6 +98,6 @@ task proguard() {
         new proguard.ProGuard(configuration).execute();
     }
 }
-proguard.dependsOn("fatJar")
+proguard.dependsOn('fatJar')
 
 test.finalizedBy(jacocoTestReport)

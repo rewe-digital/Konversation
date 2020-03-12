@@ -16,6 +16,8 @@ abstract class KonversationExtension(project: Project) : ExtensionAware {
     var attentionalNonExportedFiles = mutableListOf<String>()
     var ksonDir: String? = null
         get() = field ?: buildDir.path + "/konversation/res/"
+
+    // TODO add secrets to config to make the konversation.json file optional
     val projects: Map<String, GradleProject>
         get() = getExtension<NamedDomainObjectContainer<GradleProject>>("projects")?.map { it.name to it }?.toMap().orEmpty()
     var generateKson = true

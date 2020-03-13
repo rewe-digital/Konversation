@@ -380,6 +380,13 @@ class DialogflowExporterTest {
                   "affectedContexts": [],
                   "parameters": [
                     {
+                      "id": "820def1c-8a30-3de8-b9ed-9df3ba5c88f9",
+                      "dataType": "@TypeA",
+                      "name": "a",
+                      "value": "${'$'}a",
+                      "isList": false
+                    },
+                    {
                       "id": "9b59bc08-202e-319b-8f2a-61638dfaf1ce",
                       "dataType": "@TypeB",
                       "name": "b",
@@ -391,13 +398,6 @@ class DialogflowExporterTest {
                       "dataType": "@TypeC",
                       "name": "c",
                       "value": "${'$'}c",
-                      "isList": false
-                    },
-                    {
-                      "id": "820def1c-8a30-3de8-b9ed-9df3ba5c88f9",
-                      "dataType": "@TypeA",
-                      "name": "a",
-                      "value": "${'$'}a",
                       "isList": false
                     }
                   ],

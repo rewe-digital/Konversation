@@ -167,7 +167,7 @@ class DialogflowExporter(private val invocationName: String) : StreamExporter {
                 createSuggestion(intent.suggestions)),
             parameters = intent.utterances.flatMap { it.slotTypes }.toHashSet().map {
                 ResponseParameter(it, intent.annotations["ListParameters"]?.contains(it.substringBefore(':')) == true)
-            }))
+            }.sortedBy { it.name }))
 
     private fun createSuggestion(suggestions: List<String>): NodeExporter? =
         if (suggestions.isEmpty()) null else QuickReply(lang, suggestions)

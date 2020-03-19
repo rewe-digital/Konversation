@@ -433,7 +433,7 @@ open class Cli(
                     // look for a duplicate in the other intents
                     intents.forEach { other ->
                         // avoid double checks
-                        if (!skip.contains(other.name)) {
+                        if (!skip.contains(other.name) && !skip.contains("AMAZON." + other.name)) {
                             // we know here that there is a duplicate
                             other.utterances.forEach { otherUtterance ->
                                 // fetch the indices where the duplicate is

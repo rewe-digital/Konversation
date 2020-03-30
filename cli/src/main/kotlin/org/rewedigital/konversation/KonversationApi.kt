@@ -101,27 +101,7 @@ open class KonversationApi(
     fun exportAlexaSchema(targetFile: File, prettyPrint: Boolean = false) = intentDb.forEach { (config, intents) ->
         val exporter = AlexaExporter(requireNotNull(invocationName) { "invocation name was null" })
         val stream = targetFile.outputStream()
-        // Merge utterances which were defined in another intent, which should be merged based on the AlexaName annotation.
-        // Create copy of the intents so that we can manipulate the list without modifying the original data.
-        val alexaIntents = intents.toMutableList()
-        intents.groupingBy { it.annotations["AlexaName"]?.first() ?: it.name }.eachCount().filter { it.value > 1 }.forEach { (intent, _) ->
-            val all = intents.filter { (it.annotations["AlexaName"]?.first() ?: it.name) == intent }
-            all.first().let { master ->
-                // Here we found a duplicated intent which we need to merge now. Since we don't want to manipulate the original data,
-                // we need to replace the master by a copy of the master, we also want to modify the list of utterances, so we need
-                // to copy that field too.
-                alexaIntents.remove(master)
-                val alexaCopy = master.copy(utterances = master.utterances.toMutableList())
-                alexaIntents.add(alexaCopy)
-                // Skip the master of the list and merge the other utterances from the duplicates, then remove the duplicate from the
-                // intents to avoid that it is exported twice.
-                all.drop(1).forEach {
-                    alexaCopy.utterances += it.utterances
-                    alexaIntents.remove(it)
-                }
-            }
-        }
-        exportToStream(stream, prettyPrint, exporter, alexaIntents, config)
+        exportToStream(stream, prettyPrint, exporter, mergeAlexaIntents(intents), config)
     }
 
     private fun exportToStream(stream: FileOutputStream, prettyPrint: Boolean, exporter: Exporter, intents: List<Intent>, config: String) {
@@ -192,7 +172,7 @@ open class KonversationApi(
 
     fun updateAlexaSchema(skillId: String): String? =
         intentDb[""]?.let { intents ->
-            alexa.uploadSchema(requireNotNull(invocationName) { "invocationName must not be null" }, "de-DE", intents, entityDb[""], skillId)?.let { location ->
+            alexa.uploadSchema(requireNotNull(invocationName) { "invocationName must not be null" }, "de-DE", mergeAlexaIntents(intents), entityDb[""], skillId)?.let { location ->
                 var msg: String? = null
                 for (i in 0..600) {
                     Thread.sleep(1000)
@@ -214,6 +194,30 @@ open class KonversationApi(
     }
 
     private fun parseFile(file: File) = Parser(file)
+
+    private fun mergeAlexaIntents(intents: List<Intent>): List<Intent> {
+        // Merge utterances which were defined in another intent, which should be merged based on the AlexaName annotation.
+        // Create copy of the intents so that we can manipulate the list without modifying the original data.
+        val alexaIntents = intents.toMutableList()
+        intents.groupingBy { it.annotations["AlexaName"]?.first() ?: it.name }.eachCount().filter { it.value > 1 }.forEach { (intent, _) ->
+            val all = intents.filter { (it.annotations["AlexaName"]?.first() ?: it.name) == intent }
+            all.first().let { master ->
+                // Here we found a duplicated intent which we need to merge now. Since we don't want to manipulate the original data,
+                // we need to replace the master by a copy of the master, we also want to modify the list of utterances, so we need
+                // to copy that field too.
+                alexaIntents.remove(master)
+                val alexaCopy = master.copy(utterances = master.utterances.toMutableList())
+                alexaIntents.add(alexaCopy)
+                // Skip the master of the list and merge the other utterances from the duplicates, then remove the duplicate from the
+                // intents to avoid that it is exported twice.
+                all.drop(1).forEach {
+                    alexaCopy.utterances += it.utterances
+                    alexaIntents.remove(it)
+                }
+            }
+        }
+        return alexaIntents
+    }
 }
 
 internal fun String.latinize() = mapNotNull {

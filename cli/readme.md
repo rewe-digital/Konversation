@@ -1,4 +1,4 @@
-# Command line interface of Konversation [![Build Status][travis-image]][travis-url] ![Latest CLI version is 1.1.0][cli-ver-img] [![License: MIT][mit-image]][mit-url]
+# Command line interface of Konversation [![Build Status][travis-image]][travis-url] ![Latest CLI version is 2.0.0-beta1][cli-ver-img] [![License: MIT][mit-image]][mit-url]
 
 Konversation has its own command line interface, which you can use for generating the kson files for the runtime. You can use it for
 validate the syntax of the input files or to integrate it into your own build system. Keep in mind you can also use the
@@ -92,4 +92,4 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 [Homebrew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
 [releases]: https://github.com/rewe-digital/Konversation/releases
-[cli-ver-img]: https://img.shields.io/badge/cli-1.1.0-blue "Latest CLI version is 1.1.0"
+[cli-ver-img]: https://img.shields.io/badge/cli-2.0.0--beta1-blue "Latest CLI version is 2.0.0-beta1"

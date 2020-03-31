@@ -196,7 +196,7 @@ class GradleTest {
             """plugins {
                 id 'org.jetbrains.kotlin.jvm'
                 id 'kotlin'
-                id 'org.rewedigital.konversation' version '2.0.0-beta2'
+                id 'org.rewedigital.konversation' version '2.0.0-beta3'
             }
 """
     }

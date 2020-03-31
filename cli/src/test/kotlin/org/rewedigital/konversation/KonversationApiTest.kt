@@ -2,6 +2,7 @@ package org.rewedigital.konversation
 
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -39,7 +40,9 @@ class KonversationApiTest {
         sut.exportAlexaSchema(prettyFile, true)
         val outputs = dumpDir(outDir)
 
-        assertEquals("Fount unexpected output files", outputs, listOf(minifiedFile, prettyFile))
+        assertEquals("Got unexpected count of output files", 2, outputs.size)
+        assertTrue("Missing output file", outputs.contains(minifiedFile))
+        assertTrue("Missing output file", outputs.contains(prettyFile))
 
         val expectedMinified = File("${CliTest.resPath}/help-expected-alexa-result-minified.json").readUnixText()
         val actualMinified = minifiedFile.readUnixText()

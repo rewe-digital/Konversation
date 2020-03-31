@@ -72,9 +72,10 @@ run.main = 'org.rewedigital.konversation.Cli'
 
 test {
     testLogging {
-        events "passed", "skipped", "failed"
-        exceptionFormat "full"
+        events 'skipped', 'failed'
+        exceptionFormat 'full'
     }
+    finalizedBy(jacocoTestReport)
 }
 
 jacocoTestReport.reports {
@@ -84,7 +85,7 @@ jacocoTestReport.reports {
 
 task proguard() {
     doLast {
-        proguard.Configuration configuration = new proguard.Configuration();
+        proguard.Configuration configuration = new proguard.Configuration()
         // Parse the options specified in the command line arguments.
         String[] args = ["-injar",
                          "${project.buildDir}/libs/konversation-fatjar.jar",
@@ -92,13 +93,13 @@ task proguard() {
                          "${project.buildDir}/libs/konversation.jar",
                          "-libraryjars",
                          "${System.properties["java.home"]}/lib/rt.jar",
-                         "@${project.projectDir}/src/main/minify.pro"];
+                         "@${project.projectDir}/src/main/minify.pro"]
         def parser = new proguard.ConfigurationParser(args, System.getProperties())
         try {
-            parser.parse(configuration);
+            parser.parse(configuration)
         }
         finally {
-            parser.close();
+            parser.close()
         }
 
         // Execute ProGuard with these options.
@@ -106,5 +107,3 @@ task proguard() {
     }
 }
 proguard.dependsOn('fatJar')
-
-test.finalizedBy(jacocoTestReport)

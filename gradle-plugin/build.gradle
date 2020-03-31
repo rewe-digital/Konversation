@@ -62,3 +62,10 @@ jar {
     dependsOn configurations.embed
     from { configurations.embed.collect { zipTree(it) } }
 }
+
+test {
+    testLogging {
+        events 'skipped', 'failed'
+        exceptionFormat 'full'
+    }
+}

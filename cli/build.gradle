@@ -70,6 +70,13 @@ task fatJar(type: Jar) {
 mainClassName = 'org.rewedigital.konversation.Cli'
 run.main = 'org.rewedigital.konversation.Cli'
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
 jacocoTestReport.reports {
     xml.enabled true
     html.enabled true
